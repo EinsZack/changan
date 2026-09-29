@@ -1,0 +1,187 @@
+{
+  "started": 1790702691.140983,
+  "environment": "four processes on one server, real CPU inference, not vehicle acceptance",
+  "checks": [
+    {
+      "name": "four_real_worker_processes",
+      "passed": true,
+      "details": 4
+    },
+    {
+      "name": "three_baselines",
+      "passed": true,
+      "details": {
+        "single": 12.408033847808838,
+        "round_robin": 8.580181360244751,
+        "resource_aware": 6.800918102264404,
+        "counts_match": true
+      }
+    },
+    {
+      "name": "bounded_retry_with_new_attempts",
+      "passed": true,
+      "details": {
+        "attempts": 10,
+        "failed": 4
+      }
+    },
+    {
+      "name": "coordinator_restart_reconciliation",
+      "passed": true,
+      "details": "task_24cbbd387c194a6b"
+    },
+    {
+      "name": "worker_restart_retry",
+      "passed": true,
+      "details": "task_b5d220d4b0574626"
+    },
+    {
+      "name": "cancel_no_false_success",
+      "passed": true,
+      "details": "task_b52dd0acd7304227"
+    },
+    {
+      "name": "no_candidate_deadline",
+      "passed": true,
+      "details": "task_a5c9a424c4824e1e"
+    },
+    {
+      "name": "periodic_trigger_persistence",
+      "passed": true,
+      "details": "task_a375d9c355bd4fe4"
+    },
+    {
+      "name": "service_trigger_linkage",
+      "passed": true,
+      "details": "task_e187210912414f1d"
+    },
+    {
+      "name": "five_actual_capabilities",
+      "passed": true,
+      "details": {
+        "api": "SUCCEEDED",
+        "redis": "SUCCEEDED",
+        "script": "SUCCEEDED",
+        "algorithm": "SUCCEEDED",
+        "platform": "SUCCEEDED"
+      }
+    },
+    {
+      "name": "registered_api_connector",
+      "passed": true,
+      "details": "connector_c984421ca84a446d"
+    },
+    {
+      "name": "audit_export",
+      "passed": true,
+      "details": {
+        "events": 41,
+        "attempts": 6
+      }
+    }
+  ],
+  "runs": [
+    {
+      "id": "task_23e108ad0e4b4776",
+      "name": "验证 · 单执行器基线",
+      "status": "SUCCEEDED",
+      "created": 1790702691.1848834,
+      "finished": 1790702703.5982766,
+      "total": 6,
+      "completed": 6,
+      "error": null
+    },
+    {
+      "id": "task_f3f0ff0a26354103",
+      "name": "验证 · 四执行器轮询",
+      "status": "SUCCEEDED",
+      "created": 1790702703.7020822,
+      "finished": 1790702712.285433,
+      "total": 6,
+      "completed": 6,
+      "error": null
+    },
+    {
+      "id": "task_9724c5af393341ae",
+      "name": "验证 · 四执行器资源感知",
+      "status": "SUCCEEDED",
+      "created": 1790702712.4451873,
+      "finished": 1790702719.249385,
+      "total": 6,
+      "completed": 6,
+      "error": null
+    },
+    {
+      "id": "task_313aa6b0f8b449cb",
+      "name": "验证 · 受控失败后重试",
+      "status": "SUCCEEDED",
+      "created": 1790702719.3614852,
+      "finished": 1790702724.5339234,
+      "total": 6,
+      "completed": 6,
+      "error": null
+    },
+    {
+      "id": "task_24cbbd387c194a6b",
+      "name": "验证 · 管理服务重启恢复",
+      "status": "SUCCEEDED",
+      "created": 1790702726.3944612,
+      "finished": 1790702737.0794742,
+      "total": 6,
+      "completed": 6,
+      "error": null
+    },
+    {
+      "id": "task_b5d220d4b0574626",
+      "name": "验证 · 执行器进程重启",
+      "status": "SUCCEEDED",
+      "created": 1790702737.3309548,
+      "finished": 1790702770.0302718,
+      "total": 6,
+      "completed": 6,
+      "error": null
+    },
+    {
+      "id": "task_b52dd0acd7304227",
+      "name": "验证 · 运行中取消",
+      "status": "CANCELED",
+      "created": 1790702770.2361562,
+      "finished": 1790702772.0164027,
+      "total": 6,
+      "completed": 0,
+      "error": "用户取消"
+    },
+    {
+      "id": "task_a5c9a424c4824e1e",
+      "name": "验证 · 无候选节点超时",
+      "status": "TIMED_OUT",
+      "created": 1790702772.2231348,
+      "finished": 1790702782.5864396,
+      "total": 6,
+      "completed": 0,
+      "error": "任务截止时限已到"
+    },
+    {
+      "id": "task_a375d9c355bd4fe4",
+      "name": "验证 · 周期自动运行",
+      "status": "SUCCEEDED",
+      "created": 1790702799.7149155,
+      "finished": 1790702806.9345791,
+      "total": 6,
+      "completed": 6,
+      "error": null
+    },
+    {
+      "id": "task_e187210912414f1d",
+      "name": "服务触发视频分析",
+      "status": "SUCCEEDED",
+      "created": 1790702807.1886926,
+      "finished": 1790702811.0719695,
+      "total": 6,
+      "completed": 6,
+      "error": null
+    }
+  ],
+  "finished": 1790702811.2689157,
+  "passed": true
+}

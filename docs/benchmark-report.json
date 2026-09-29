@@ -1,0 +1,172 @@
+{
+  "at": 1790703226.510587,
+  "scope": "同一服务器，CPU ONNX，固定24秒视频，2fps，4秒片段，阈值0.35，各三次顺序执行；不含车端网络且不代表验收性能",
+  "runs": [
+    {
+      "round": 1,
+      "name": "单执行器",
+      "id": "task_49390a52083d4958",
+      "elapsed_seconds": 12.139587640762329,
+      "counts": {
+        "person": 299,
+        "bicycle": 0,
+        "car": 48,
+        "motorcycle": 0,
+        "bus": 0,
+        "truck": 48
+      },
+      "sha256": "e61fdd9e19f04d903e180204a7d0e54e0a0bef79b479123619117e299d1a13fb",
+      "sampled_frames": 48
+    },
+    {
+      "round": 1,
+      "name": "四执行器轮询",
+      "id": "task_41ba952620484e9a",
+      "elapsed_seconds": 6.623285293579102,
+      "counts": {
+        "person": 299,
+        "bicycle": 0,
+        "car": 48,
+        "motorcycle": 0,
+        "bus": 0,
+        "truck": 48
+      },
+      "sha256": "e61fdd9e19f04d903e180204a7d0e54e0a0bef79b479123619117e299d1a13fb",
+      "sampled_frames": 48
+    },
+    {
+      "round": 1,
+      "name": "四执行器资源感知",
+      "id": "task_14b0f67b851b47fd",
+      "elapsed_seconds": 7.194098949432373,
+      "counts": {
+        "person": 299,
+        "bicycle": 0,
+        "car": 48,
+        "motorcycle": 0,
+        "bus": 0,
+        "truck": 48
+      },
+      "sha256": "e61fdd9e19f04d903e180204a7d0e54e0a0bef79b479123619117e299d1a13fb",
+      "sampled_frames": 48
+    },
+    {
+      "round": 2,
+      "name": "单执行器",
+      "id": "task_0fb5626797a4453b",
+      "elapsed_seconds": 9.766953706741333,
+      "counts": {
+        "person": 299,
+        "bicycle": 0,
+        "car": 48,
+        "motorcycle": 0,
+        "bus": 0,
+        "truck": 48
+      },
+      "sha256": "e61fdd9e19f04d903e180204a7d0e54e0a0bef79b479123619117e299d1a13fb",
+      "sampled_frames": 48
+    },
+    {
+      "round": 2,
+      "name": "四执行器轮询",
+      "id": "task_93f818708a184956",
+      "elapsed_seconds": 6.019981861114502,
+      "counts": {
+        "person": 299,
+        "bicycle": 0,
+        "car": 48,
+        "motorcycle": 0,
+        "bus": 0,
+        "truck": 48
+      },
+      "sha256": "e61fdd9e19f04d903e180204a7d0e54e0a0bef79b479123619117e299d1a13fb",
+      "sampled_frames": 48
+    },
+    {
+      "round": 2,
+      "name": "四执行器资源感知",
+      "id": "task_5017292325a34606",
+      "elapsed_seconds": 8.118288040161133,
+      "counts": {
+        "person": 299,
+        "bicycle": 0,
+        "car": 48,
+        "motorcycle": 0,
+        "bus": 0,
+        "truck": 48
+      },
+      "sha256": "e61fdd9e19f04d903e180204a7d0e54e0a0bef79b479123619117e299d1a13fb",
+      "sampled_frames": 48
+    },
+    {
+      "round": 3,
+      "name": "单执行器",
+      "id": "task_4bf18d619de14ac3",
+      "elapsed_seconds": 14.566608428955078,
+      "counts": {
+        "person": 299,
+        "bicycle": 0,
+        "car": 48,
+        "motorcycle": 0,
+        "bus": 0,
+        "truck": 48
+      },
+      "sha256": "e61fdd9e19f04d903e180204a7d0e54e0a0bef79b479123619117e299d1a13fb",
+      "sampled_frames": 48
+    },
+    {
+      "round": 3,
+      "name": "四执行器轮询",
+      "id": "task_311e7ec89d95467f",
+      "elapsed_seconds": 6.318424701690674,
+      "counts": {
+        "person": 299,
+        "bicycle": 0,
+        "car": 48,
+        "motorcycle": 0,
+        "bus": 0,
+        "truck": 48
+      },
+      "sha256": "e61fdd9e19f04d903e180204a7d0e54e0a0bef79b479123619117e299d1a13fb",
+      "sampled_frames": 48
+    },
+    {
+      "round": 3,
+      "name": "四执行器资源感知",
+      "id": "task_59c88fb8f8b84e7e",
+      "elapsed_seconds": 7.033835411071777,
+      "counts": {
+        "person": 299,
+        "bicycle": 0,
+        "car": 48,
+        "motorcycle": 0,
+        "bus": 0,
+        "truck": 48
+      },
+      "sha256": "e61fdd9e19f04d903e180204a7d0e54e0a0bef79b479123619117e299d1a13fb",
+      "sampled_frames": 48
+    }
+  ],
+  "summary": {
+    "单执行器": {
+      "n": 3,
+      "mean_seconds": 12.157716592152914,
+      "min_seconds": 9.766953706741333,
+      "max_seconds": 14.566608428955078
+    },
+    "四执行器轮询": {
+      "n": 3,
+      "mean_seconds": 6.320563952128093,
+      "min_seconds": 6.019981861114502,
+      "max_seconds": 6.623285293579102
+    },
+    "四执行器资源感知": {
+      "n": 3,
+      "mean_seconds": 7.448740800221761,
+      "min_seconds": 7.033835411071777,
+      "max_seconds": 8.118288040161133
+    }
+  },
+  "identical_counts": true,
+  "identical_input": true
+}

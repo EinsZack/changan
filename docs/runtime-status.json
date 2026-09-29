@@ -1,0 +1,18 @@
+{
+  "checked_at": 1790704276.7728202,
+  "scope": "server_process",
+  "health": {
+    "status": "ok",
+    "service": "changan-orchestrator",
+    "version": "0.1.0",
+    "time": 1790704276.7736948
+  },
+  "totals": {
+    "CANCELED": 2,
+    "SUCCEEDED": 38,
+    "TIMED_OUT": 2
+  },
+  "healthy_nodes": 4,
+  "in_flight": 0,
+  "enabled_periodic_strategies": 0
+}

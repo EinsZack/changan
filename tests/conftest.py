@@ -1,0 +1,11 @@
+import os,tempfile
+os.environ['CHANGAN_DATA_DIR']=tempfile.mkdtemp(prefix='changan-tests-')
+import pytest
+from app import db
+@pytest.fixture(autouse=True)
+def fresh_db():
+    db.init()
+    yield
+    with db.connect() as c:
+        for table in ['events','attempts','segments','tasks','strategies']:
+            c.execute('DELETE FROM '+table)

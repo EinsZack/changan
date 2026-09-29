@@ -1,0 +1,57 @@
+# 车群任务编排调度与协同执行
+
+面向中期展示的可运行视频任务原型。管理服务接收视频、切分任务、读取资源快照并调度，独立执行器完成真实ONNX目标检测，回传事件并聚合结果。网页可查看工作流、调度依据、执行时间轴、识别结果、触发策略和历史对比。
+
+当前默认环境是同一开发服务器上的4个执行器进程，明确标为server_process；真实车端和正式资源池联调尚未完成。
+
+## 快速进入
+
+代码主目录：`/root/projects/changan-orchestrator`，SSH：`ssh -p 22031 root@10.13.0.9`。
+
+```bash
+cd /root/projects/changan-orchestrator
+source /root/miniforge3/etc/profile.d/conda.sh
+conda activate changan-orchestrator
+python scripts/manage.py start
+```
+
+电脑端建立隧道：
+
+```bash
+ssh -N -L 127.0.0.1:8310:127.0.0.1:8310 -p 22031 root@10.13.0.9
+```
+
+访问 <http://127.0.0.1:8310>。API文档：<http://127.0.0.1:8310/docs>。
+
+## 文档
+
+- [开发计划与实施记录](docs/开发计划.md)
+- [交付物说明](docs/交付物说明.md)
+- [使用说明](docs/使用说明.md)
+- [接口与联调说明](docs/接口与联调说明.md)
+- [测试与验证](docs/测试与验证.md)
+- [演示脚本](docs/演示脚本.md)
+- [第三方组件与素材](docs/第三方组件与素材.md)
+
+## 代码与验证
+
+| 目录 | 内容 |
+|---|---|
+| app/ | API、持久化、编排调度、资源池适配、连接器与视频切分 |
+| workers/ | HTTP执行器、状态持久化、ONNX推理及预览产物 |
+| web/ | React界面、构建及浏览器测试 |
+| scripts/ | 启停、资产准备、环境复现、集成测试和基线测试 |
+| tests/ | 状态机、接口、幂等、调度与契约测试 |
+| configs/ | systemd及环境配置示例 |
+| docs/ | 开发计划、交付文档、原始测试记录和截图 |
+
+```bash
+python -m pytest -q
+python scripts/integration.py
+python scripts/benchmark.py
+cd web && npm run build && npx playwright test
+```
+
+集成测试会真实创建任务和重启本项目进程，运行前应确保无其他在途工作。请勿将一次成功演示或服务器基线结果写为真实车端验收通过。
+
+本仓库后续代码开发均在服务器完成；进展记录在开发计划，不再维护接手文档作为开发日志。

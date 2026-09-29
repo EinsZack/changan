@@ -1,0 +1,5 @@
+{
+  "assets/models/yolox_tiny.onnx": "427cc366d34e27ff7a03e2899b5e3671425c262ea2291f88bb942bc1cc70b0f7",
+  "assets/samples/vtest.avi": "45cddc9490be69345cbdab64ca583be65987e864ca408038e648db99e10516cf",
+  "vendor/redis-7.2.7.tar.gz": "72c081e3b8cfae7144273d26d76736f08319000af46c01515cad5d29765cead5"
+}

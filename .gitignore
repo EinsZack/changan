@@ -1,0 +1,45 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+# Generated assets and dependencies
+node_modules/
+dist/
+build/
+# Local data and runtime outputs
+/data/
+/models/
+/runs/
+/logs/
+/tmp/
+*.log
+# Local credentials
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+# Editor and OS files
+.DS_Store
+.idea/
+/assets/models/*
+/assets/samples/*
+!/assets/models/.gitkeep
+!/assets/samples/.gitkeep
+/web/dist/
+/docs/screenshots/
+/vendor/
+/playwright-report/
+/test-results/
+
+/releases/
+/web/test-results/
+/web/playwright-report/
+/docs/recordings/

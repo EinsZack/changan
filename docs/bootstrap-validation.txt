@@ -1,0 +1,18 @@
+2026-09-30，在已有项目环境复跑安装脚本成功。
+修复requirements.lock.txt的Conda本地构建路径，采用packaging==26.3。
+模型、原视频和Redis源码SHA256校验通过；准备视频校验值与测试输入一致。
+Python依赖：No broken requirements found.
+
+前端构建结果：
+
+vite v6.4.3 building for production...
+transforming...
+✓ 1573 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   0.39 kB │ gzip:  0.32 kB
+dist/assets/index-Dkx_Tucc.css   19.35 kB │ gzip:  5.17 kB
+dist/assets/index-DimaQAu3.js   275.75 kB │ gzip: 84.40 kB
+✓ built in 2.35s
+依赖与界面准备完成。启动：/root/miniforge3/envs/changan-orchestrator/bin/python scripts/manage.py start
+此验证复用了现有资产、Redis二进制和Conda环境，不是全新机器离线重装验收。

@@ -1,0 +1,22 @@
+{
+  "video": {
+    "path": "assets/samples/demo.mp4",
+    "source": "https://github.com/opencv/opencv/blob/master/samples/data/vtest.avi",
+    "note": "OpenCV仓库测试视频的前24秒，测试用途；商用或对外交付素材使用权需由项目确认",
+    "metadata": {
+      "fps": 10.0,
+      "frames": 240,
+      "duration": 24.0,
+      "width": 768,
+      "height": 576,
+      "bytes": 3273064,
+      "sha256": "e61fdd9e19f04d903e180204a7d0e54e0a0bef79b479123619117e299d1a13fb"
+    }
+  },
+  "model": {
+    "path": "assets/models/yolox_tiny.onnx",
+    "source": "https://github.com/Megvii-BaseDetection/YOLOX/releases/download/0.1.1rc0/yolox_tiny.onnx",
+    "license": "Apache-2.0",
+    "sha256": "427cc366d34e27ff7a03e2899b5e3671425c262ea2291f88bb942bc1cc70b0f7"
+  }
+}
