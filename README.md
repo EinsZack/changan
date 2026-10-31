@@ -55,3 +55,11 @@ cd web && npm run build && npx playwright test
 集成测试会真实创建任务和重启本项目进程，运行前应确保无其他在途工作。请勿将一次成功演示或服务器基线结果写为真实车端验收通过。
 
 本仓库后续代码开发均在服务器完成；进展记录在开发计划，不再维护接手文档作为开发日志。
+
+## 代码仓库与协作
+
+GitHub 仓库：<https://github.com/EinsZack/changan>。服务器上的本目录是开发工作区，`main` 分支保存已验证版本。
+
+开始工作前检查 `git status` 并执行 `git pull --ff-only`；按功能提交源码、必要测试及使用文档，验证后推送。提交说明和具体流程见 [CONTRIBUTING.md](CONTRIBUTING.md)。
+
+模型与视频按 `assets/manifest.json` 和校验值准备；运行数据库、上传文件、凭据、依赖目录和构建产物不入库。仓库中的旧测试报告保留各自生成日期，不代表当前版本已复测。

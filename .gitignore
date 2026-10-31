@@ -43,3 +43,6 @@ build/
 /web/test-results/
 /web/playwright-report/
 /docs/recordings/
+*.sqlite
+*.sqlite-*
+*.db
