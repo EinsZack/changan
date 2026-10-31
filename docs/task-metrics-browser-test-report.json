@@ -1,0 +1,228 @@
+{
+  "config": {
+    "argv": [
+      "/usr/bin/node",
+      "/root/projects/changan-orchestrator/web/node_modules/.bin/playwright",
+      "test",
+      "-c",
+      "playwright.metrics.config.js"
+    ],
+    "configFile": "/root/projects/changan-orchestrator/web/playwright.metrics.config.js",
+    "rootDir": "/root/projects/changan-orchestrator/web/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/root/projects/changan-orchestrator/web/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/root/projects/changan-orchestrator/web/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "metrics.spec.js"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "../docs/task-metrics-browser-test-report.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 1,
+    "webServer": {
+      "command": "npx vite preview --host 127.0.0.1 --port 18311 --strictPort --outDir ../tmp/task-metrics-web-dist",
+      "url": "http://127.0.0.1:18311",
+      "timeout": 30000,
+      "reuseExistingServer": false
+    }
+  },
+  "suites": [
+    {
+      "title": "metrics.spec.js",
+      "file": "metrics.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "shows weighted task measurements and separate historical network observations",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2365,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T10:45:30.465Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3b02897063e877fa3a8a-563cffd59ae82e5e4e28",
+          "file": "metrics.spec.js",
+          "line": 51,
+          "column": 1
+        },
+        {
+          "title": "shows missing measures and no allocation without inventing zero rates",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 982,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T10:45:32.960Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3b02897063e877fa3a8a-282047d61ba31ae68d02",
+          "file": "metrics.spec.js",
+          "line": 79,
+          "column": 1
+        },
+        {
+          "title": "refreshes partial results while keeping metrics scoped to effective attempts",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2708,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T10:45:33.980Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3b02897063e877fa3a8a-5972bb1ec0dc9d9beff1",
+          "file": "metrics.spec.js",
+          "line": 94,
+          "column": 1
+        },
+        {
+          "title": "keeps narrow screens usable with scrolling tables and visible units",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 951,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T10:45:36.724Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3b02897063e877fa3a8a-b6825940653bda519ae1",
+          "file": "metrics.spec.js",
+          "line": 112,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-31T10:45:29.020Z",
+    "duration": 8782.988,
+    "expected": 4,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}
