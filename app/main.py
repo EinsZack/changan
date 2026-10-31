@@ -7,6 +7,7 @@ from fastapi.staticfiles import StaticFiles
 from .config import DATA, ROOT, TOKEN, API_KEY, TERMINAL
 from . import db
 from .engine import Engine
+from .alerts import router as alerts_router
 from .schemas import TaskInput,NodeInput,StrategyInput
 from .capabilities import run_capabilities, connector_call, redact
 engine=Engine()
@@ -19,7 +20,8 @@ async def lifespan(app):
     try: await loop
     except asyncio.CancelledError: pass
     await engine.close()
-app=FastAPI(title='车群协同任务编排 API',version='0.1.0',lifespan=lifespan)
+app=FastAPI(title='车群协同任务编排 API',version='0.2.0',lifespan=lifespan)
+app.include_router(alerts_router)
 def browser_session():
     return hmac.new(API_KEY.encode(),b'changan-browser-session-v1',hashlib.sha256).hexdigest()
 @app.post('/api/session')
@@ -40,7 +42,7 @@ async def access(request:Request,call_next):
 def internal(x_internal_token:str=Header(default='')):
     if not secrets.compare_digest(x_internal_token,TOKEN): raise HTTPException(401,'内部认证失败')
 @app.get('/health')
-def health(): return {'status':'ok','service':'changan-orchestrator','version':'0.1.0','time':time.time()}
+def health(): return {'status':'ok','service':'changan-orchestrator','version':'0.2.0','time':time.time()}
 @app.get('/api/overview')
 def overview():
     totals=db.query('SELECT status,count(*) n FROM tasks GROUP BY status')
@@ -226,4 +228,5 @@ def delivery(name:str):
     path=ROOT/'releases'/name
     if not path.is_file():raise HTTPException(404)
     return FileResponse(path,filename=name)
-if (ROOT/'web/dist').exists():app.mount('/',StaticFiles(directory=ROOT/'web/dist',html=True),name='web')
+web_directory=Path(os.getenv('CHANGAN_WEB_DIR',str(ROOT/'web/dist')))
+if web_directory.exists():app.mount('/',StaticFiles(directory=web_directory,html=True),name='web')

@@ -4,6 +4,7 @@ import httpx
 from . import db, video
 from .config import DATA, ROOT, TOKEN, MODEL_ID, TERMINAL
 from .scheduler import choose
+from .alerts import record_terminal
 from .resource_provider import ResourceProvider
 log=logging.getLogger('changan.engine')
 class Engine:
@@ -64,6 +65,7 @@ class Engine:
             if changed:
                 c.execute("UPDATE segments SET status=? WHERE task_id=? AND status NOT IN ('SUCCEEDED','FAILED','CANCELED','TIMED_OUT')",(state,id))
                 db.event(id,'task_terminal',{'stage':'complete','state':state,'message':error},conn=c)
+                record_terminal(c,id,state,error,now)
     async def refresh(self):
         nodes=db.query('SELECT * FROM nodes')
         pool_snapshots=None

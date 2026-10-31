@@ -1,0 +1,52 @@
+{
+  "date": "2026-10-31T18:19:49.368375+08:00",
+  "environment": "开发服务器运行环境；四个同机进程执行器",
+  "health": {
+    "status": "ok",
+    "service": "changan-orchestrator",
+    "version": "0.2.0",
+    "time": 1793441989.3727152
+  },
+  "normal": {
+    "task_id": "task_7202f531f3264c7b",
+    "status": "SUCCEEDED",
+    "completed": 6,
+    "total": 6,
+    "sampled_frames": 48,
+    "elapsed_seconds": 7.764538764953613,
+    "alerts": 0
+  },
+  "timeout": {
+    "task_id": "task_b5f131a93b9742bc",
+    "status": "TIMED_OUT",
+    "completed": 0,
+    "total": 6,
+    "elapsed_seconds": 10.209434270858765,
+    "reason": "任务截止时限已到"
+  },
+  "alert": {
+    "id": "alert_9bc4f1337d864ba5",
+    "task_id": "task_b5f131a93b9742bc",
+    "rule": "task_timeout",
+    "severity": "warning",
+    "title": "任务超期",
+    "message": "任务截止时限已到",
+    "created": 1793442007.5416288,
+    "deadline_at": 1793442007.3321946,
+    "completed": 0,
+    "total": 6,
+    "read_at": 1793442007.7001941,
+    "acknowledged_at": 1793442007.7684178,
+    "task_name": "站内告警部署验证 · 无候选超时",
+    "task_status": "TIMED_OUT"
+  },
+  "checks": {
+    "success_does_not_alert": true,
+    "timeout_alert_once": true,
+    "mark_read": true,
+    "acknowledge": true,
+    "task_remains_timed_out": true,
+    "restart_preserves_alert_and_acknowledgement": true
+  },
+  "verified_at": 1793442072.6026192
+}
