@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "车群协同任务编排 API",
-    "version": "0.3.0"
+    "version": "0.3.1"
   },
   "paths": {
     "/api/alerts/rules": {
@@ -1845,7 +1845,6 @@
           },
           "min_memory_mb": {
             "type": "integer",
-            "maximum": 65536.0,
             "minimum": 64.0,
             "title": "Min Memory Mb",
             "default": 256

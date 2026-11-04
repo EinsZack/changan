@@ -1,0 +1,125 @@
+{
+  "backend_tests": 47,
+  "frontend_tests": 6,
+  "build": "passed",
+  "browser": {
+    "date": "2026-11-04",
+    "environment": "isolated server processes",
+    "records": [
+      {
+        "required": 131072,
+        "status": 200,
+        "eligible": 4,
+        "nodes": [
+          {
+            "id": "lab-1",
+            "available": 801934,
+            "reasons": []
+          },
+          {
+            "id": "lab-2",
+            "available": 801941,
+            "reasons": []
+          },
+          {
+            "id": "lab-3",
+            "available": 801938,
+            "reasons": []
+          },
+          {
+            "id": "lab-4",
+            "available": 801936,
+            "reasons": []
+          }
+        ]
+      },
+      {
+        "required": 999999,
+        "status": 200,
+        "eligible": 0,
+        "nodes": [
+          {
+            "id": "lab-1",
+            "available": 801934,
+            "reasons": [
+              "可用内存不足"
+            ]
+          },
+          {
+            "id": "lab-2",
+            "available": 801941,
+            "reasons": [
+              "可用内存不足"
+            ]
+          },
+          {
+            "id": "lab-3",
+            "available": 801938,
+            "reasons": [
+              "可用内存不足"
+            ]
+          },
+          {
+            "id": "lab-4",
+            "available": 801936,
+            "reasons": [
+              "可用内存不足"
+            ]
+          }
+        ]
+      }
+    ],
+    "new_task": {
+      "id": "task_17437ff9726d424b",
+      "min_memory_mb": 131072,
+      "status": "SUCCEEDED",
+      "frames": 48
+    },
+    "invalid_input_checks": [
+      "63 rejected",
+      "empty rejected"
+    ],
+    "browser_errors": []
+  },
+  "deployment": {
+    "version": "0.3.1",
+    "status": 200,
+    "required_memory_mib": 999999,
+    "candidates": [
+      {
+        "id": "lab-1",
+        "eligible": false,
+        "available_memory_mib": 802565,
+        "reasons": [
+          "可用内存不足"
+        ]
+      },
+      {
+        "id": "lab-2",
+        "eligible": false,
+        "available_memory_mib": 802563,
+        "reasons": [
+          "可用内存不足"
+        ]
+      },
+      {
+        "id": "lab-3",
+        "eligible": false,
+        "available_memory_mib": 802563,
+        "reasons": [
+          "可用内存不足"
+        ]
+      },
+      {
+        "id": "lab-4",
+        "eligible": false,
+        "available_memory_mib": 802564,
+        "reasons": [
+          "节点已停用",
+          "可用内存不足"
+        ]
+      }
+    ]
+  },
+  "deployed_browser_999999_passed": true
+}
