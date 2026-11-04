@@ -35,6 +35,8 @@ CREATE TABLE IF NOT EXISTS attempts(id TEXT PRIMARY KEY,task_id TEXT NOT NULL,se
 CREATE TABLE IF NOT EXISTS events(id INTEGER PRIMARY KEY AUTOINCREMENT,task_id TEXT NOT NULL,attempt_id TEXT,type TEXT NOT NULL,at REAL NOT NULL,payload TEXT NOT NULL);
 CREATE INDEX IF NOT EXISTS events_task ON events(task_id,id);
 CREATE TABLE IF NOT EXISTS nodes(id TEXT PRIMARY KEY,endpoint TEXT NOT NULL,cluster_id TEXT NOT NULL,kind TEXT NOT NULL,enabled INTEGER DEFAULT 1,observed REAL,snapshot TEXT,error TEXT);
+CREATE TABLE IF NOT EXISTS node_incidents(id TEXT PRIMARY KEY,node_id TEXT NOT NULL,detected_at REAL NOT NULL,last_seen_at REAL,reason TEXT NOT NULL,affected TEXT NOT NULL,link_restored_at REAL,task_reconciled_at REAL);
+CREATE UNIQUE INDEX IF NOT EXISTS one_open_node_incident ON node_incidents(node_id) WHERE link_restored_at IS NULL;
 CREATE TABLE IF NOT EXISTS alerts(id TEXT PRIMARY KEY,task_id TEXT NOT NULL UNIQUE REFERENCES tasks(id),rule TEXT NOT NULL,severity TEXT NOT NULL,title TEXT NOT NULL,message TEXT NOT NULL,created REAL NOT NULL,deadline_at REAL NOT NULL,completed INTEGER NOT NULL,total INTEGER NOT NULL,read_at REAL,acknowledged_at REAL);
 CREATE INDEX IF NOT EXISTS alerts_status_created ON alerts(acknowledged_at,created DESC);
 CREATE TABLE IF NOT EXISTS strategies(id TEXT PRIMARY KEY,name TEXT NOT NULL,kind TEXT NOT NULL,interval_seconds INTEGER,enabled INTEGER DEFAULT 1,params TEXT NOT NULL,next_run REAL,last_run REAL,created REAL NOT NULL);

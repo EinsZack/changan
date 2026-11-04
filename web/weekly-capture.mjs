@@ -1,0 +1,18 @@
+import {chromium,expect} from '@playwright/test';
+import fs from 'node:fs';
+const out='../tmp/weekly-20261104/evidence';
+const normal=JSON.parse(fs.readFileSync(out+'/正常任务.json'));
+const browser=await chromium.launch();const page=await browser.newPage({viewport:{width:1500,height:1050},deviceScaleFactor:2,timezoneId:'Asia/Shanghai'});const errors=[];page.on('pageerror',e=>errors.push(e.message));
+const base='http://127.0.0.1:18410';
+await page.goto(base+'/?page=candidates');await expect(page.locator('.weekly')).toContainText('4 / 4 个节点满足要求');await expect(page.locator('.weekly')).toContainText('MiB');await page.locator('.weekly').screenshot({path:out+'/25-候选筛选.png'});
+await page.getByLabel('必要标签',{exact:true}).fill('gpu');await page.getByRole('button',{name:'筛选候选节点',exact:true}).click();await expect(page.locator('.weekly')).toContainText('0 / 4 个节点满足要求');await page.locator('.weekly').screenshot({path:out+'/25-标签排除.png'});
+await page.goto(base+'/?page=detail&task='+normal.id+'&tab=dispatch');await expect(page.getByRole('heading',{name:'任务下发请求与确认回传'})).toBeVisible();await page.getByText('下发输入与确认输出字段',{exact:true}).click();await expect(page.locator('.weekly-contract')).toContainText(normal.id);await page.locator('.weekly-contract').screenshot({path:out+'/26-输入输出字段.png'});
+await page.goto(base+'/?page=incidents');await expect(page.locator('.incident-record').first()).toContainText('已完成');await page.locator('.incident-record').first().screenshot({path:out+'/27-恢复核对单条.png'});
+await page.goto(base+'/?page=detail&task='+normal.id+'&tab=video');await expect(page.getByRole('heading',{name:'已生成 4 个视频片段'})).toBeVisible();await page.getByRole('button',{name:'播放片段 4',exact:true}).click();
+await expect.poll(()=>page.locator('.weekly-videos video').nth(1).evaluate(v=>v.duration)).toBe(3);
+await page.locator('.weekly-videos video').evaluateAll(vs=>Promise.all(vs.map(async v=>{v.muted=true;await v.play()})));
+await expect.poll(()=>page.locator('.weekly-videos video').nth(1).evaluate(v=>v.currentTime)).toBeGreaterThan(0);
+await page.locator('.weekly-videos video').evaluateAll(vs=>vs.forEach(v=>v.pause()));
+await page.locator('.weekly section').first().screenshot({path:out+'/28-双视频回放.png'});
+await page.locator('.weekly section').nth(1).screenshot({path:out+'/28-片段清单.png'});
+expect(errors).toEqual([]);console.log('updated screenshots and UI checks passed');await browser.close();

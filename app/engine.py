@@ -6,6 +6,7 @@ from .config import DATA, ROOT, TOKEN, MODEL_ID, TERMINAL
 from .scheduler import choose
 from .alerts import record_terminal
 from .resource_provider import ResourceProvider
+from .incidents import observe_node, reconcile_observation
 log=logging.getLogger('changan.engine')
 class Engine:
     def __init__(self):
@@ -73,7 +74,9 @@ class Engine:
             try: pool_snapshots=await self.resource_provider.snapshots()
             except Exception:
                 # Never silently substitute worker readings when the authoritative pool is unavailable.
-                for n in nodes: db.execute('UPDATE nodes SET observed=0,error=? WHERE id=?',('资源池快照不可用',n['id']))
+                for n in nodes:
+                    db.execute('UPDATE nodes SET error=? WHERE id=?',('资源池快照不可用',n['id']))
+                    observe_node(n,False,'资源池快照不可用')
                 return
         async def fetch(n):
             start=time.monotonic()
@@ -85,14 +88,16 @@ class Engine:
                     authority=pool_snapshots.get(n['id'])
                     if not authority:raise ValueError('节点不在资源池快照中')
                     if authority['node_id']!=snapshot['node_id']:raise ValueError('资源池与执行器标识不一致')
-                    for key in ['available_memory_mb','bandwidth_mbps','network_source','tags','snapshot_version','architecture','location']:
+                    for key in ['available_memory_mb','bandwidth_mbps','network_source','tags','snapshot_version','architecture','location','capacity','active','input_reachable']:
                         if key in authority:snapshot[key]=authority[key]
                     snapshot['healthy']=snapshot['healthy'] and authority.get('healthy',False)
                     snapshot['resource_source']='external_pool'
                     observed=min(observed,float(authority['observed_at']))
                 db.execute('UPDATE nodes SET snapshot=?,observed=?,error=NULL WHERE id=?',(db.dumps(snapshot),observed,n['id']))
+                observe_node(n,time.time()-observed<8,'资源池快照过期')
             except Exception as e:
                 db.execute('UPDATE nodes SET error=? WHERE id=?',(type(e).__name__,n['id']))
+                observe_node(n,False,type(e).__name__)
         await asyncio.gather(*(fetch(n) for n in nodes))
     def nodes(self):
         nodes=db.query('SELECT * FROM nodes')
@@ -132,11 +137,16 @@ class Engine:
             db.event(task['id'],'decision',{'stage':'schedule','state':'SUCCEEDED','decision':decision},aid,c)
         node=db.query('SELECT * FROM nodes WHERE id=?',(decision['target_node'],),one=True)
         payload={'task_id':task['id'],'segment_id':segment['id'],'attempt_id':aid,'token':token,'target_node':node['id'],'input_url':self.base+f"/internal/segments/{segment['id']}",'input_sha256':hashlib.sha256(Path(segment['path']).read_bytes()).hexdigest(),'callback_url':self.base+'/internal/events','params':{'sample_fps':params['sample_fps'],'confidence':params['confidence']}}
+        db.event(task['id'],'dispatch_request',{'stage':'execute','state':'DISPATCHING','task_id':task['id'],'segment_id':segment['id'],'attempt_id':aid,'target_node':node['id'],'input_sha256':payload['input_sha256'],'input_bytes':Path(segment['path']).stat().st_size,'params':payload['params']},aid)
         try:
             r=await self.client.post(node['endpoint']+'/executions',json=payload)
             if r.status_code==409:
                 self.attempt_failure(aid,'执行节点资源竞争或拒绝提交'); return
-            r.raise_for_status(); await self.ingest(r.json())
+            r.raise_for_status()
+            receipt=r.json()
+            valid=all(receipt.get(k)==v for k,v in {'task_id':task['id'],'segment_id':segment['id'],'attempt_id':aid,'node_id':node['id']}.items())
+            db.event(task['id'],'dispatch_ack',{'stage':'execute','state':receipt.get('status'),'identity_matched':valid,'task_id':receipt.get('task_id'),'segment_id':receipt.get('segment_id'),'attempt_id':aid,'actual_node':receipt.get('node_id'),'execution_id':receipt.get('id'),'seq':receipt.get('seq')},aid)
+            await self.ingest(receipt)
         except Exception as e:
             # Unknown delivery is reconciled by attempt id before retry, not resubmitted blindly.
             db.execute("UPDATE attempts SET status='UNKNOWN' WHERE id=? AND status='DISPATCHING'",(aid,))
@@ -161,11 +171,16 @@ class Engine:
         if state not in ['ACCEPTED','RUNNING','SUCCEEDED','FAILED','CANCELED']: return {'accepted':False,'reason':'invalid_state'}
         if a['status']=='UNKNOWN' and seq==a['last_seq'] and state in ['ACCEPTED','RUNNING']:
             db.execute('UPDATE attempts SET status=? WHERE id=?',(state,id))
+            db.execute('UPDATE segments SET status=? WHERE active_attempt=?',(state,id))
+            reconcile_observation(id)
             return {'accepted':False,'reason':'reconciled_without_new_event'}
-        if seq<=a['last_seq'] or a['status'] in TERMINAL: return {'accepted':False,'reason':'duplicate_or_terminal'}
+        if seq<=a['last_seq'] or a['status'] in TERMINAL:
+            if seq==a['last_seq'] and state==a['status']:
+                reconcile_observation(id)
+            return {'accepted':False,'reason':'duplicate_or_terminal'}
         if state in ['FAILED','CANCELED']:
             db.execute('UPDATE attempts SET execution_id=?,actual_node=?,last_seq=? WHERE id=?',(body['id'],body['node_id'],seq,id))
-            self.attempt_failure(id,body.get('error') or state,state); return {'accepted':True}
+            self.attempt_failure(id,body.get('error') or state,state); reconcile_observation(id); return {'accepted':True}
         result=body.get('result')
         if state=='SUCCEEDED':
             if not result or result.get('attempt_id')!=id or result.get('task_id')!=a['task_id'] or result.get('segment_id')!=a['segment_id'] or result.get('actual_node')!=a['node_id'] or result.get('model_id')!=MODEL_ID or result.get('sampled_frames',0)<=0 or len(result.get('frames',[]))!=result.get('sampled_frames'):
@@ -188,6 +203,7 @@ class Engine:
             c.execute('UPDATE attempts SET status=?,last_seq=?,progress=?,updated=?,started=CASE WHEN ?=\'RUNNING\' THEN COALESCE(started,?) ELSE started END,finished=?,execution_id=?,actual_node=?,result=? WHERE id=?',(state,seq,min(1,max(0,body.get('progress',0))),now,state,now,now if state=='SUCCEEDED' else None,body['id'],body['node_id'],db.dumps(result) if result else None,id))
             c.execute('UPDATE segments SET status=?,result=? WHERE id=?',(state,db.dumps(result) if result else None,s['id']))
             db.event(a['task_id'],'execution',{'stage':'execute','state':state,'node_id':body['node_id'],'segment_id':s['id'],'progress':body.get('progress',0),'seq':seq},id,c)
+        reconcile_observation(id)
         return {'accepted':True}
     async def reconcile(self):
         attempts=db.query("SELECT * FROM attempts WHERE status NOT IN ('SUCCEEDED','FAILED','CANCELED','TIMED_OUT')")

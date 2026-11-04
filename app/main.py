@@ -8,7 +8,7 @@ from .config import DATA, ROOT, TOKEN, API_KEY, TERMINAL
 from . import db
 from .engine import Engine
 from .alerts import router as alerts_router
-from .schemas import TaskInput,NodeInput,StrategyInput
+from .schemas import TaskInput,NodeInput,StrategyInput,CandidateInput
 from .capabilities import run_capabilities, connector_call, redact
 engine=Engine()
 @asynccontextmanager
@@ -20,7 +20,7 @@ async def lifespan(app):
     try: await loop
     except asyncio.CancelledError: pass
     await engine.close()
-app=FastAPI(title='车群协同任务编排 API',version='0.2.0',lifespan=lifespan)
+app=FastAPI(title='车群协同任务编排 API',version='0.3.0',lifespan=lifespan)
 app.include_router(alerts_router)
 def browser_session():
     return hmac.new(API_KEY.encode(),b'changan-browser-session-v1',hashlib.sha256).hexdigest()
@@ -42,7 +42,7 @@ async def access(request:Request,call_next):
 def internal(x_internal_token:str=Header(default='')):
     if not secrets.compare_digest(x_internal_token,TOKEN): raise HTTPException(401,'内部认证失败')
 @app.get('/health')
-def health(): return {'status':'ok','service':'changan-orchestrator','version':'0.2.0','time':time.time()}
+def health(): return {'status':'ok','service':'changan-orchestrator','version':'0.3.0','time':time.time()}
 @app.get('/api/overview')
 def overview():
     totals=db.query('SELECT status,count(*) n FROM tasks GROUP BY status')
@@ -52,6 +52,21 @@ def overview():
     return {'totals':{r['status']:r['n'] for r in totals},'daily':daily,'by_workflow':by_workflow,'nodes':engine.nodes(),'attempts':attempts,'mode':'server-lab','metric_note':'业务完成率按父任务完整聚合计算；不是甲方尚待确认口径的99%调度成功率'}
 @app.get('/api/nodes')
 def nodes(): return engine.nodes()
+@app.post('/api/scheduling/candidates')
+def candidates(body:CandidateInput):
+    from .scheduler import choose
+    row=db.query("SELECT body FROM configs WHERE category='algorithm' AND id=?",(body.params.algorithm,),one=True)
+    if not row: raise HTTPException(422,'调度算法不存在')
+    result=choose(engine.nodes(),body.params.model_dump(),body.duration_seconds,body.input_bytes,db.loads(row['body']))
+    result['requirements']=body.params.model_dump()
+    result['resource_source']='external_pool' if engine.resource_provider.enabled else 'worker_adapter'
+    result['snapshot_policy_seconds']=8
+    return result
+@app.get('/api/node-incidents')
+def node_incidents(task_id:str|None=None):
+    from .incidents import list_incidents
+    return list_incidents(task_id)
+
 @app.post('/api/nodes')
 def add_node(body:NodeInput):
     from urllib.parse import urlparse
@@ -84,6 +99,17 @@ async def upload(file:UploadFile=File(...)):
         return {'source':id,'filename':file.filename,'metadata':info}
     except Exception:
         path.unlink(missing_ok=True);raise
+@app.get('/api/sources/{source}/video')
+def source_video(source:str):
+    try: path=engine.source_path(source)
+    except ValueError as e: raise HTTPException(404,str(e))
+    return FileResponse(path,media_type='video/mp4')
+@app.get('/api/tasks/{task_id}/segments/{segment_id}/video')
+def segment_video(task_id:str,segment_id:str):
+    row=db.query("SELECT path FROM segments WHERE id=? AND task_id=?",(segment_id,task_id),one=True)
+    if not row: raise HTTPException(404,'片段不存在')
+    return FileResponse(row['path'],media_type='video/mp4')
+
 @app.post('/api/tasks')
 def create_task(body:TaskInput,idempotency_key:str|None=Header(default=None)):
     try: id=engine.create(body,key=idempotency_key)

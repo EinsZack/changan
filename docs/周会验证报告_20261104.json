@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-04",
+  "version": "0.3.0",
+  "backend_tests": {
+    "passed": 40,
+    "weekly_tests": 11,
+    "warning": "Starlette/AnyIO弃用提示1条"
+  },
+  "frontend_unit_tests": {
+    "passed": 6
+  },
+  "frontend_build": "passed",
+  "live": {
+    "date": "2026-11-04",
+    "environment": "独立管理服务和4个服务器进程执行器",
+    "checks": {
+      "candidate_filter": true,
+      "label_exclusion": true,
+      "upload": true,
+      "source_playback": true,
+      "tail_playback": true,
+      "split_durations": [
+        7,
+        7,
+        7,
+        3
+      ],
+      "dispatch_requests": 4,
+      "dispatch_acknowledgements": 4,
+      "normal_frames": 48,
+      "loss_incident_deduplicated": true,
+      "recovery_same_attempt": true,
+      "recovery_frames": 240
+    },
+    "browser_errors": []
+  },
+  "deployment": {
+    "task_id": "task_f87c5d748b1442fb",
+    "status": "SUCCEEDED",
+    "segments": 4,
+    "sampled_frames": 48,
+    "acknowledgements": 4,
+    "version": "0.3.0"
+  },
+  "post_restart_health": {
+    "status": "ok",
+    "service": "changan-orchestrator",
+    "version": "0.3.0",
+    "time": 1793778532.1967793
+  }
+}

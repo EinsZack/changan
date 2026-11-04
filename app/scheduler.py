@@ -6,6 +6,7 @@ def choose(nodes, params, duration, input_bytes, algorithm, cursor=0):
     weights=algorithm.get('weights',{})
     for n in nodes:
         s=n.get('snapshot') or {}; why=[]
+        if n.get('error')=='资源池快照不可用': why.append('资源池快照不可用')
         if not n.get('enabled'): why.append('节点已停用')
         if now-(n.get('observed') or 0)>8: why.append('资源快照过期或节点失联')
         if not s.get('healthy',False): why.append('执行器不健康')

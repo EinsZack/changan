@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "车群协同任务编排 API",
-    "version": "0.2.0"
+    "version": "0.3.0"
   },
   "paths": {
     "/api/alerts/rules": {
@@ -350,6 +350,86 @@
         }
       }
     },
+    "/api/scheduling/candidates": {
+      "post": {
+        "summary": "Candidates",
+        "operationId": "candidates_api_scheduling_candidates_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CandidateInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/node-incidents": {
+      "get": {
+        "summary": "Node Incidents",
+        "operationId": "node_incidents_api_node_incidents_get",
+        "parameters": [
+          {
+            "name": "task_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Task Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/nodes/{id}/control/{action}": {
       "post": {
         "summary": "Node Control",
@@ -410,6 +490,89 @@
           },
           "required": true
         },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/sources/{source}/video": {
+      "get": {
+        "summary": "Source Video",
+        "operationId": "source_video_api_sources__source__video_get",
+        "parameters": [
+          {
+            "name": "source",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Source"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tasks/{task_id}/segments/{segment_id}/video": {
+      "get": {
+        "summary": "Segment Video",
+        "operationId": "segment_video_api_tasks__task_id__segments__segment_id__video_get",
+        "parameters": [
+          {
+            "name": "task_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Task Id"
+            }
+          },
+          {
+            "name": "segment_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Segment Id"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -1501,6 +1664,30 @@
           "file"
         ],
         "title": "Body_upload_api_uploads_post"
+      },
+      "CandidateInput": {
+        "properties": {
+          "params": {
+            "$ref": "#/components/schemas/TaskInput"
+          },
+          "duration_seconds": {
+            "type": "number",
+            "maximum": 600.0,
+            "exclusiveMinimum": 0.0,
+            "title": "Duration Seconds",
+            "default": 4
+          },
+          "input_bytes": {
+            "type": "integer",
+            "maximum": 536870912.0,
+            "minimum": 0.0,
+            "title": "Input Bytes",
+            "default": 0
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "CandidateInput"
       },
       "HTTPValidationError": {
         "properties": {

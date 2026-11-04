@@ -29,3 +29,9 @@ class StrategyInput(BaseModel):
     interval_seconds: int=Field(default=300,ge=15,le=86400)
     enabled: bool=True
     params: TaskInput=Field(default_factory=TaskInput)
+
+class CandidateInput(BaseModel):
+    model_config=ConfigDict(extra='forbid')
+    params: TaskInput=Field(default_factory=TaskInput)
+    duration_seconds: float=Field(default=4,gt=0,le=600)
+    input_bytes: int=Field(default=0,ge=0,le=536870912)
