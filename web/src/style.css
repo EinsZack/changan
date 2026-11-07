@@ -7,3 +7,4 @@
 .badge.submitted,.badge.pulling,.badge.model_loading,.badge.container_starting,.badge.uploading,.badge.finalizing{color:#9a6700;background:#fff5d6}.badge.cleaning{color:#6b4fb5;background:#f1ebff}
 
 .container-executions td:last-child{min-width:100px;white-space:nowrap}.container-executions pre{max-width:520px}
+.session-summary{display:flex;flex-wrap:wrap;gap:12px 24px;padding:16px 0;color:#40536a}.container-executions h3{margin:22px 0 12px}.container-executions td{overflow-wrap:anywhere}.container-executions small{display:block;margin-top:5px}.container-executions .table-scroll{overflow-x:auto}.container-executions table{min-width:850px}.container-executions pre{max-width:460px;white-space:pre-wrap}

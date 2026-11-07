@@ -14,7 +14,10 @@ def snapshot():
 def set_node():
     db.execute("UPDATE nodes SET observed=?,snapshot=?,enabled=1,error=NULL WHERE id='lab-1'",(time.time(),db.dumps(snapshot())))
 
-def test_candidate_api_live_tags_and_memory():
+def test_candidate_api_live_tags_and_memory(monkeypatch):
+    import app.main as main
+    from unittest.mock import AsyncMock
+    monkeypatch.setattr(main.engine, "refresh", AsyncMock())
     set_node()
     with TestClient(app) as client:
         result=client.post('/api/scheduling/candidates',json={'params':{'required_tags':['cpu'],'min_memory_mb':512}})

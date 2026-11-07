@@ -50,7 +50,8 @@ class Kube:
         except ApiException as e:
             if e.status!=409:raise
             job=await self.job(name)
-            if job.metadata.labels.get('changan.io/attempt')!=payload['attempt_id']:raise ValueError('Job identity collision')
+            identity='session' if 'session_id' in payload else 'attempt'
+            if job.metadata.labels.get('changan.io/'+identity)!=payload[identity+'_id']:raise ValueError('Job identity collision')
             return job
     async def logs(self,name):
         return await self.call(self.core.read_namespaced_pod_log,name,self.namespace,tail_lines=50,limit_bytes=8000)
@@ -84,3 +85,13 @@ def job_manifest(a, workload, params):
           'volumeMounts':[{'name':'payload','mountPath':'/run/task','readOnly':True},{'name':'work','mountPath':'/work'},{'name':'tmp','mountPath':'/tmp'}]}],
          'volumes':[{'name':'payload','secret':{'secretName':name,'defaultMode':288}},
                     {'name':'work','emptyDir':{'sizeLimit':'2Gi'}},{'name':'tmp','emptyDir':{'sizeLimit':'128Mi'}}]}}}}
+
+
+def session_manifest(session, workload, params, remaining_seconds):
+    """One pinned Job for the whole task/node session; segment retries are business-owned."""
+    manifest=job_manifest(session,workload,params)
+    labels={'app':APP,'changan.io/session':session['id'],'changan.io/task':session['task_id']}
+    manifest['metadata']['labels']=labels
+    manifest['spec']['template']['metadata']['labels']=dict(labels)
+    manifest['spec']['activeDeadlineSeconds']=max(30,int(remaining_seconds)+30)
+    return manifest

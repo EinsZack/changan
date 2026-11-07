@@ -10,7 +10,7 @@ test('real K3s video, node mapping, image provenance and durable previews',async
  await expect(page.getByRole('button',{name:'注入一次失败'})).toHaveCount(0);
  await expect(page.locator('.node-card').first()).toContainText('containerd');
  fs.mkdirSync('../docs/screenshots',{recursive:true});
- await page.screenshot({path:'../docs/screenshots/k3s-nodes.png',fullPage:true});
+ await page.screenshot({path:'../docs/screenshots/session-nodes.png',fullPage:true});
  await page.getByRole('button',{name:'任务中心',exact:false}).first().click();
  await page.getByRole('button',{name:'新建分析任务'}).click();
  await page.getByLabel('任务名称',{exact:true}).fill('K3s浏览器验收 · 容器视频');
@@ -18,20 +18,26 @@ test('real K3s video, node mapping, image provenance and durable previews',async
  await expect(page.locator('.task-summary').getByText('已完成',{exact:true})).toBeVisible({timeout:180000});
  await page.getByRole('button',{name:'容器与镜像',exact:true}).click();
  await expect(page.getByRole('heading',{name:'K3s 容器执行证据'})).toBeVisible();
- await expect(page.locator('tbody tr')).toHaveCount(6);
- await expect(page.locator('tbody').getByText('已清理',{exact:true})).toHaveCount(6,{timeout:30000});
+ await expect(page.locator('.attempt-table tbody tr')).toHaveCount(6);
+ await expect(page.locator('.attempt-table tbody').getByText('会话已回收',{exact:true})).toHaveCount(6,{timeout:30000});
+ await expect(page.locator('.session-table tbody tr')).toHaveCount(4);
+ await expect(page.locator('.session-summary')).toContainText('模型加载 4 次');
  await page.locator('details summary').first().click();
  await expect(page.locator('pre').first()).toContainText('@sha256:');
- await page.screenshot({path:'../docs/screenshots/k3s-containers.png',fullPage:true});
+ await page.screenshot({path:'../docs/screenshots/session-containers.png',fullPage:true});
  await page.getByRole('button',{name:'分析结果',exact:true}).click();
  await expect(page.getByText('100%',{exact:true})).toBeVisible();
  await expect(page.locator('.preview-grid img').first()).toBeVisible();
  expect(await page.locator('.preview-grid img').first().evaluate(el=>el.complete&&el.naturalWidth>0)).toBe(true);
- await page.screenshot({path:'../docs/screenshots/k3s-results.png',fullPage:true});
+ await page.screenshot({path:'../docs/screenshots/session-results.png',fullPage:true});
  const [download]=await Promise.all([page.waitForEvent('download'),page.getByRole('link',{name:'下载结果及追溯记录'}).click()]);
- await download.saveAs('../docs/k3s-ui-export.json');
- const t=JSON.parse(fs.readFileSync('../docs/k3s-ui-export.json','utf8'));
+ await download.saveAs('../docs/session-ui-export.json');
+ const t=JSON.parse(fs.readFileSync('../docs/session-ui-export.json','utf8'));
  expect(t.result.sampled_frames).toBe(48);
+ expect(t.sessions).toHaveLength(4);
+ expect(t.sessions.some(s=>s.completed>1)).toBe(true);
+ for(const s of t.sessions){expect(s.model_load_count).toBe(1);expect(s.token).toBeUndefined();expect(s.cleanup_state).toBe('DONE');}
+ expect(new Set(t.attempts.map(a=>a.workload.pod_uid)).size).toBe(4);
  for(const a of t.attempts){expect(a.backend).toBe('k3s');expect(a.actual_node).toBe(a.node_id);expect(a.workload.pod_uid).toBeTruthy();expect(a.token).toBeUndefined();}
  await page.getByRole('button',{name:'工作流与能力',exact:true}).click();
  await page.getByRole('button',{name:'运行五类能力验证'}).click();

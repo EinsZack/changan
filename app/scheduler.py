@@ -8,6 +8,7 @@ def choose(nodes, params, duration, input_bytes, algorithm, cursor=0):
         s=n.get('snapshot') or {}; why=[]
         if n.get('error'): why.append(n['error'])
         if not n.get('enabled'): why.append('节点已停用')
+        if n.get('session_blocked'):why.append(n['session_blocked'])
         if now-(n.get('observed') or 0)>8: why.append('资源快照过期或节点失联')
         if not s.get('healthy',False): why.append('执行器不健康')
         if s.get('node_id')!=n['id']: why.append('实际节点标识不匹配')

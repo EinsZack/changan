@@ -4,7 +4,7 @@
 
 0.2.0增加站内任务告警：超时或最终失败时提示，可查看未读数量、告警原因并标记已读或确认。详见[站内告警使用说明](docs/站内告警使用说明.md)和[本次交付说明](docs/站内告警交付说明_20261031.md)。
 
-0.4.0 已迁移到 K3s Job 容器执行：Docker 构建并推送固定摘要的模型镜像，K3s/containerd 在选定节点运行分片任务。当前为同一开发服务器上的 4 个 K3s 逻辑节点；真实 THOR 板卡及 GPU 尚未验证。部署与日常操作见 [K3s部署与使用说明](docs/K3s部署与使用说明.md)。
+0.5.0 已改为 K3s 任务内会话复用（B模式）：每个参与节点启动一个容器并加载一次模型，连续处理多个视频分片，任务结束后回收。Docker构建镜像，K3s/containerd运行容器。当前为同一开发服务器上的 4 个 K3s 逻辑节点；真实 THOR 板卡及 GPU 尚未验证。部署基线见 [K3s部署与使用说明](docs/K3s部署与使用说明.md)，当前执行方式见 [任务会话使用说明](docs/K3s任务会话使用说明_20261108.md)。
 
 0.3.0增加候选筛选、下发请求与确认、失联影响记录和视频片段回放。详见[11月4日开发交付与使用说明](docs/周会开发交付说明_20261104.md)。
 
@@ -52,7 +52,7 @@ ssh -N -L 127.0.0.1:8310:127.0.0.1:8310 -p 22031 root@10.13.0.9
 
 ```bash
 python -m pytest -q
-python scripts/integration_k3s.py # 默认连接隔离验证实例8410
+python scripts/integration_sessions.py # 默认连接隔离验证实例8410
 # 旧 scripts/integration.py / benchmark.py 仅用于 process 后端
 cd web && npm run build && npx playwright test -c playwright.k3s.config.js
 ```

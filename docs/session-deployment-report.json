@@ -1,0 +1,23 @@
+{
+  "version": "0.5.0",
+  "at": 1794071452.052143,
+  "task_id": "task_4a56b533fd8e435f",
+  "historical_tasks_preserved": 66,
+  "history_ids_unchanged": true,
+  "segments": 24,
+  "sampled_frames": 240,
+  "sessions": 4,
+  "pod_count": 4,
+  "model_loads": 4,
+  "session_completed": [
+    8,
+    6,
+    5,
+    5
+  ],
+  "elapsed_seconds": 45.17003345489502,
+  "all_cleaned": true,
+  "image": "changan-registry:5000/changan/video@sha256:19a350d39aaebc3c182436c7add6c7417c53e5e069783264657ebe82bac3109c",
+  "backup": "/root/projects/changan-orchestrator/data/backups/20261108-task-sessions",
+  "environment": "single development server / four K3s logical nodes / CPU ONNX, not THOR"
+}

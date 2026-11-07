@@ -8,5 +8,5 @@ def fresh_db():
     db.init()
     yield
     with db.connect() as c:
-        for table in ['node_incidents','alerts','events','attempts','segments','tasks','strategies','nodes']:
+        for table in ['execution_sessions','node_incidents','alerts','events','attempts','segments','tasks','strategies','nodes']:
             c.execute('DELETE FROM '+table)

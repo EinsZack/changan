@@ -2,7 +2,7 @@ FROM python:3.11-slim-bookworm@sha256:a83ba18aef0f865b1a4a611c2cf460fe446f279567
 WORKDIR /opt/app
 COPY deploy/requirements-video.txt /tmp/requirements.txt
 RUN pip install --no-cache-dir -r /tmp/requirements.txt
-COPY workers/__init__.py workers/inference.py workers/container_entry.py ./workers/
+COPY workers/__init__.py workers/inference.py workers/container_entry.py workers/attempt_entry.py ./workers/
 COPY assets/models/yolox_tiny.onnx /opt/model/yolox_tiny.onnx
 ENV PYTHONUNBUFFERED=1 PYTHONDONTWRITEBYTECODE=1
 USER 10001:10001

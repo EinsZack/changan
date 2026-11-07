@@ -37,13 +37,15 @@ class ContainerExecution:
     def __init__(self,engine):
         global controller
         self.engine=engine;self.kube=None;controller=self
+        from .session_execution import SessionExecution
+        self.sessions=SessionExecution(self)
     def client(self):
         if self.kube is None:self.kube=Kube()
         return self.kube
     def application(self):
         image=os.getenv('CHANGAN_VIDEO_IMAGE','')
         if '@sha256:' not in image:raise ValueError('CHANGAN_VIDEO_IMAGE 必须固定为镜像摘要')
-        return {'id':'video-analysis','version':'1','image':image,'architecture':os.getenv('CHANGAN_IMAGE_ARCH','amd64'),
+        return {'id':'video-analysis','version':'2','execution_mode':'task_session','image':image,'architecture':os.getenv('CHANGAN_IMAGE_ARCH','amd64'),
                 'model_id':MODEL_ID,'model_sha256':hashlib.sha256(MODEL.read_bytes()).hexdigest(),
                 'runtime':'ONNX Runtime CPU','image_pull_secret':os.getenv('CHANGAN_IMAGE_PULL_SECRET')}
     async def refresh(self):
@@ -56,7 +58,9 @@ class ContainerExecution:
             seen=set()
             for n in nodes:
                 id=n['id'];seen.add(id);now=time.time()
-                reserved_row=db.query("SELECT count(*) n,COALESCE(sum(max(1024,json_extract(t.params,'$.min_memory_mb'))),0) memory FROM attempts a JOIN tasks t ON t.id=a.task_id WHERE a.node_id=? AND a.backend='k3s' AND a.cleanup_state!='DONE'",(id,),one=True)
+                reserved_row=db.query("SELECT count(*) n,COALESCE(sum(max(1024,json_extract(t.params,'$.min_memory_mb'))),0) memory FROM attempts a JOIN tasks t ON t.id=a.task_id WHERE a.node_id=? AND a.backend='k3s' AND a.session_id IS NULL AND a.cleanup_state!='DONE'",(id,),one=True)
+                sessions=db.query("SELECT count(*) n,COALESCE(sum(json_extract(workload,'$.memory_mb')),0) memory FROM execution_sessions WHERE node_id=? AND cleanup_state!='DONE'",(id,),one=True)
+                reserved_row['n']+=sessions['n'];reserved_row['memory']+=sessions['memory']
                 reserved=reserved_row['n']
                 s={'node_id':id,'kube_node':n['name'],'node_uid':n['uid'],'healthy':n['healthy'],
                    'models':[MODEL_ID] if n['architecture']==app['architecture'] else [],
@@ -93,6 +97,8 @@ class ContainerExecution:
                 observe_node(n,False,'K3s/资源池快照不可用')
             raise
     async def submit(self,task,segment,aid,payload):
+        if db.loads(task['metadata'])['application'].get('execution_mode')=='task_session':
+            return await self.sessions.submit(task,segment,aid,payload)
         a=db.query('SELECT * FROM attempts WHERE id=?',(aid,),one=True)
         app=db.loads(task['metadata'])['application']
         node=db.query('SELECT snapshot FROM nodes WHERE id=?',(a['node_id'],),one=True)
@@ -111,8 +117,9 @@ class ContainerExecution:
         if not w.get('pod_uid'):stage(a,'SUBMITTED','K3s 已接收 Job，等待 Pod 分配及镜像准备')
         db.event(a['task_id'],'job_submitted',{'stage':'execute','state':'SUBMITTED','job_name':w['job_name'],'job_uid':w['job_uid'],'image':w['image']},aid)
     async def reconcile(self):
-        # Include terminal attempts until actual Kubernetes resources are gone.
-        for a in db.query("SELECT * FROM attempts WHERE backend='k3s' AND cleanup_state!='DONE'"):
+        await self.sessions.reconcile()
+        # Drain old per-attempt Jobs during upgrades, without reinterpreting history.
+        for a in db.query("SELECT * FROM attempts WHERE backend='k3s' AND session_id IS NULL AND cleanup_state!='DONE' AND COALESCE(json_extract(workload,'$.execution_mode'),'attempt_job')!='task_session'"):
             try:await self.reconcile_one(a)
             except Exception as e:
                 if time.time()-workload(a).get('last_api_error',0)>15:
@@ -199,6 +206,9 @@ class ContainerExecution:
 def authenticate(aid,request,require_claim=True):
     a=db.query('SELECT * FROM attempts WHERE id=?',(aid,),one=True)
     if not a or a['backend']!='k3s' or not secrets.compare_digest(request.headers.get('x-attempt-token',''),a['token']):raise HTTPException(401,'尝试认证失败')
+    if a.get('session_id'):
+        from .session_execution import authenticate_attempt
+        return authenticate_attempt(a,request)
     w=workload(a);s=db.query('SELECT active_attempt FROM segments WHERE id=?',(a['segment_id'],),one=True)
     t=db.query('SELECT status FROM tasks WHERE id=?',(a['task_id'],),one=True)
     if a['status'] in TERMINAL or t['status'] in TERMINAL or s['active_attempt']!=aid or w.get('cleanup_requested') or a['status']=='CLEANING':raise HTTPException(409,'执行尝试已终止')
@@ -207,6 +217,8 @@ def authenticate(aid,request,require_claim=True):
 
 @router.post('/internal/container/{aid}/claim')
 async def claim(aid:str,request:Request):
+    current=db.query('SELECT session_id FROM attempts WHERE id=?',(aid,),one=True)
+    if current and current.get('session_id'):raise HTTPException(409,'任务会话通过领取接口确认分片')
     a,w=authenticate(aid,request,False)
     if not w.get('job_uid'):
         job=await controller.client().job(w['job_name'])
@@ -257,7 +269,16 @@ async def upload_artifact(aid:str,name:str,request:Request):
         if not size or digest.hexdigest()!=request.headers.get('x-content-sha256'):raise HTTPException(422,'产物摘要不一致')
         # Recheck ownership after streaming, before publishing any artifact.
         authenticate(aid,request)
-        tmp.replace(folder/name)
+        # Immutable artifacts make a validated final result stable even if an upload
+        # races the result transaction. Repeated identical uploads are idempotent.
+        with db.connect() as c:
+            c.execute('BEGIN IMMEDIATE')
+            current=c.execute('SELECT status FROM attempts WHERE id=?',(aid,)).fetchone()
+            if current['status'] in TERMINAL or current['status']=='FINALIZING':raise HTTPException(409,'结果已封存')
+            destination=folder/name
+            if destination.exists():
+                if hashlib.sha256(destination.read_bytes()).hexdigest()!=digest.hexdigest():raise HTTPException(409,'已上传产物不可更改')
+            else:tmp.replace(destination)
         fd=os.open(folder,os.O_RDONLY)
         try:os.fsync(fd)
         finally:os.close(fd)
@@ -266,6 +287,10 @@ async def upload_artifact(aid:str,name:str,request:Request):
 
 @router.post('/internal/container/{aid}/events')
 async def container_event(aid:str,request:Request):
+    current=db.query('SELECT session_id FROM attempts WHERE id=?',(aid,),one=True)
+    if current and current.get('session_id'):
+        from .session_execution import attempt_event
+        return await attempt_event(aid,request)
     a,w=authenticate(aid,request)
     raw=await request.body()
     if len(raw)>16*1024**2:raise HTTPException(413,'结果超过16MiB')

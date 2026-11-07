@@ -43,8 +43,19 @@ CREATE TABLE IF NOT EXISTS strategies(id TEXT PRIMARY KEY,name TEXT NOT NULL,kin
 CREATE TABLE IF NOT EXISTS configs(id TEXT PRIMARY KEY,category TEXT NOT NULL,name TEXT NOT NULL,body TEXT NOT NULL,created REAL NOT NULL,updated REAL NOT NULL);
 ''')
         columns={r[1] for r in c.execute('PRAGMA table_info(attempts)')}
-        for name,decl in [('backend',"TEXT NOT NULL DEFAULT 'process'"),('workload','TEXT'),('cleanup_state',"TEXT NOT NULL DEFAULT 'DONE'")]:
+        for name,decl in [('backend',"TEXT NOT NULL DEFAULT 'process'"),('workload','TEXT'),('cleanup_state',"TEXT NOT NULL DEFAULT 'DONE'"),('session_id','TEXT')]:
             if name not in columns:c.execute('ALTER TABLE attempts ADD COLUMN '+name+' '+decl)
+        c.executescript('''
+CREATE TABLE IF NOT EXISTS execution_sessions(
+ id TEXT PRIMARY KEY, task_id TEXT NOT NULL REFERENCES tasks(id), node_id TEXT NOT NULL,
+ token TEXT NOT NULL, status TEXT NOT NULL, created REAL NOT NULL, updated REAL NOT NULL,
+ heartbeat_at REAL, ready_at REAL, finished REAL, active_attempt TEXT, workload TEXT NOT NULL,
+ cleanup_state TEXT NOT NULL DEFAULT 'PENDING', completed INTEGER NOT NULL DEFAULT 0,
+ model_load_count INTEGER NOT NULL DEFAULT 0, model_load_seconds REAL,
+ reservation_id TEXT, reservation_released INTEGER NOT NULL DEFAULT 0, error TEXT);
+CREATE UNIQUE INDEX IF NOT EXISTS one_live_task_node_session ON execution_sessions(task_id,node_id) WHERE cleanup_state!='DONE';
+CREATE INDEX IF NOT EXISTS attempts_session ON attempts(session_id);
+''')
         for i in range(4 if os.getenv('CHANGAN_BACKEND','k3s')=='process' else 0):
             c.execute('INSERT OR IGNORE INTO nodes(id,endpoint,cluster_id,kind) VALUES(?,?,?,?)', (f'lab-{i+1}',f'http://127.0.0.1:{8321+i}','server-lab','server_process'))
         defaults=[
@@ -68,7 +79,9 @@ def task_detail(id):
     for k in ['params','metadata','result']: task[k]=loads(task[k])
     task['segments']=query('SELECT * FROM segments WHERE task_id=? ORDER BY ordinal',(id,))
     for s in task['segments']: s['result']=loads(s['result'])
-    task['attempts']=query('SELECT id,task_id,segment_id,node_id,status,created,started,finished,updated,last_seq,progress,execution_id,actual_node,error,decision,backend,workload,cleanup_state FROM attempts WHERE task_id=? ORDER BY created',(id,))
+    task['attempts']=query('SELECT id,task_id,segment_id,node_id,status,created,started,finished,updated,last_seq,progress,execution_id,actual_node,error,decision,backend,workload,cleanup_state,session_id FROM attempts WHERE task_id=? ORDER BY created',(id,))
     for a in task['attempts']:
         a['decision']=loads(a['decision']);a['workload']=loads(a['workload'],{})
+    task['sessions']=query('SELECT id,task_id,node_id,status,created,updated,heartbeat_at,ready_at,finished,active_attempt,workload,cleanup_state,completed,model_load_count,model_load_seconds,error FROM execution_sessions WHERE task_id=? ORDER BY created',(id,))
+    for session in task['sessions']:session['workload']=loads(session['workload'],{})
     return task

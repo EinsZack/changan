@@ -1,0 +1,169 @@
+{
+  "at": 1794070143.8807206,
+  "environment": "one server / four k3d K3s logical nodes / CPU ONNX; no THOR hardware",
+  "cases": [
+    {
+      "name": "four-node-reuse",
+      "task_id": "task_32e7fdf895634cfa",
+      "status": "SUCCEEDED",
+      "total": 24,
+      "attempts": 24,
+      "sessions": 4,
+      "nodes": [
+        "lab-1",
+        "lab-2",
+        "lab-3",
+        "lab-4"
+      ],
+      "model_loads": 4,
+      "session_completed": [
+        6,
+        7,
+        5,
+        6
+      ],
+      "all_cleaned": true,
+      "elapsed_seconds": 32.579320430755615
+    },
+    {
+      "name": "single-node-reuse",
+      "task_id": "task_3d7ba85ed49b4cba",
+      "status": "SUCCEEDED",
+      "total": 24,
+      "attempts": 24,
+      "sessions": 1,
+      "nodes": [
+        "lab-3"
+      ],
+      "model_loads": 1,
+      "session_completed": [
+        24
+      ],
+      "all_cleaned": true,
+      "elapsed_seconds": 39.920353412628174
+    },
+    {
+      "name": "cancel",
+      "task_id": "task_25ab684d972744d3",
+      "status": "CANCELED",
+      "total": 6,
+      "attempts": 4,
+      "sessions": 4,
+      "nodes": [
+        "lab-1",
+        "lab-2",
+        "lab-3",
+        "lab-4"
+      ],
+      "model_loads": 1,
+      "session_completed": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "all_cleaned": true,
+      "elapsed_seconds": 6.701982259750366
+    },
+    {
+      "name": "api-gateway-restart",
+      "task_id": "task_c3e8d8ca8c9c4b4f",
+      "status": "SUCCEEDED",
+      "total": 24,
+      "attempts": 24,
+      "sessions": 4,
+      "nodes": [
+        "lab-1",
+        "lab-2",
+        "lab-3",
+        "lab-4"
+      ],
+      "model_loads": 4,
+      "session_completed": [
+        6,
+        7,
+        6,
+        5
+      ],
+      "all_cleaned": true,
+      "elapsed_seconds": 34.161534547805786,
+      "same_pods": true
+    },
+    {
+      "name": "pod-interruption",
+      "task_id": "task_36648e610dcc4d87",
+      "status": "SUCCEEDED",
+      "total": 6,
+      "attempts": 7,
+      "sessions": 2,
+      "nodes": [
+        "lab-1"
+      ],
+      "model_loads": 2,
+      "session_completed": [
+        0,
+        6
+      ],
+      "all_cleaned": true,
+      "elapsed_seconds": 37.19261598587036
+    },
+    {
+      "name": "node-join",
+      "task_id": "task_3192c0769b0149d6",
+      "status": "SUCCEEDED",
+      "total": 24,
+      "attempts": 24,
+      "sessions": 2,
+      "nodes": [
+        "lab-1",
+        "lab-4"
+      ],
+      "model_loads": 2,
+      "session_completed": [
+        14,
+        10
+      ],
+      "all_cleaned": true,
+      "elapsed_seconds": 36.11675810813904
+    },
+    {
+      "name": "node-loss-recovery",
+      "task_id": "task_b1016174faed4e07",
+      "status": "SUCCEEDED",
+      "total": 24,
+      "attempts": 25,
+      "sessions": 3,
+      "nodes": [
+        "lab-1",
+        "lab-2"
+      ],
+      "model_loads": 3,
+      "session_completed": [
+        21,
+        0,
+        3
+      ],
+      "all_cleaned": true,
+      "elapsed_seconds": 87.58987522125244,
+      "lost_session": "session_c4b12a10307b4c4b",
+      "held_slot_until_cleanup": true
+    },
+    {
+      "name": "missing-image",
+      "task_id": "task_7f81afb7cd7b4272",
+      "status": "FAILED",
+      "total": 24,
+      "attempts": 1,
+      "sessions": 1,
+      "nodes": [
+        "lab-1"
+      ],
+      "model_loads": 0,
+      "session_completed": [
+        0
+      ],
+      "all_cleaned": true,
+      "elapsed_seconds": 15.764825820922852
+    }
+  ]
+}

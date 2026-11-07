@@ -109,24 +109,26 @@ class Engine:
                 db.execute('UPDATE nodes SET error=? WHERE id=?',(type(e).__name__,n['id']))
                 observe_node(n,False,type(e).__name__)
         await asyncio.gather(*(fetch(n) for n in nodes))
-    def nodes(self):
+    def nodes(self,task_id=None):
         nodes=db.query('SELECT * FROM nodes')
         for n in nodes:
             n['snapshot']=db.loads(n['snapshot'],{})
-            n['reserved']=db.query("SELECT count(*) AS n FROM attempts WHERE node_id=? AND (status NOT IN ('SUCCEEDED','FAILED','CANCELED','TIMED_OUT') OR (backend='k3s' AND cleanup_state!='DONE'))",(n['id'],),one=True)['n']
+            n['reserved']=db.query("SELECT count(*) AS n FROM attempts WHERE node_id=? AND session_id IS NULL AND (status NOT IN ('SUCCEEDED','FAILED','CANCELED','TIMED_OUT') OR (backend='k3s' AND cleanup_state!='DONE'))",(n['id'],),one=True)['n']
+            n['reserved']+=db.query("SELECT count(*) n FROM execution_sessions WHERE node_id=? AND cleanup_state!='DONE'",(n['id'],),one=True)['n']
             n['online']=bool(not n.get('error') and n['observed'] and time.time()-n['observed']<8)
+        if task_id and self.containers:return self.containers.sessions.scheduling_nodes(nodes,task_id)
         return nodes
     async def dispatch(self,task,segment):
         params=db.loads(task['params']); frozen=db.loads(task['metadata'],{}).get('algorithm_snapshot')
         algorithm={'body':db.dumps(frozen)} if frozen else db.query("SELECT body FROM configs WHERE id=? AND category='algorithm'",(params['algorithm'],),one=True)
-        decision=choose(self.nodes(),params,segment['end']-segment['start'],Path(segment['path']).stat().st_size,db.loads(algorithm['body']),self.cursor)
+        decision=choose(self.nodes(task['id']),params,segment['end']-segment['start'],Path(segment['path']).stat().st_size,db.loads(algorithm['body']),self.cursor)
         if not decision['target_node']:
             last=db.query("SELECT at FROM events WHERE task_id=? AND type='no_candidate' ORDER BY id DESC LIMIT 1",(task['id'],),one=True)
             if not last or time.time()-last['at']>5:
                 db.event(task['id'],'no_candidate',{'stage':'schedule','state':'PENDING','message':'暂无满足约束的执行节点，截止时限内有界等待','decision':decision})
-            return
+            return False
         self.cursor+=1; now=time.time(); aid=db.uid('try'); token=secrets.token_urlsafe(24)
-        if self.resource_provider.enabled:
+        if self.resource_provider.enabled and (not self.containers or db.loads(task['metadata'],{}).get('application',{}).get('execution_mode')!='task_session'):
             try:
                 snap=next(c['snapshot'] for c in decision['candidates'] if c['node_id']==decision['target_node'])
                 reservation=await self.resource_provider.reserve(decision['target_node'],task['id'],aid,{'memory_mb':params['min_memory_mb'],'slots':1},snap.get('snapshot_version'),params['attempt_timeout']+30)
@@ -143,6 +145,8 @@ class Engine:
                 # Lease expiry provides cleanup if cancellation races reservation; reconciliation handles persisted attempts.
                 return
             c.execute('INSERT INTO attempts(id,task_id,segment_id,node_id,token,status,created,updated,decision) VALUES(?,?,?,?,?,?,?,?,?)',(aid,task['id'],segment['id'],decision['target_node'],token,'DISPATCHING',now,now,db.dumps(decision)))
+            if self.containers:
+                c.execute("UPDATE attempts SET backend='k3s',workload=?,cleanup_state='PENDING' WHERE id=?",(db.dumps({'execution_mode':db.loads(task['metadata'])['application'].get('execution_mode','attempt_job')}),aid))
             c.execute("UPDATE segments SET active_attempt=?,status='DISPATCHING' WHERE id=?",(aid,segment['id']))
             db.event(task['id'],'decision',{'stage':'schedule','state':'SUCCEEDED','decision':decision},aid,c)
         node=db.query('SELECT * FROM nodes WHERE id=?',(decision['target_node'],),one=True)
@@ -248,7 +252,7 @@ class Engine:
             for label,n in r['counts'].items(): counts[label]=counts.get(label,0)+n
             for f in r['frames']: frames.append(f|{'video_seconds':round(s['start']+f['seconds'],4),'segment_id':s['id'],'node_id':r['actual_node']})
             previews+=r.get('preview_urls',[])
-            provenance.append({'segment_id':s['id'],'attempt_id':r['attempt_id'],'node_id':r['actual_node'],'model_id':r['model_id'],'model_sha256':r['model_sha256'],'start':s['start'],'end':s['end'],**{k:r.get(k) for k in ['execution_backend','image','job_name','job_uid','pod_uid','kube_node']}})
+            provenance.append({'segment_id':s['id'],'attempt_id':r['attempt_id'],'node_id':r['actual_node'],'model_id':r['model_id'],'model_sha256':r['model_sha256'],'start':s['start'],'end':s['end'],**{k:r.get(k) for k in ['execution_backend','execution_mode','session_id','image','job_name','job_uid','pod_uid','kube_node']}})
         result={'counts':counts,'frames':frames,'previews':previews,'provenance':provenance,'coverage':1,'sampled_frames':len(frames),'counting_rule':'采样帧目标出现次数，非唯一对象数量','elapsed_seconds':time.time()-task['created'],'execution_mode':'真实推理；节点类型见provenance及资源页'}
         folder=DATA/'tasks'/task['id']; (folder/'result.json').write_text(db.dumps(result))
         with db.connect() as c:
@@ -295,7 +299,7 @@ class Engine:
             pending=db.query("SELECT * FROM segments WHERE task_id=? AND status='PENDING' ORDER BY ordinal",(task['id'],))
             before=db.query('SELECT count(*) n FROM attempts WHERE task_id=?',(task['id'],),one=True)['n']
             for s in pending:
-                await self.dispatch(task,s)
+                if await self.dispatch(task,s) is False:break
             after=db.query('SELECT count(*) n FROM attempts WHERE task_id=?',(task['id'],),one=True)['n']
             if after>before:
                 db.event(task['id'],'dispatch_batch',{'stage':'schedule','state':'SUCCEEDED','assigned':after-before,'pending_at_start':len(pending),'duration_ms':(time.monotonic()-batch_started)*1000,'boundary':'本轮待分片读取、候选查询和执行后端提交确认；不含之前排队及周期资源刷新','complete_global_assignment':after-before==len(pending)})
