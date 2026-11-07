@@ -6,7 +6,7 @@ def choose(nodes, params, duration, input_bytes, algorithm, cursor=0):
     weights=algorithm.get('weights',{})
     for n in nodes:
         s=n.get('snapshot') or {}; why=[]
-        if n.get('error')=='资源池快照不可用': why.append('资源池快照不可用')
+        if n.get('error'): why.append(n['error'])
         if not n.get('enabled'): why.append('节点已停用')
         if now-(n.get('observed') or 0)>8: why.append('资源快照过期或节点失联')
         if not s.get('healthy',False): why.append('执行器不健康')
@@ -16,7 +16,7 @@ def choose(nodes, params, duration, input_bytes, algorithm, cursor=0):
         if params.get('location') and params['location']!=s.get('location'): why.append('节点位置不匹配')
         if params.get('architecture') and params['architecture']!=s.get('architecture'): why.append('处理器架构不匹配')
         if not set(params.get('required_tags',[])).issubset(s.get('tags',[])): why.append('缺少必要标签')
-        if s.get('available_memory_mb',0)<params.get('min_memory_mb',256): why.append('可用内存不足')
+        if s.get('available_memory_mb',0)<max(512 if 'kubernetes' in s.get('resource_source','') else 0,params.get('min_memory_mb',256)): why.append('可用内存不足')
         if max(s.get('active',0),n.get('reserved',0))>=s.get('capacity',1): why.append('执行槽已占用或预留')
         if not s.get('input_reachable',True): why.append('输入通道不可达')
         fps=s.get('measured_fps') or 8.0

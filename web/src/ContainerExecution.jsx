@@ -1,0 +1,8 @@
+import React from 'react';
+const states={SUBMITTED:'Job已提交',PENDING:'等待调度',PULLING:'镜像准备',CONTAINER_STARTING:'容器启动',MODEL_LOADING:'加载模型',RUNNING:'推理中',UPLOADING:'上传产物',FINALIZING:'核验结果',CLEANING:'等待清理',SUCCEEDED:'已完成',FAILED:'失败',CANCELED:'已取消',TIMED_OUT:'超时',UNKNOWN:'状态待核对'};
+export default function ContainerExecution({task}) {
+ const attempts=task.attempts.filter(a=>a.backend==='k3s');
+ if(!attempts.length)return <section className="panel"><h2>容器执行</h2><p>此历史任务使用进程后端，没有 Kubernetes Job 或 Pod 记录。</p></section>;
+ return <section className="panel container-executions"><h2>K3s 容器执行证据</h2><p className="note">调度器选择目标节点，Kubernetes 创建任务 Pod。模型就绪、推理、上传来自容器回传；完成还需核验产物和容器退出。清理完成前保留槽位。</p>
+ <div className="table-scroll"><table><thead><tr><th>片段 / 尝试</th><th>目标 / 实际节点</th><th>Job / Pod</th><th>容器观测</th><th>清理</th></tr></thead><tbody>{attempts.map(a=>{const w=a.workload||{};return <tr key={a.id}><td>片段 {(task.segments.find(s=>s.id===a.segment_id)?.ordinal??0)+1}<small>{a.id}</small></td><td>{a.node_id} / {a.actual_node||'等待认领'}<small>{w.node_name||w.kube_node||'尚未绑定'}</small></td><td>{w.job_name}<small>{w.pod_name||'Pod 尚未认领'}</small><details><summary>身份与镜像</summary><pre>{JSON.stringify({cluster:w.cluster,namespace:w.namespace,job_uid:w.job_uid,pod_uid:w.pod_uid,image:w.image,model_sha256:w.model_sha256},null,2)}</pre></details></td><td>{states[a.status]||a.status}{w.pods?.map(p=><small key={p.uid}>{p.phase} {p.reasons?.join(' / ')}</small>)}{w.failure&&<small>{w.failure}</small>}{w.failure_logs&&<details><summary>容器错误日志</summary><pre>{JSON.stringify(w.failure_logs,null,2)}</pre></details>}</td><td>{a.cleanup_state==='DONE'?'已清理':'保留槽位，等待清理'}</td></tr>})}</tbody></table></div></section>
+}

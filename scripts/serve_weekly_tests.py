@@ -1,3 +1,5 @@
+import os
+os.environ['CHANGAN_BACKEND']='process'
 """Isolated live four-worker verification environment, with process cleanup."""
 import os,sys,json,time,subprocess,signal
 from pathlib import Path

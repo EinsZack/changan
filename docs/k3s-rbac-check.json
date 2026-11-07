@@ -1,0 +1,9 @@
+{
+  "at": 1794057365.7046964,
+  "checks": {
+    "read_labeled_nodes": true,
+    "deny_system_secrets": true,
+    "deny_delete_nodes": true,
+    "allow_create_jobs": true
+  }
+}

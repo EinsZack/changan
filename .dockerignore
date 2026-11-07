@@ -1,0 +1,11 @@
+*
+!deploy/
+!deploy/Dockerfile.video
+!deploy/requirements-video.txt
+!workers/
+!workers/__init__.py
+!workers/inference.py
+!workers/container_entry.py
+!assets/
+!assets/models/
+!assets/models/yolox_tiny.onnx

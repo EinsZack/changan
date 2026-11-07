@@ -10,7 +10,7 @@ class TaskInput(BaseModel):
     confidence: float=Field(default=0.35,ge=0.05,le=0.95)
     priority: int=Field(default=0,ge=0,le=10)
     deadline_seconds: int=Field(default=600,ge=10,le=86400)
-    attempt_timeout: int=Field(default=90,ge=5,le=3600)
+    attempt_timeout: int=Field(default=300,ge=5,le=3600)
     max_retries: int=Field(default=2,ge=0,le=5)
     min_memory_mb: int=Field(default=256,ge=64)
     node_ids: list[str]=Field(default_factory=list,max_length=64)

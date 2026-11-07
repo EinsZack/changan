@@ -25,4 +25,4 @@ fi
 "$PY" scripts/verify_assets.py
 "$PY" scripts/prepare_demo.py
 (cd web && npm ci --no-audit --no-fund && npm run build)
-printf '依赖与界面准备完成。启动：%s scripts/manage.py start\n' "$PY"
+printf '管理端依赖准备完成。请按 docs/K3s部署与使用说明.md 配置集群、构建镜像，再启动管理服务。\n'

@@ -20,8 +20,10 @@ async def lifespan(app):
     try: await loop
     except asyncio.CancelledError: pass
     await engine.close()
-app=FastAPI(title='车群协同任务编排 API',version='0.3.1',lifespan=lifespan)
+app=FastAPI(title='车群协同任务编排 API',version='0.4.0',lifespan=lifespan)
 app.include_router(alerts_router)
+from .container_execution import router as container_router
+app.include_router(container_router)
 def browser_session():
     return hmac.new(API_KEY.encode(),b'changan-browser-session-v1',hashlib.sha256).hexdigest()
 @app.post('/api/session')
@@ -42,14 +44,14 @@ async def access(request:Request,call_next):
 def internal(x_internal_token:str=Header(default='')):
     if not secrets.compare_digest(x_internal_token,TOKEN): raise HTTPException(401,'内部认证失败')
 @app.get('/health')
-def health(): return {'status':'ok','service':'changan-orchestrator','version':'0.3.1','time':time.time()}
+def health(): return {'status':'ok','service':'changan-orchestrator','version':'0.4.0','time':time.time()}
 @app.get('/api/overview')
 def overview():
     totals=db.query('SELECT status,count(*) n FROM tasks GROUP BY status')
     daily=db.query("SELECT date(created,'unixepoch','+8 hours') day,count(*) total,sum(status='SUCCEEDED') succeeded,sum(status='FAILED') failed,sum(status='CANCELED') canceled,sum(status='TIMED_OUT') timed_out FROM tasks GROUP BY day ORDER BY day DESC LIMIT 30")
     by_workflow=db.query("SELECT json_extract(params,'$.workflow_id') workflow_id,count(*) total,sum(status='SUCCEEDED') succeeded FROM tasks GROUP BY workflow_id")
     attempts=db.query('SELECT count(*) n,AVG(finished-created) average_seconds FROM attempts WHERE finished IS NOT NULL',one=True)
-    return {'totals':{r['status']:r['n'] for r in totals},'daily':daily,'by_workflow':by_workflow,'nodes':engine.nodes(),'attempts':attempts,'mode':'server-lab','metric_note':'业务完成率按父任务完整聚合计算；不是甲方尚待确认口径的99%调度成功率'}
+    return {'totals':{r['status']:r['n'] for r in totals},'daily':daily,'by_workflow':by_workflow,'nodes':engine.nodes(),'attempts':attempts,'mode':engine.backend,'cluster_id':os.getenv('CHANGAN_CLUSTER_ID','changan-dev'),'environment_note':os.getenv('CHANGAN_ENVIRONMENT_NOTE','开发服务器逻辑节点；未完成 THOR 实机验证'),'metric_note':'业务完成率按父任务完整聚合计算；不是甲方尚待确认口径的99%调度成功率'}
 @app.get('/api/nodes')
 def nodes(): return engine.nodes()
 @app.post('/api/scheduling/candidates')
@@ -59,7 +61,7 @@ def candidates(body:CandidateInput):
     if not row: raise HTTPException(422,'调度算法不存在')
     result=choose(engine.nodes(),body.params.model_dump(),body.duration_seconds,body.input_bytes,db.loads(row['body']))
     result['requirements']=body.params.model_dump()
-    result['resource_source']='external_pool' if engine.resource_provider.enabled else 'worker_adapter'
+    result['resource_source']='external_pool' if engine.resource_provider.enabled else ('kubernetes' if engine.containers else 'worker_adapter')
     result['snapshot_policy_seconds']=8
     return result
 @app.get('/api/node-incidents')
@@ -69,6 +71,7 @@ def node_incidents(task_id:str|None=None):
 
 @app.post('/api/nodes')
 def add_node(body:NodeInput):
+    if engine.containers:raise HTTPException(409,'K3s 节点由集群标签注册；请使用节点接入脚本')
     from urllib.parse import urlparse
     parsed=urlparse(body.endpoint)
     if parsed.scheme not in ['http','https'] or not parsed.hostname or parsed.username: raise HTTPException(422,'执行器地址无效')

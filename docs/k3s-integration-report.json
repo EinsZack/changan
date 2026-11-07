@@ -1,0 +1,123 @@
+{
+  "environment": "single-server k3d/K3s logical nodes; CPU ONNX; not THOR",
+  "at": 1794056972.1261692,
+  "cases": [
+    {
+      "name": "four-node",
+      "task_id": "task_9fc2a1f3a40d4742",
+      "status": "SUCCEEDED",
+      "segments": 6,
+      "attempts": 6,
+      "nodes": [
+        "lab-1",
+        "lab-2",
+        "lab-3",
+        "lab-4"
+      ],
+      "all_cleaned": true,
+      "sampled_frames": 48,
+      "elapsed_seconds": 37.720158100128174
+    },
+    {
+      "name": "warm",
+      "task_id": "task_99d8293a82dc4afa",
+      "status": "SUCCEEDED",
+      "segments": 6,
+      "attempts": 6,
+      "nodes": [
+        "lab-1",
+        "lab-2",
+        "lab-3",
+        "lab-4"
+      ],
+      "all_cleaned": true,
+      "sampled_frames": 48,
+      "elapsed_seconds": 39.39405345916748,
+      "counts_equal": true
+    },
+    {
+      "name": "single-node",
+      "task_id": "task_924e3088b7714dc7",
+      "status": "SUCCEEDED",
+      "segments": 1,
+      "attempts": 1,
+      "nodes": [
+        "lab-3"
+      ],
+      "all_cleaned": true,
+      "sampled_frames": 48,
+      "elapsed_seconds": 16.266379356384277
+    },
+    {
+      "name": "cancel",
+      "task_id": "task_51b91f48c9524c7e",
+      "status": "CANCELED",
+      "segments": 1,
+      "attempts": 1,
+      "nodes": [
+        "lab-4"
+      ],
+      "all_cleaned": true,
+      "sampled_frames": null,
+      "elapsed_seconds": 5.377944231033325
+    },
+    {
+      "name": "coordinator-restart",
+      "task_id": "task_6d546db001e24c3f",
+      "status": "SUCCEEDED",
+      "segments": 6,
+      "attempts": 6,
+      "nodes": [
+        "lab-1",
+        "lab-2",
+        "lab-3",
+        "lab-4"
+      ],
+      "all_cleaned": true,
+      "sampled_frames": 240,
+      "elapsed_seconds": 43.17049503326416
+    },
+    {
+      "name": "pod-interruption-retry",
+      "task_id": "task_3e27e24da2e541be",
+      "status": "SUCCEEDED",
+      "segments": 1,
+      "attempts": 2,
+      "nodes": [
+        "lab-3",
+        "lab-4"
+      ],
+      "all_cleaned": true,
+      "sampled_frames": 240,
+      "elapsed_seconds": 46.48761248588562
+    },
+    {
+      "name": "missing-image",
+      "task_id": "task_e15e7c786a574043",
+      "status": "FAILED",
+      "segments": 1,
+      "attempts": 1,
+      "nodes": [],
+      "all_cleaned": true,
+      "sampled_frames": null,
+      "elapsed_seconds": 28.319151163101196
+    },
+    {
+      "name": "cold-image-pull",
+      "task_id": "task_8faaa4ebc5344b3f",
+      "status": "SUCCEEDED",
+      "segments": 1,
+      "attempts": 1,
+      "nodes": [
+        "lab-4"
+      ],
+      "sampled_frames": 48,
+      "all_cleaned": true,
+      "elapsed_seconds": 38.818986892700195,
+      "kubernetes_pull_events": [
+        "Pulling image \"changan-registry:5000/changan/video@sha256:31c0cde932f85e4587284b9571677031cd26bf839013417c1438e3586eb8a723\"",
+        "Successfully pulled image \"changan-registry:5000/changan/video@sha256:31c0cde932f85e4587284b9571677031cd26bf839013417c1438e3586eb8a723\" in 8.472s (8.472s including waiting). Image size: 185756825 bytes."
+      ]
+    }
+  ]
+}

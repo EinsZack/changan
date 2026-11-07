@@ -1,0 +1,47 @@
+{
+  "at": 1794057603.3923078,
+  "version": "0.4.0",
+  "mode": "k3s",
+  "historical_tasks_preserved": 64,
+  "nodes": [
+    {
+      "id": "lab-1",
+      "kind": "k3s_logical",
+      "kube_node": "k3d-changan-dev-agent-0"
+    },
+    {
+      "id": "lab-2",
+      "kind": "k3s_logical",
+      "kube_node": "k3d-changan-dev-agent-1"
+    },
+    {
+      "id": "lab-3",
+      "kind": "k3s_logical",
+      "kube_node": "k3d-changan-dev-agent-2"
+    },
+    {
+      "id": "lab-4",
+      "kind": "k3s_logical",
+      "kube_node": "k3d-changan-dev-agent-3"
+    }
+  ],
+  "verified_at": 1794057845.4885957,
+  "production_task_id": "task_5911ec0b9ca9422f",
+  "status": "SUCCEEDED",
+  "segments": 6,
+  "sampled_frames": 48,
+  "all_cleaned": true,
+  "old_worker_processes": 0,
+  "remaining_jobs": 0,
+  "remaining_pods": 0,
+  "application": {
+    "id": "video-analysis",
+    "version": "1",
+    "image": "changan-registry:5000/changan/video@sha256:31c0cde932f85e4587284b9571677031cd26bf839013417c1438e3586eb8a723",
+    "architecture": "amd64",
+    "model_id": "yolox-tiny-coco-416-v1",
+    "model_sha256": "427cc366d34e27ff7a03e2899b5e3671425c262ea2291f88bb942bc1cc70b0f7",
+    "runtime": "ONNX Runtime CPU",
+    "image_pull_secret": null
+  }
+}

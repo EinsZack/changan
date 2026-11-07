@@ -36,6 +36,10 @@ async def run_capabilities(engine):
         params={'sample_fps':2,'min_memory_mb':64}
         return choose(engine.nodes(),params,4,100000,{'method':'resource_aware'})
     async def platform():
+        if engine.containers:
+            nodes=await engine.containers.client().nodes()
+            if not nodes:raise ValueError('K3s 无可执行节点')
+            return {'backend':'k3s','nodes':nodes,'actual_api_call':True}
         nodes=engine.nodes()
         if not nodes: raise ValueError('无执行器')
         r=await engine.client.get(nodes[0]['endpoint']+'/health');r.raise_for_status();return r.json()

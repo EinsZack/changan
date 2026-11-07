@@ -1,4 +1,4 @@
-import sqlite3, json, time, uuid
+import sqlite3, json, time, uuid, os
 from contextlib import contextmanager
 from .config import DATA
 DB = DATA / 'control.sqlite'
@@ -42,7 +42,10 @@ CREATE INDEX IF NOT EXISTS alerts_status_created ON alerts(acknowledged_at,creat
 CREATE TABLE IF NOT EXISTS strategies(id TEXT PRIMARY KEY,name TEXT NOT NULL,kind TEXT NOT NULL,interval_seconds INTEGER,enabled INTEGER DEFAULT 1,params TEXT NOT NULL,next_run REAL,last_run REAL,created REAL NOT NULL);
 CREATE TABLE IF NOT EXISTS configs(id TEXT PRIMARY KEY,category TEXT NOT NULL,name TEXT NOT NULL,body TEXT NOT NULL,created REAL NOT NULL,updated REAL NOT NULL);
 ''')
-        for i in range(4):
+        columns={r[1] for r in c.execute('PRAGMA table_info(attempts)')}
+        for name,decl in [('backend',"TEXT NOT NULL DEFAULT 'process'"),('workload','TEXT'),('cleanup_state',"TEXT NOT NULL DEFAULT 'DONE'")]:
+            if name not in columns:c.execute('ALTER TABLE attempts ADD COLUMN '+name+' '+decl)
+        for i in range(4 if os.getenv('CHANGAN_BACKEND','k3s')=='process' else 0):
             c.execute('INSERT OR IGNORE INTO nodes(id,endpoint,cluster_id,kind) VALUES(?,?,?,?)', (f'lab-{i+1}',f'http://127.0.0.1:{8321+i}','server-lab','server_process'))
         defaults=[
           ('round_robin','algorithm','可行节点轮询',{'version':1,'method':'round_robin','weights':{}}),
@@ -65,6 +68,7 @@ def task_detail(id):
     for k in ['params','metadata','result']: task[k]=loads(task[k])
     task['segments']=query('SELECT * FROM segments WHERE task_id=? ORDER BY ordinal',(id,))
     for s in task['segments']: s['result']=loads(s['result'])
-    task['attempts']=query('SELECT id,task_id,segment_id,node_id,status,created,started,finished,updated,last_seq,progress,execution_id,actual_node,error,decision FROM attempts WHERE task_id=? ORDER BY created',(id,))
-    for a in task['attempts']: a['decision']=loads(a['decision'])
+    task['attempts']=query('SELECT id,task_id,segment_id,node_id,status,created,started,finished,updated,last_seq,progress,execution_id,actual_node,error,decision,backend,workload,cleanup_state FROM attempts WHERE task_id=? ORDER BY created',(id,))
+    for a in task['attempts']:
+        a['decision']=loads(a['decision']);a['workload']=loads(a['workload'],{})
     return task

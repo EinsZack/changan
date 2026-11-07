@@ -1,4 +1,4 @@
-import asyncio, time, json, secrets, hashlib, logging
+import asyncio, time, json, secrets, hashlib, logging, os
 from pathlib import Path
 import httpx
 from . import db, video
@@ -14,6 +14,12 @@ class Engine:
         self.resource_provider=ResourceProvider(self.client)
         self.preparing={}; self.lock=asyncio.Lock(); self.cursor=0; self.last_refresh=0; self.base='http://127.0.0.1:8310'
         self.running=True
+        self.backend=os.getenv('CHANGAN_BACKEND','k3s')
+        if self.backend not in ('k3s','process'):raise ValueError('CHANGAN_BACKEND 无效')
+        self.containers=None
+        if self.backend=='k3s':
+            from .container_execution import ContainerExecution
+            self.containers=ContainerExecution(self)
     async def close(self):
         self.running=False
         for task in self.preparing.values(): task.cancel()
@@ -32,6 +38,8 @@ class Engine:
         workflow=db.query("SELECT body FROM configs WHERE category='workflow' AND id=?",(params['workflow_id'],),one=True)
         if not workflow or not db.loads(workflow['body']).get('enabled',True): raise ValueError('工作流不存在或已禁用')
         if params['workflow_id']!='video-analysis': raise ValueError('此任务入口仅支持视频分析模板，能力验证请使用对应入口')
+        metadata={'algorithm_snapshot':db.loads(algorithm['body']),'workflow_snapshot':db.loads(workflow['body']),'execution_backend':self.backend}
+        if self.containers:metadata['application']=self.containers.application()
         id=db.uid('task'); now=time.time()
         with db.connect() as c:
             c.execute('BEGIN IMMEDIATE')
@@ -40,7 +48,7 @@ class Engine:
                 if old:
                     if db.loads(old['params'])!=params: raise ValueError('幂等键对应参数不一致')
                     return old['id']
-            c.execute('INSERT INTO tasks(id,name,source,status,created,updated,params,metadata,trigger_type,strategy_id,idempotency_key) VALUES(?,?,?,?,?,?,?,?,?,?,?)',(id,body.name,body.source,'QUEUED',now,now,db.dumps(params),db.dumps({'algorithm_snapshot':db.loads(algorithm['body']),'workflow_snapshot':db.loads(workflow['body'])}),trigger,strategy,key))
+            c.execute('INSERT INTO tasks(id,name,source,status,created,updated,params,metadata,trigger_type,strategy_id,idempotency_key) VALUES(?,?,?,?,?,?,?,?,?,?,?)',(id,body.name,body.source,'QUEUED',now,now,db.dumps(params),db.dumps(metadata),trigger,strategy,key))
             db.event(id,'created',{'state':'SUCCEEDED','stage':'submit','params':params,'trigger_type':trigger,'strategy_id':strategy},conn=c)
         return id
     async def prepare(self,id):
@@ -68,6 +76,8 @@ class Engine:
                 db.event(id,'task_terminal',{'stage':'complete','state':state,'message':error},conn=c)
                 record_terminal(c,id,state,error,now)
     async def refresh(self):
+        if self.containers:
+            await self.containers.refresh(); return
         nodes=db.query('SELECT * FROM nodes')
         pool_snapshots=None
         if self.resource_provider.enabled:
@@ -103,8 +113,8 @@ class Engine:
         nodes=db.query('SELECT * FROM nodes')
         for n in nodes:
             n['snapshot']=db.loads(n['snapshot'],{})
-            n['reserved']=db.query("SELECT count(*) AS n FROM attempts WHERE node_id=? AND status NOT IN ('SUCCEEDED','FAILED','CANCELED','TIMED_OUT')",(n['id'],),one=True)['n']
-            n['online']=bool(n['observed'] and time.time()-n['observed']<8)
+            n['reserved']=db.query("SELECT count(*) AS n FROM attempts WHERE node_id=? AND (status NOT IN ('SUCCEEDED','FAILED','CANCELED','TIMED_OUT') OR (backend='k3s' AND cleanup_state!='DONE'))",(n['id'],),one=True)['n']
+            n['online']=bool(not n.get('error') and n['observed'] and time.time()-n['observed']<8)
         return nodes
     async def dispatch(self,task,segment):
         params=db.loads(task['params']); frozen=db.loads(task['metadata'],{}).get('algorithm_snapshot')
@@ -139,6 +149,8 @@ class Engine:
         payload={'task_id':task['id'],'segment_id':segment['id'],'attempt_id':aid,'token':token,'target_node':node['id'],'input_url':self.base+f"/internal/segments/{segment['id']}",'input_sha256':hashlib.sha256(Path(segment['path']).read_bytes()).hexdigest(),'callback_url':self.base+'/internal/events','params':{'sample_fps':params['sample_fps'],'confidence':params['confidence']}}
         db.event(task['id'],'dispatch_request',{'stage':'execute','state':'DISPATCHING','task_id':task['id'],'segment_id':segment['id'],'attempt_id':aid,'target_node':node['id'],'input_sha256':payload['input_sha256'],'input_bytes':Path(segment['path']).stat().st_size,'params':payload['params']},aid)
         try:
+            if self.containers:
+                await self.containers.submit(task,segment,aid,payload); return
             r=await self.client.post(node['endpoint']+'/executions',json=payload)
             if r.status_code==409:
                 self.attempt_failure(aid,'执行节点资源竞争或拒绝提交'); return
@@ -185,10 +197,10 @@ class Engine:
         if state=='SUCCEEDED':
             if not result or result.get('attempt_id')!=id or result.get('task_id')!=a['task_id'] or result.get('segment_id')!=a['segment_id'] or result.get('actual_node')!=a['node_id'] or result.get('model_id')!=MODEL_ID or result.get('sampled_frames',0)<=0 or len(result.get('frames',[]))!=result.get('sampled_frames'):
                 self.attempt_failure(id,'结果完整性或来源校验失败'); return {'accepted':False,'reason':'invalid_result'}
-            folder=DATA/'tasks'/a['task_id']/id; folder.mkdir(exist_ok=True)
+            folder=DATA/'tasks'/a['task_id']/id; folder.mkdir(parents=True,exist_ok=True)
             node=db.query('SELECT endpoint FROM nodes WHERE id=?',(a['node_id'],),one=True)
-            stored=[]
-            for name in result.get('previews',[]):
+            stored=result.get('preview_urls',[]) if a.get('backend')=='k3s' else []
+            for name in ([] if a.get('backend')=='k3s' else result.get('previews',[])):
                 if name not in ['preview-0.jpg','preview-1.jpg','preview-2.jpg']: continue
                 try:
                     r=await self.client.get(node['endpoint']+f"/executions/{body['id']}/artifacts/{name}"); r.raise_for_status()
@@ -206,7 +218,8 @@ class Engine:
         reconcile_observation(id)
         return {'accepted':True}
     async def reconcile(self):
-        attempts=db.query("SELECT * FROM attempts WHERE status NOT IN ('SUCCEEDED','FAILED','CANCELED','TIMED_OUT')")
+        if self.containers:await self.containers.reconcile()
+        attempts=db.query("SELECT * FROM attempts WHERE backend='process' AND status NOT IN ('SUCCEEDED','FAILED','CANCELED','TIMED_OUT')")
         for a in attempts:
             task=db.query('SELECT status,params FROM tasks WHERE id=?',(a['task_id'],),one=True)
             node=db.query('SELECT endpoint FROM nodes WHERE id=?',(a['node_id'],),one=True)
@@ -235,7 +248,7 @@ class Engine:
             for label,n in r['counts'].items(): counts[label]=counts.get(label,0)+n
             for f in r['frames']: frames.append(f|{'video_seconds':round(s['start']+f['seconds'],4),'segment_id':s['id'],'node_id':r['actual_node']})
             previews+=r.get('preview_urls',[])
-            provenance.append({'segment_id':s['id'],'attempt_id':r['attempt_id'],'node_id':r['actual_node'],'model_id':r['model_id'],'model_sha256':r['model_sha256'],'start':s['start'],'end':s['end']})
+            provenance.append({'segment_id':s['id'],'attempt_id':r['attempt_id'],'node_id':r['actual_node'],'model_id':r['model_id'],'model_sha256':r['model_sha256'],'start':s['start'],'end':s['end'],**{k:r.get(k) for k in ['execution_backend','image','job_name','job_uid','pod_uid','kube_node']}})
         result={'counts':counts,'frames':frames,'previews':previews,'provenance':provenance,'coverage':1,'sampled_frames':len(frames),'counting_rule':'采样帧目标出现次数，非唯一对象数量','elapsed_seconds':time.time()-task['created'],'execution_mode':'真实推理；节点类型见provenance及资源页'}
         folder=DATA/'tasks'/task['id']; (folder/'result.json').write_text(db.dumps(result))
         with db.connect() as c:
@@ -251,7 +264,7 @@ class Engine:
             db.execute('UPDATE strategies SET last_run=?,next_run=? WHERE id=?',(now,now+s['interval_seconds'],s['id']))
     async def tick(self):
         if self.resource_provider.enabled:
-            for a in db.query("SELECT id,decision FROM attempts WHERE status IN ('SUCCEEDED','FAILED','CANCELED','TIMED_OUT') AND json_extract(decision,'$.reservation_id') IS NOT NULL AND json_extract(decision,'$.reservation_released') IS NULL"):
+            for a in db.query("SELECT id,decision FROM attempts WHERE status IN ('SUCCEEDED','FAILED','CANCELED','TIMED_OUT') AND (backend='process' OR cleanup_state='DONE') AND json_extract(decision,'$.reservation_id') IS NOT NULL AND json_extract(decision,'$.reservation_released') IS NULL"):
                 decision=db.loads(a['decision'])
                 try:
                     await self.resource_provider.release(decision['reservation_id'])
@@ -259,7 +272,9 @@ class Engine:
                     db.execute('UPDATE attempts SET decision=? WHERE id=?',(db.dumps(decision),a['id']))
                 except Exception: pass
         if time.monotonic()-self.last_refresh>=2:
-            await self.refresh(); await self.reconcile(); await self.schedules(); self.last_refresh=time.monotonic()
+            try:await self.refresh()
+            except Exception:log.exception('Resource refresh unavailable')
+            await self.reconcile(); await self.schedules(); self.last_refresh=time.monotonic()
         for id,t in list(self.preparing.items()):
             if t.done(): self.preparing.pop(id,None)
         tasks=db.query("SELECT * FROM tasks WHERE status NOT IN ('SUCCEEDED','FAILED','CANCELED','TIMED_OUT') ORDER BY created")
@@ -283,7 +298,7 @@ class Engine:
                 await self.dispatch(task,s)
             after=db.query('SELECT count(*) n FROM attempts WHERE task_id=?',(task['id'],),one=True)['n']
             if after>before:
-                db.event(task['id'],'dispatch_batch',{'stage':'schedule','state':'SUCCEEDED','assigned':after-before,'pending_at_start':len(pending),'duration_ms':(time.monotonic()-batch_started)*1000,'boundary':'本轮待分片读取、候选查询和HTTP提交确认；不含之前排队及周期资源刷新','complete_global_assignment':after-before==len(pending)})
+                db.event(task['id'],'dispatch_batch',{'stage':'schedule','state':'SUCCEEDED','assigned':after-before,'pending_at_start':len(pending),'duration_ms':(time.monotonic()-batch_started)*1000,'boundary':'本轮待分片读取、候选查询和执行后端提交确认；不含之前排队及周期资源刷新','complete_global_assignment':after-before==len(pending)})
     async def loop(self):
         while self.running:
             try:

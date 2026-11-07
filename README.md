@@ -4,7 +4,7 @@
 
 0.2.0增加站内任务告警：超时或最终失败时提示，可查看未读数量、告警原因并标记已读或确认。详见[站内告警使用说明](docs/站内告警使用说明.md)和[本次交付说明](docs/站内告警交付说明_20261031.md)。
 
-当前默认环境是同一开发服务器上的4个执行器进程，明确标为server_process；真实车端和正式资源池联调尚未完成。
+0.4.0 已迁移到 K3s Job 容器执行：Docker 构建并推送固定摘要的模型镜像，K3s/containerd 在选定节点运行分片任务。当前为同一开发服务器上的 4 个 K3s 逻辑节点；真实 THOR 板卡及 GPU 尚未验证。部署与日常操作见 [K3s部署与使用说明](docs/K3s部署与使用说明.md)。
 
 0.3.0增加候选筛选、下发请求与确认、失联影响记录和视频片段回放。详见[11月4日开发交付与使用说明](docs/周会开发交付说明_20261104.md)。
 
@@ -16,6 +16,7 @@
 cd /root/projects/changan-orchestrator
 source /root/miniforge3/etc/profile.d/conda.sh
 conda activate changan-orchestrator
+python scripts/cluster.py start
 python scripts/manage.py start
 ```
 
@@ -42,7 +43,7 @@ ssh -N -L 127.0.0.1:8310:127.0.0.1:8310 -p 22031 root@10.13.0.9
 | 目录 | 内容 |
 |---|---|
 | app/ | API、持久化、编排调度、资源池适配、连接器与视频切分 |
-| workers/ | HTTP执行器、状态持久化、ONNX推理及预览产物 |
+| workers/ | 容器任务入口、ONNX推理；旧HTTP执行器仅用于兼容回归 |
 | web/ | React界面、构建及浏览器测试 |
 | scripts/ | 启停、资产准备、环境复现、集成测试和基线测试 |
 | tests/ | 状态机、接口、幂等、调度与契约测试 |
@@ -51,9 +52,9 @@ ssh -N -L 127.0.0.1:8310:127.0.0.1:8310 -p 22031 root@10.13.0.9
 
 ```bash
 python -m pytest -q
-python scripts/integration.py
-python scripts/benchmark.py
-cd web && npm run build && npx playwright test
+python scripts/integration_k3s.py # 默认连接隔离验证实例8410
+# 旧 scripts/integration.py / benchmark.py 仅用于 process 后端
+cd web && npm run build && npx playwright test -c playwright.k3s.config.js
 ```
 
 集成测试会真实创建任务和重启本项目进程，运行前应确保无其他在途工作。请勿将一次成功演示或服务器基线结果写为真实车端验收通过。
