@@ -1,0 +1,8 @@
+{
+  "previous_commit": "8b44556a8f3e18476251c79946235abf9c9cebb3",
+  "previous_tasks": 71,
+  "cpu_image": "changan-registry:5000/changan/video@sha256:2b83240bcdbadbb884f44258f61c8120591714af98a2f6aed6d828ba2e06ace8",
+  "cuda_image": "changan-registry:5000/changan/video-cuda@sha256:49a0aef9b09e74fd3559a3f3b059a30c9a1df732fdeb2e2ce5ac088a3fcb3ae0",
+  "deployed_at": 1794118662.8906813,
+  "version": "0.6.0"
+}

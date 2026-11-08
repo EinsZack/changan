@@ -74,11 +74,13 @@ def run_session(config):
         model = Path('/opt/model/yolox_tiny.onnx')
         if hashlib.sha256(model.read_bytes()).hexdigest() != config['model_sha256']:
             raise ValueError('模型摘要不一致')
-        detector = Detector(model)
+        detector = Detector(model, backend=config.get('inference_backend','cpu'),
+                            gpu_memory_mb=config.get('gpu_memory_mb',2048),
+                            expected_gpu_uuid=config.get('expected_gpu_uuid'))
         load_seconds = time.monotonic() - began
         request('POST', session_url + '/ready', headers=headers,
-                json={'model_sha256': detector.sha256, 'model_load_seconds': load_seconds})
-        print(json.dumps({'session_id': sid, 'pod_uid': uid, 'event': 'model_loaded', 'model_load_seconds': load_seconds}), flush=True)
+                json={'model_sha256': detector.sha256, 'model_load_seconds': load_seconds, 'inference': detector.execution})
+        print(json.dumps({'session_id': sid, 'pod_uid': uid, 'event': 'model_loaded', 'model_load_seconds': load_seconds, 'inference': detector.execution}), flush=True)
         while not stop.is_set():
             response = request('POST', session_url + '/next', headers=headers).json()
             if response['action'] == 'wait':
@@ -96,6 +98,7 @@ def run_session(config):
                 return request('POST', p['callback_url'], headers=attempt_headers,
                                json={'seq': seq, 'status': state, 'progress': progress, **kwargs})
 
+            phase='download'
             try:
                 event('RUNNING')
                 began = time.monotonic()
@@ -113,7 +116,9 @@ def run_session(config):
                         event('RUNNING', value)
                         last_progress = time.monotonic()
 
+                phase='inference'
                 result = analyze(detector, video, out, p['params'], progress, stop.is_set)
+                phase='upload'
                 event('UPLOADING', .99)
                 artifacts = []
                 for name in result['previews']:
@@ -132,6 +137,8 @@ def run_session(config):
             except Exception as error:
                 # Input/inference failures are segment failures. A healthy model/session stays reusable.
                 event('FAILED', error=type(error).__name__ + ': ' + str(error)[:500])
+                if phase=='inference' and detector.backend=='cuda':
+                    raise RuntimeError('CUDA execution failed; discard this model session') from error
             finally:
                 # Segments never accumulate in emptyDir during a long session.
                 shutil.rmtree(out, ignore_errors=True)

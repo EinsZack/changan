@@ -1,0 +1,79 @@
+{
+  "observed_at": 1794119277.1558106,
+  "machine": "x86_64",
+  "kernel": "6.8.0-139-generic",
+  "os_release": "PRETTY_NAME=\"Ubuntu 24.04.3 LTS\"\nNAME=\"Ubuntu\"\nVERSION_ID=\"24.04\"\nVERSION=\"24.04.3 LTS (Noble Numbat)\"\nVERSION_CODENAME=noble\nID=ubuntu\nID_LIKE=debian\nHOME_URL=\"https://www.ubuntu.com/\"\nSUPPORT_URL=\"https://help.ubuntu.com/\"\nBUG_REPORT_URL=\"https://bugs.launchpad.net/ubuntu/\"\nPRIVACY_POLICY_URL=\"https://www.ubuntu.com/legal/terms-and-policies/privacy-policy\"\nUBUNTU_CODENAME=noble\nLOGO=ubuntu-logo\n",
+  "tegra_release": null,
+  "memory": {
+    "MemTotal": "1056419848 kB",
+    "MemAvailable": "781422480 kB"
+  },
+  "commands": {
+    "k3s": {
+      "available": false
+    },
+    "nvidia_runtime": {
+      "available": false
+    },
+    "nvidia_toolkit": {
+      "available": false
+    },
+    "nvidia_smi": {
+      "available": true,
+      "returncode": 0,
+      "stdout": "name, uuid, driver_version, memory.total [MiB], memory.free [MiB]\nNVIDIA GeForce RTX 5090, GPU-d4f94119-747f-d5f0-7671-2a8089ee5fa7, 590.48.01, 32607 MiB, 32092 MiB\nNVIDIA GeForce RTX 5090, GPU-872dc5da-1610-9f41-8853-3cb094a8001a, 590.48.01, 32607 MiB, 31551 MiB\nNVIDIA GeForce RTX 5090, GPU-9f2de02c-f948-09ab-ea9e-ac09c46ff40a, 590.48.01, 32607 MiB, 31551 MiB\nNVIDIA GeForce RTX 5090, GPU-65b7ecd9-a6bb-b087-8492-051076f1be14, 590.48.01, 32607 MiB, 31551 MiB\nNVIDIA GeForce RTX 5090, GPU-96685baf-519c-7364-1f92-f3b1b93e3b76, 590.48.01, 32607 MiB, 31551 MiB\nNVIDIA GeForce RTX 5090, GPU-a2f81331-c520-dec0-03ed-ae915bfa2dee, 590.48.01, 32607 MiB, 31551 MiB\nNVIDIA GeForce RTX 5090, GPU-1ba5825e-38ee-5dc3-2514-eb000355f95b, 590.48.01, 32607 MiB, 29103 MiB\nNVIDIA GeForce RTX 5090, GPU-b0f8a0f6-4c45-3e80-51c0-c46ce181ff49, 590.48.01, 32607 MiB, 24147 MiB\n",
+      "stderr": ""
+    },
+    "nvidia_packages": {
+      "available": true,
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "dpkg-query: no packages found matching nvidia-l4t-core\ndpkg-query: no packages found matching nvidia-jetpack\n"
+    }
+  },
+  "status": "inventory_only; application GPU inference and image compatibility require validation",
+  "cuda_driver_version": 13010,
+  "cuda_visible_devices": 8,
+  "cuda_devices": [
+    {
+      "name": "NVIDIA GeForce RTX 5090",
+      "uuid": "GPU-d4f94119-747f-d5f0-7671-2a8089ee5fa7",
+      "uuid_status": 0
+    },
+    {
+      "name": "NVIDIA GeForce RTX 5090",
+      "uuid": "GPU-872dc5da-1610-9f41-8853-3cb094a8001a",
+      "uuid_status": 0
+    },
+    {
+      "name": "NVIDIA GeForce RTX 5090",
+      "uuid": "GPU-9f2de02c-f948-09ab-ea9e-ac09c46ff40a",
+      "uuid_status": 0
+    },
+    {
+      "name": "NVIDIA GeForce RTX 5090",
+      "uuid": "GPU-65b7ecd9-a6bb-b087-8492-051076f1be14",
+      "uuid_status": 0
+    },
+    {
+      "name": "NVIDIA GeForce RTX 5090",
+      "uuid": "GPU-96685baf-519c-7364-1f92-f3b1b93e3b76",
+      "uuid_status": 0
+    },
+    {
+      "name": "NVIDIA GeForce RTX 5090",
+      "uuid": "GPU-a2f81331-c520-dec0-03ed-ae915bfa2dee",
+      "uuid_status": 0
+    },
+    {
+      "name": "NVIDIA GeForce RTX 5090",
+      "uuid": "GPU-1ba5825e-38ee-5dc3-2514-eb000355f95b",
+      "uuid_status": 0
+    },
+    {
+      "name": "NVIDIA GeForce RTX 5090",
+      "uuid": "GPU-b0f8a0f6-4c45-3e80-51c0-c46ce181ff49",
+      "uuid_status": 0
+    }
+  ]
+}

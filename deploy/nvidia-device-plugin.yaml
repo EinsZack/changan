@@ -1,0 +1,39 @@
+# Development server only: expose exactly one selected physical GPU.
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: changan-lab-nvidia-device-plugin
+  namespace: kube-system
+spec:
+  selector:
+    matchLabels:
+      app: changan-lab-nvidia-device-plugin
+  template:
+    metadata:
+      labels:
+        app: changan-lab-nvidia-device-plugin
+    spec:
+      runtimeClassName: nvidia
+      nodeSelector:
+        kubernetes.io/hostname: k3d-changan-dev-gpu-0
+      containers:
+      - name: plugin
+        image: changan-registry:5000/changan/nvidia-device-plugin@sha256:7fc948405ac1ec49d802a754a9c510730e7ebcd72f2795d8aaf192cf6dbda122
+        env:
+        - name: FAIL_ON_INIT_ERROR
+          value: "true"
+        - name: NVIDIA_DRIVER_CAPABILITIES
+          value: compute,utility
+        - name: NVIDIA_VISIBLE_DEVICES
+          value: GPU-1ba5825e-38ee-5dc3-2514-eb000355f95b
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop: [ALL]
+        volumeMounts:
+        - name: device-plugin
+          mountPath: /var/lib/kubelet/device-plugins
+      volumes:
+      - name: device-plugin
+        hostPath:
+          path: /var/lib/kubelet/device-plugins

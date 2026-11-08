@@ -46,7 +46,7 @@ metadata:
   name: changan-node-reader
 rules:
 - apiGroups: [""]
-  resources: ["nodes"]
+  resources: ["nodes", "pods"]
   verbs: ["get", "list"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1

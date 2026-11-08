@@ -1,0 +1,19 @@
+# Development-only nested K3s node. Driver files match the lab host; not a THOR image.
+FROM rancher/k3s:v1.35.5-k3s1 AS k3s
+FROM python:3.11-slim-bookworm@sha256:a83ba18aef0f865b1a4a611c2cf460fe446f2795673bbb9fe43be570439e3b39
+COPY toolkit/ /
+COPY driver/ /
+RUN ldconfig && mkdir -p /etc/nvidia-container-runtime && \
+    nvidia-ctk config --in-place --set nvidia-container-cli.no-cgroups=false && \
+    nvidia-ctk config --in-place --set nvidia-container-runtime.mode=legacy
+COPY --from=k3s /bin/ /bin/
+COPY --from=k3s /var/lib/rancher/k3s/data/cni/ /var/lib/rancher/k3s/data/cni/
+ENV PATH="/var/lib/rancher/k3s/data/cni:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/bin/aux" \
+    CRI_CONFIG_FILE="/var/lib/rancher/k3s/agent/etc/crictl.yaml" \
+    NVIDIA_DRIVER_CAPABILITIES="compute,utility"
+VOLUME /var/lib/kubelet
+VOLUME /var/lib/rancher/k3s
+VOLUME /var/lib/cni
+VOLUME /var/log
+ENTRYPOINT ["/bin/k3s"]
+CMD ["agent"]

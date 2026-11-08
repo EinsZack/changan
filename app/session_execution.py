@@ -14,6 +14,8 @@ from . import db
 from .config import DATA, TERMINAL
 from .incidents import reconcile_observation
 from .kube import session_manifest
+from .applications import bind_node
+from .inference_evidence import validate_inference
 
 router = APIRouter()
 MODE = 'task_session'
@@ -98,6 +100,7 @@ class SessionExecution:
             n['reserved'] = max(0, n['reserved'] - 1)
             snap['active'] = max(0, snap.get('active', 0) - 1)
             snap['available_memory_mb'] = min(snap.get('memory_budget_mb', 0), snap.get('available_memory_mb', 0) + w['memory_mb'])
+            snap['gpu_available'] = min(snap.get('gpu_allocatable',0),snap.get('gpu_available',0)+w.get('gpu_count',0))
             snap['reusable_session_id'] = s['id']
             snap['session_model_ready'] = True
             n['snapshot'] = snap
@@ -109,6 +112,7 @@ class SessionExecution:
         a = db.query('SELECT * FROM attempts WHERE id=?', (aid,), one=True)
         node = db.query('SELECT * FROM nodes WHERE id=?', (a['node_id'],), one=True)
         snapshot = db.loads(node['snapshot'])
+        app = bind_node(app, snapshot)
         now = time.time()
         with db.connect() as c:
             c.execute('BEGIN IMMEDIATE')
@@ -130,7 +134,8 @@ class SessionExecution:
                 w = app | {'job_name': 'video-' + sid.replace('_', '-'), 'cluster': self.owner.client().cluster,
                            'namespace': self.owner.client().namespace, 'target_node': a['node_id'],
                            'kube_node': snapshot['kube_node'], 'node_uid': snapshot.get('node_uid'),
-                           'memory_mb': max(1024, params['min_memory_mb']), 'created_at': now}
+                           'memory_mb': max(app.get('host_memory_min_mb',1024), params['min_memory_mb']), 'created_at': now,
+                           'expected_gpu_uuid': snapshot.get('gpu_uuid') if app.get('gpu_count') else None}
                 s = {'id': sid, 'task_id': task['id'], 'node_id': a['node_id'], 'token': secrets.token_urlsafe(32)}
                 c.execute("INSERT INTO execution_sessions(id,task_id,node_id,token,status,created,updated,workload) VALUES(?,?,?,?,'STARTING',?,?,?)",
                           (sid, task['id'], a['node_id'], s['token'], now, now, db.dumps(w)))
@@ -154,12 +159,16 @@ class SessionExecution:
             snap = db.loads(node['snapshot'])
             # Use one idempotency key/lease for the whole task-node session.
             rid = await self.engine.resource_provider.reserve(s['node_id'], s['task_id'], s['id'],
-                {'memory_mb': w['memory_mb'], 'slots': 1, 'scope': 'task_session'}, snap.get('snapshot_version'), int(remaining) + 300)
+                {'memory_mb': w['memory_mb'], 'slots': 1, 'scope': 'task_session',
+                 'gpu_count': w.get('gpu_count',0), 'gpu_memory_mb': w.get('gpu_memory_mb',0),
+                 'inference_backend': w.get('inference_backend','cpu')}, snap.get('snapshot_version'), int(remaining) + 300)
             db.execute('UPDATE execution_sessions SET reservation_id=? WHERE id=?', (rid, s['id']))
         base = os.getenv('CHANGAN_CONTAINER_BASE', self.engine.base)
         payload = {'execution_mode': MODE, 'session_id': s['id'], 'session_token': s['token'],
                    'task_id': s['task_id'], 'target_node': s['node_id'], 'base_url': base,
-                   'model_sha256': w['model_sha256'], 'heartbeat_seconds': 2, 'lease_seconds': 20}
+                   'model_sha256': w['model_sha256'], 'heartbeat_seconds': 2, 'lease_seconds': 20,
+                   'inference_backend': w.get('inference_backend','cpu'),
+                   'gpu_memory_mb': w.get('gpu_memory_mb',0), 'expected_gpu_uuid': w.get('expected_gpu_uuid')}
         job = await self.owner.client().submit(session_manifest(s, w, params, remaining), payload)
         patch_workload(s['id'], {'job_uid': job.metadata.uid})
 
@@ -232,7 +241,8 @@ class SessionExecution:
         elif node and node['error'] == '节点不在 K3s 可执行节点集合':
             self.stop(sid, '节点已退出可执行节点集合，重新分配未完成分片')
         elif node and not node['error'] and now - (node['observed'] or 0) < 8 and (
-                not snap.get('healthy') or (w.get('node_uid') and snap.get('node_uid') != w['node_uid'])):
+                not snap.get('healthy') or (w.get('node_uid') and snap.get('node_uid') != w['node_uid']) or
+                (w.get('expected_gpu_uuid') and snap.get('gpu_uuid') != w['expected_gpu_uuid'])):
             self.stop(sid, '节点退出或身份改变，隔离旧执行并重新分配分片')
         elif s['active_attempt']:
             a = db.query('SELECT * FROM attempts WHERE id=?', (s['active_attempt'],), one=True)
@@ -339,6 +349,7 @@ async def ready(sid: str, request: Request):
     s, w, task = authenticate_session(sid, request)
     body = await request.json()
     seconds = body.get('model_load_seconds')
+    validate_inference(w,body.get('inference'))
     import math
     if body.get('model_sha256') != w['model_sha256'] or not isinstance(seconds, (int, float)) or not math.isfinite(seconds) or seconds < 0:
         raise HTTPException(422, '模型就绪证据无效')
@@ -346,9 +357,11 @@ async def ready(sid: str, request: Request):
         c.execute('BEGIN IMMEDIATE')
         s = get_session(sid, c)
         task = c.execute('SELECT * FROM tasks WHERE id=?', (s['task_id'],)).fetchone()
-        session_valid(s, task, request.headers.get('x-pod-uid'))
+        w = session_valid(s, task, request.headers.get('x-pod-uid'))
         if not s['ready_at']:
             now = time.time()
+            w['inference']=body.get('inference')
+            c.execute('UPDATE execution_sessions SET workload=? WHERE id=?',(db.dumps(w),sid))
             c.execute("UPDATE execution_sessions SET status='READY',ready_at=?,model_load_count=1,model_load_seconds=?,heartbeat_at=?,updated=? WHERE id=?", (now, seconds, now, now, sid))
             db.event(s['task_id'], 'session_ready', {'stage': 'execute', 'state': 'READY', 'session_id': sid, 'pod_uid': w['pod_uid'], 'model_load_seconds': seconds, 'model_load_count': 1}, conn=c)
     return {'accepted': True}
@@ -391,6 +404,7 @@ def validate_result(a, w, result):
         raise HTTPException(422, '结果来源不一致')
     if result.get('sampled_frames', 0) <= 0 or len(result.get('frames', [])) != result['sampled_frames'] or not isinstance(result.get('counts'), dict):
         raise HTTPException(422, '采样结果不完整')
+    validate_inference(w,result.get('inference'))
     names = result.get('previews', [])
     manifest = result.get('artifacts', [])
     if not names or len(set(names)) != len(names) or len(manifest) != len(names) or set(names) != {m.get('name') for m in manifest}:

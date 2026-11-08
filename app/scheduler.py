@@ -18,10 +18,22 @@ def choose(nodes, params, duration, input_bytes, algorithm, cursor=0):
         if params.get('location') and params['location']!=s.get('location'): why.append('节点位置不匹配')
         if params.get('architecture') and params['architecture']!=s.get('architecture'): why.append('处理器架构不匹配')
         if not set(params.get('required_tags',[])).issubset(s.get('tags',[])): why.append('缺少必要标签')
-        if s.get('available_memory_mb',0)<max(512 if 'kubernetes' in s.get('resource_source','') else 0,params.get('min_memory_mb',256)): why.append('可用内存不足')
+        if s.get('available_memory_mb',0)<max(params.get('host_memory_min_mb',512) if 'kubernetes' in s.get('resource_source','') else 0,params.get('min_memory_mb',256)): why.append('可用内存不足')
         if max(s.get('active',0),n.get('reserved',0))>=s.get('capacity',1): why.append('执行槽已占用或预留')
         if not s.get('input_reachable',True): why.append('输入通道不可达')
-        fps=s.get('measured_fps') or 8.0
+        backend=params.get('inference_backend','cpu')
+        if params.get('application_architectures') and s.get('architecture') not in params['application_architectures']:why.append('没有匹配节点架构的冻结镜像')
+        if backend=='cuda':
+            if s.get('gpu_registration_error'):why.append(s['gpu_registration_error'])
+            if not s.get('gpu_runtime_ready'):why.append('CUDA 运行环境未就绪')
+            if s.get('gpu_available',0)<1:why.append('GPU 已占用、预留或未注册')
+            if not s.get('gpu_telemetry_fresh') or now-(s.get('gpu_observed_at') or 0)>20:why.append('GPU 资源观测缺失或过期')
+            if not s.get('reusable_session_id') and (s.get('gpu_memory_free_mb') is None or s['gpu_memory_free_mb']<params.get('min_gpu_memory_mb',2048)):why.append('可用显存不足或未知')
+        profile=s.get('inference_profiles',{}).get(backend,{})
+        expected_image=params.get('application_images',{}).get(s.get('architecture'))
+        measured=profile.get('fps') if (not expected_image or profile.get('image')==expected_image) else None
+        if 'inference_profiles' not in s and backend=='cpu':measured=s.get('measured_fps')
+        fps=measured or 8.0
         compute=duration*params.get('sample_fps',2)/max(fps,0.1)
         bandwidth=positive(s.get('bandwidth_mbps'))
         expires=s.get('network_expires_at')
@@ -32,7 +44,7 @@ def choose(nodes, params, duration, input_bytes, algorithm, cursor=0):
         transfer=input_bytes*8/(bandwidth*1e6) if bandwidth else 0
         queue=s.get('active',0)*compute
         score=compute*weights.get('compute',1)+transfer*weights.get('transfer',1)+queue*weights.get('queue',1)
-        rows.append({'node_id':n['id'],'eligible':not why,'reasons':why,'score':round(score,4),'compute_seconds':round(compute,4),'transfer_seconds':round(transfer,4) if bandwidth else None,'estimate_source':'实测推理吞吐' if s.get('measured_fps') else '启动估计，尚未校准','network_source':s.get('network_source','未提供，传输成本暂不参与'),'snapshot':s,'snapshot_at':n.get('observed')})
+        rows.append({'node_id':n['id'],'eligible':not why,'reasons':why,'score':round(score,4),'compute_seconds':round(compute,4),'transfer_seconds':round(transfer,4) if bandwidth else None,'estimate_source':('实测 '+backend.upper()+' 推理吞吐') if measured else backend.upper()+' 启动估计，尚未校准','network_source':s.get('network_source','未提供，传输成本暂不参与'),'snapshot':s,'snapshot_at':n.get('observed')})
     eligible=[r for r in rows if r['eligible']]
     chosen=None
     if eligible:

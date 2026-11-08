@@ -1,5 +1,6 @@
 from pydantic import BaseModel, Field, ConfigDict
 from typing import Literal
+import os
 class TaskInput(BaseModel):
     model_config=ConfigDict(extra='forbid')
     name: str=Field(default='协同视频分析',max_length=120,min_length=1)
@@ -13,6 +14,8 @@ class TaskInput(BaseModel):
     attempt_timeout: int=Field(default=300,ge=5,le=3600)
     max_retries: int=Field(default=2,ge=0,le=5)
     min_memory_mb: int=Field(default=256,ge=64)
+    inference_backend: Literal['cpu','cuda']=Field(default_factory=lambda:os.getenv('CHANGAN_DEFAULT_INFERENCE_BACKEND','cpu'),validate_default=True)
+    min_gpu_memory_mb: int=Field(default=2048,ge=512,le=131072)
     node_ids: list[str]=Field(default_factory=list,max_length=64)
     required_tags: list[str]=Field(default_factory=list,max_length=20)
     architecture: str|None=None

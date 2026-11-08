@@ -9,3 +9,6 @@
 !assets/
 !assets/models/
 !assets/models/yolox_tiny.onnx
+
+!workers/gpu.py
+!workers/attempt_entry.py

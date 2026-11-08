@@ -1,5 +1,6 @@
 import os,tempfile
 os.environ['CHANGAN_BACKEND']='process'
+os.environ['CHANGAN_DEFAULT_INFERENCE_BACKEND']='cpu'
 os.environ['CHANGAN_DATA_DIR']=tempfile.mkdtemp(prefix='changan-tests-')
 import pytest
 from app import db
