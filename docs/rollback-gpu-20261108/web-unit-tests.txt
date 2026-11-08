@@ -1,0 +1,16 @@
+✔ weights rates by elapsed time and counts each valid segment once (1.414096ms)
+✔ excludes stale results and unfinished segments even when a result object exists (0.214686ms)
+✔ missing, zero-duration and invalid values never create fake zero rates (1.068988ms)
+✔ partial results use only paired measures and respect the worker timing floor (0.244274ms)
+✔ uses the selected node historical snapshot without falling back to another candidate (0.222146ms)
+✔ formats bytes, units and missing data consistently (0.219274ms)
+✔ accepts the container download protocol used by existing A/B tasks (0.205223ms)
+✔ download compatibility still rejects zero/invalid durations and unpaired rates (0.18767ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 84.703212

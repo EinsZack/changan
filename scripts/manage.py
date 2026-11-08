@@ -30,8 +30,6 @@ def start():
         gateway_host=os.environ.get('CHANGAN_CONTAINER_HOST')
         if not gateway_host:raise SystemExit('请先配置 CHANGAN_CONTAINER_HOST 与 K3s 环境')
         services['container-gateway']=([PY,'-m','uvicorn','app.container_api:app','--host',gateway_host,'--port',os.getenv('CHANGAN_CONTAINER_PORT','8311'),'--no-access-log'],{})
-    if os.getenv('CHANGAN_GPU_TELEMETRY')=='server':
-        services['gpu-telemetry']=([PY,'scripts/gpu_telemetry.py'],{})
     api_host=os.getenv('CHANGAN_HOST','127.0.0.1');api_port=os.getenv('CHANGAN_PORT','8310')
     services['api']=([PY,'-m','uvicorn','app.main:app','--host',api_host,'--port',api_port,'--no-access-log'],{})
     for name,(cmd,overrides) in services.items():

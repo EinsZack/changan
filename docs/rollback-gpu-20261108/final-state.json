@@ -1,0 +1,26 @@
+{
+  "health": {
+    "status": "ok",
+    "service": "changan-orchestrator",
+    "version": "0.5.1",
+    "time": 1794121073.067293
+  },
+  "nodes": [
+    "lab-1",
+    "lab-2",
+    "lab-3",
+    "lab-4"
+  ],
+  "prior_tasks_preserved": 75,
+  "total_tasks": 76,
+  "all_sessions_cleaned": true,
+  "gpu_node_running": false,
+  "gpu_node_auto_restart": false,
+  "research_pods_remaining": 0,
+  "source_matches_0_5_1": true,
+  "active_services": [
+    "api",
+    "container-gateway",
+    "redis"
+  ]
+}

@@ -20,7 +20,7 @@ async def lifespan(app):
     try: await loop
     except asyncio.CancelledError: pass
     await engine.close()
-app=FastAPI(title='车群协同任务编排 API',version='0.6.0',lifespan=lifespan)
+app=FastAPI(title='车群协同任务编排 API',version='0.5.1',lifespan=lifespan)
 app.include_router(alerts_router)
 from .container_execution import router as container_router
 app.include_router(container_router)
@@ -46,7 +46,7 @@ async def access(request:Request,call_next):
 def internal(x_internal_token:str=Header(default='')):
     if not secrets.compare_digest(x_internal_token,TOKEN): raise HTTPException(401,'内部认证失败')
 @app.get('/health')
-def health(): return {'status':'ok','service':'changan-orchestrator','version':'0.6.0','time':time.time()}
+def health(): return {'status':'ok','service':'changan-orchestrator','version':'0.5.1','time':time.time()}
 @app.get('/api/overview')
 def overview():
     totals=db.query('SELECT status,count(*) n FROM tasks GROUP BY status')
@@ -54,17 +54,6 @@ def overview():
     by_workflow=db.query("SELECT json_extract(params,'$.workflow_id') workflow_id,count(*) total,sum(status='SUCCEEDED') succeeded FROM tasks GROUP BY workflow_id")
     attempts=db.query('SELECT count(*) n,AVG(finished-created) average_seconds FROM attempts WHERE finished IS NOT NULL',one=True)
     return {'totals':{r['status']:r['n'] for r in totals},'daily':daily,'by_workflow':by_workflow,'nodes':engine.nodes(),'attempts':attempts,'mode':engine.backend,'cluster_id':os.getenv('CHANGAN_CLUSTER_ID','changan-dev'),'environment_note':os.getenv('CHANGAN_ENVIRONMENT_NOTE','开发服务器逻辑节点；未完成 THOR 实机验证'),'metric_note':'业务完成率按父任务完整聚合计算；不是甲方尚待确认口径的99%调度成功率'}
-@app.get('/api/execution-profiles')
-def execution_profiles():
-    profiles=[]
-    for backend in ('cpu','cuda'):
-        try:
-            contract=engine.containers.application({'inference_backend':backend}) if engine.containers else None
-            if not contract and backend!='cpu':continue
-            profiles.append({'id':backend,'architectures':list(contract['images']) if contract else ['x86_64'],'available':True})
-        except ValueError as e:profiles.append({'id':backend,'available':False,'reason':str(e)})
-    return {'default':os.getenv('CHANGAN_DEFAULT_INFERENCE_BACKEND','cpu'),'profiles':profiles}
-
 @app.get('/api/nodes')
 def nodes(): return engine.nodes()
 @app.post('/api/scheduling/candidates')
@@ -72,11 +61,7 @@ def candidates(body:CandidateInput):
     from .scheduler import choose
     row=db.query("SELECT body FROM configs WHERE category='algorithm' AND id=?",(body.params.algorithm,),one=True)
     if not row: raise HTTPException(422,'调度算法不存在')
-    from .applications import scheduling_params
-    params=body.params.model_dump()
-    try:app_contract=engine.containers.application(params) if engine.containers else None
-    except ValueError as e:raise HTTPException(422,str(e))
-    result=choose(engine.nodes(),scheduling_params(params,app_contract),body.duration_seconds,body.input_bytes,db.loads(row['body']))
+    result=choose(engine.nodes(),body.params.model_dump(),body.duration_seconds,body.input_bytes,db.loads(row['body']))
     result['requirements']=body.params.model_dump()
     result['resource_source']='external_pool' if engine.resource_provider.enabled else ('kubernetes' if engine.containers else 'worker_adapter')
     result['snapshot_policy_seconds']=8
@@ -171,7 +156,6 @@ def rerun(id:str):
     t=db.task_detail(id)
     if not t:raise HTTPException(404)
     p=t['params'];p['name']=t['name']+' · 重跑'
-    p.setdefault('inference_backend','cpu')
     return {'id':engine.create(TaskInput(**p))}
 @app.get('/api/tasks/{id}/export')
 def export(id:str,format:str='json'):
@@ -221,7 +205,7 @@ def trigger(id:str):
     s=db.query('SELECT * FROM strategies WHERE id=?',(id,),one=True)
     if not s:raise HTTPException(404)
     if not s['enabled']:raise HTTPException(409,'策略已停用')
-    return {'id':engine.create(TaskInput(**({'inference_backend':'cpu'}|db.loads(s['params']))),'service',id)}
+    return {'id':engine.create(TaskInput(**db.loads(s['params'])),'service',id)}
 @app.get('/api/configs/{category}')
 def configs(category:str):
     rows=db.query('SELECT * FROM configs WHERE category=? ORDER BY created',(category,))
@@ -267,7 +251,7 @@ def capability_history():
 @app.get('/api/models')
 def models():
     from .config import MODEL,MODEL_ID
-    return [{'id':MODEL_ID,'name':'YOLOX Tiny · COCO','runtime':'ONNX Runtime CPU / CUDA（按任务选择）','input_size':416,'sha256':hashlib.sha256(MODEL.read_bytes()).hexdigest() if MODEL.exists() else None,'source':'https://github.com/Megvii-BaseDetection/YOLOX','license':'Apache-2.0','labels':['person','bicycle','car','motorcycle','bus','truck']}]
+    return [{'id':MODEL_ID,'name':'YOLOX Tiny · COCO','runtime':'ONNX Runtime CPU','input_size':416,'sha256':hashlib.sha256(MODEL.read_bytes()).hexdigest() if MODEL.exists() else None,'source':'https://github.com/Megvii-BaseDetection/YOLOX','license':'Apache-2.0','labels':['person','bicycle','car','motorcycle','bus','truck']}]
 @app.get('/api/delivery/{name}')
 def delivery(name:str):
     allowed={'changan-orchestrator-midterm-0.1.0.tar.gz','SHA256SUMS','交付物说明.md','使用说明.md'}

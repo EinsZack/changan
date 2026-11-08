@@ -1,0 +1,30 @@
+{
+  "health": {
+    "status": "ok",
+    "service": "changan-orchestrator",
+    "version": "0.5.1",
+    "time": 1794120662.3159838
+  },
+  "preserved_history_rows": {
+    "tasks": 75,
+    "segments": 677,
+    "attempts": 645,
+    "execution_sessions": 24,
+    "events": 5193
+  },
+  "history_unchanged": true,
+  "nodes": [
+    "lab-1",
+    "lab-2",
+    "lab-3",
+    "lab-4"
+  ],
+  "task_id": "task_77f26e7ac3204f42",
+  "status": "SUCCEEDED",
+  "segments": 24,
+  "frames": 48,
+  "sessions": 4,
+  "model_loads": 4,
+  "transfers": 24,
+  "all_cleaned": true
+}

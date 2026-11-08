@@ -1,0 +1,10 @@
+{
+  "restored_nodes": 4,
+  "task_id": "task_77f26e7ac3204f42",
+  "sessions": 4,
+  "model_loads": 4,
+  "transfer_samples": 24,
+  "gpu_history_readable": true,
+  "gpu_preview_loaded": true,
+  "page_errors": []
+}

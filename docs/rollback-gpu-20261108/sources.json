@@ -1,0 +1,30 @@
+[
+  {
+    "name": "k3s",
+    "url": "https://docs.k3s.io/advanced",
+    "retrieved_date": "2026-11-08",
+    "http_status": 200,
+    "retrieved_html_sha256": "f54c45c411e6ec4d2ccc7645693749ca2e97ecf50be2f0c943cb912509284553"
+  },
+  {
+    "name": "k3d",
+    "url": "https://k3d.io/v5.8.3/usage/advanced/cuda/",
+    "retrieved_date": "2026-11-08",
+    "http_status": 200,
+    "retrieved_html_sha256": "c8bc05198c24ed4f01191f2c803c865c6cb9773a7e96b338f11c500957368056"
+  },
+  {
+    "name": "kubernetes",
+    "url": "https://kubernetes.io/docs/tasks/manage-gpus/scheduling-gpus/",
+    "retrieved_date": "2026-11-08",
+    "http_status": 200,
+    "retrieved_html_sha256": "34c3cdc59d2a9f49a00a3131931b21ff0a7170c6d54dfe45955138356a507775"
+  },
+  {
+    "name": "nvidia",
+    "url": "https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html",
+    "retrieved_date": "2026-11-08",
+    "http_status": 200,
+    "retrieved_html_sha256": "3d75171d2b3ad62bcab798c60b9b929a6a404c6ecfc636603430158404338d10"
+  }
+]

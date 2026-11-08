@@ -1,6 +1,0 @@
-
-Running 1 test using 1 worker
-
-  ✓  1 e2e/gpu.spec.js:3:1 › real GPU resources, selection, 24 segments in one session and runtime evidence (1.4m)
-
-  1 passed (1.4m)

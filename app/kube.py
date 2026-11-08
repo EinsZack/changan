@@ -4,22 +4,6 @@ from kubernetes import client, config
 from kubernetes.client.exceptions import ApiException
 from kubernetes.utils.quantity import parse_quantity
 
-def pod_gpu_requests(pod):
-    """Effective device request includes ordinary init containers and persistent init sidecars."""
-    def count(container):
-        resources = container.resources
-        return int((resources.requests or resources.limits or {}).get('nvidia.com/gpu', 0)) if resources else 0
-    app = sum(count(c) for c in pod.spec.containers)
-    sidecars = peak = 0
-    for container in pod.spec.init_containers or []:
-        value = count(container)
-        if getattr(container, 'restart_policy', None) == 'Always':
-            sidecars += value
-            peak = max(peak, sidecars)
-        else:
-            peak = max(peak, sidecars + value)
-    return max(app + sidecars, peak)
-
 LABEL = 'changan.io/node-id'
 APP = 'changan-video'
 class Kube:
@@ -36,7 +20,6 @@ class Kube:
     async def nodes(self):
         nodes=await self.call(self.core.list_node,label_selector=LABEL)
         pods=await self.call(self.core.list_namespaced_pod,self.namespace,label_selector='app='+APP)
-        gpu_pods=(await self.call(self.core.list_pod_for_all_namespaces)).items if any(int(n.status.allocatable.get('nvidia.com/gpu',0)) for n in nodes.items) else []
         output=[]
         for n in nodes.items:
             labels=n.metadata.labels; ready=any(c.type=='Ready' and c.status=='True' for c in n.status.conditions or [])
@@ -48,10 +31,7 @@ class Kube:
                 'architecture':labels.get('kubernetes.io/arch'),'memory':budget,'active':active,
                 'capacity':int(labels.get('changan.io/slots','1')),'kind':labels.get('changan.io/kind','k3s_node'),
                 'runtime':n.status.node_info.container_runtime_version,'kubelet':n.status.node_info.kubelet_version,
-                'physical_host':labels.get('changan.io/physical-host',n.metadata.name),
-                'labels':labels,'annotations':n.metadata.annotations or {},
-                'gpu_allocatable':int(n.status.allocatable.get('nvidia.com/gpu',0)),
-                'gpu_active':sum(pod_gpu_requests(p) for p in gpu_pods if p.spec.node_name==n.metadata.name and p.status.phase not in ('Succeeded','Failed'))})
+                'physical_host':labels.get('changan.io/physical-host',n.metadata.name)})
         return output
     async def job(self,name):
         try:return await self.call(self.batch.read_namespaced_job,name,self.namespace)
@@ -114,14 +94,4 @@ def session_manifest(session, workload, params, remaining_seconds):
     manifest['metadata']['labels']=labels
     manifest['spec']['template']['metadata']['labels']=dict(labels)
     manifest['spec']['activeDeadlineSeconds']=max(30,int(remaining_seconds)+30)
-    resources=manifest['spec']['template']['spec']['containers'][0]['resources']
-    memory=str(max(workload.get('host_memory_min_mb',1024),params['min_memory_mb']))+'Mi'
-    resources['requests']['memory']=memory
-    resources['limits']['memory']=memory
-    if workload.get('gpu_count',0):
-        pod=manifest['spec']['template']['spec'];pod['runtimeClassName']='nvidia'
-        gpu=str(workload['gpu_count'])
-        pod['containers'][0]['resources']['requests']['nvidia.com/gpu']=gpu
-        pod['containers'][0]['resources']['limits']['nvidia.com/gpu']=gpu
-        pod['containers'][0]['env'].append({'name':'NVIDIA_DRIVER_CAPABILITIES','value':'compute,utility'})
     return manifest

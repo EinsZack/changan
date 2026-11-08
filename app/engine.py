@@ -39,8 +39,7 @@ class Engine:
         if not workflow or not db.loads(workflow['body']).get('enabled',True): raise ValueError('工作流不存在或已禁用')
         if params['workflow_id']!='video-analysis': raise ValueError('此任务入口仅支持视频分析模板，能力验证请使用对应入口')
         metadata={'algorithm_snapshot':db.loads(algorithm['body']),'workflow_snapshot':db.loads(workflow['body']),'execution_backend':self.backend}
-        if self.containers:metadata['application']=self.containers.application(params)
-        elif params.get('inference_backend','cpu')!='cpu':raise ValueError('旧进程后端仅支持 CPU；GPU 任务需要 K3s')
+        if self.containers:metadata['application']=self.containers.application()
         id=db.uid('task'); now=time.time()
         with db.connect() as c:
             c.execute('BEGIN IMMEDIATE')
@@ -122,9 +121,7 @@ class Engine:
     async def dispatch(self,task,segment):
         params=db.loads(task['params']); frozen=db.loads(task['metadata'],{}).get('algorithm_snapshot')
         algorithm={'body':db.dumps(frozen)} if frozen else db.query("SELECT body FROM configs WHERE id=? AND category='algorithm'",(params['algorithm'],),one=True)
-        from .applications import scheduling_params
-        execution_params=scheduling_params(params,db.loads(task['metadata'],{}).get('application'))
-        decision=choose(self.nodes(task['id']),execution_params,segment['end']-segment['start'],Path(segment['path']).stat().st_size,db.loads(algorithm['body']),self.cursor)
+        decision=choose(self.nodes(task['id']),params,segment['end']-segment['start'],Path(segment['path']).stat().st_size,db.loads(algorithm['body']),self.cursor)
         if not decision['target_node']:
             last=db.query("SELECT at FROM events WHERE task_id=? AND type='no_candidate' ORDER BY id DESC LIMIT 1",(task['id'],),one=True)
             if not last or time.time()-last['at']>5:
@@ -266,7 +263,7 @@ class Engine:
         now=time.time()
         for s in db.query("SELECT * FROM strategies WHERE enabled=1 AND kind='periodic' AND next_run<=?",(now,)):
             key=f"schedule:{s['id']}:{s['next_run']}"
-            try: self.create(TaskInput(**({'inference_backend':'cpu'}|db.loads(s['params']))),'periodic',s['id'],key)
+            try: self.create(TaskInput(**db.loads(s['params'])),'periodic',s['id'],key)
             except Exception as e: log.exception('Schedule failed: %s',e)
             db.execute('UPDATE strategies SET last_run=?,next_run=? WHERE id=?',(now,now+s['interval_seconds'],s['id']))
     async def tick(self):

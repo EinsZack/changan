@@ -7,7 +7,6 @@ from .config import DATA, MODEL, MODEL_ID, TERMINAL
 from .kube import Kube, job_manifest
 from .incidents import observe_node, reconcile_observation
 from .network_metrics import container_network_snapshot, overlay_pool_network
-from .gpu_resources import gpu_snapshot, throughput_profiles
 router=APIRouter()
 controller=None
 
@@ -44,9 +43,12 @@ class ContainerExecution:
     def client(self):
         if self.kube is None:self.kube=Kube()
         return self.kube
-    def application(self,params=None):
-        from .applications import application
-        return application(params)
+    def application(self):
+        image=os.getenv('CHANGAN_VIDEO_IMAGE','')
+        if '@sha256:' not in image:raise ValueError('CHANGAN_VIDEO_IMAGE 必须固定为镜像摘要')
+        return {'id':'video-analysis','version':'2','execution_mode':'task_session','image':image,'architecture':os.getenv('CHANGAN_IMAGE_ARCH','amd64'),
+                'model_id':MODEL_ID,'model_sha256':hashlib.sha256(MODEL.read_bytes()).hexdigest(),
+                'runtime':'ONNX Runtime CPU','image_pull_secret':os.getenv('CHANGAN_IMAGE_PULL_SECRET')}
     async def refresh(self):
         old={n['id']:n for n in db.query('SELECT * FROM nodes')}
         try:
@@ -54,8 +56,6 @@ class ContainerExecution:
             app=self.application()
             pool=await self.engine.resource_provider.snapshots() if self.engine.resource_provider.enabled else None
             if len({n['id'] for n in nodes})!=len(nodes):raise ValueError('多个 Kubernetes 节点重复使用同一业务节点标签')
-            from collections import Counter
-            gpu_uuids=Counter(n.get('labels',{}).get('changan.io/gpu-uuid') for n in nodes if n.get('gpu_allocatable',0)>0)
             seen=set()
             for n in nodes:
                 id=n['id'];seen.add(id);now=time.time()
@@ -70,19 +70,9 @@ class ContainerExecution:
                    'memory_budget_mb':n['memory'],'active':n['active'],'capacity':n['capacity'],
                    'runtime':n['runtime'],'kubelet':n['kubelet'],'physical_host':n['physical_host'],
                    'resource_source':'kubernetes','location':self.client().cluster}
-                gpu_reserved=db.query("SELECT COALESCE(sum(json_extract(workload,'$.gpu_count')),0) n FROM execution_sessions WHERE node_id=? AND cleanup_state!='DONE'",(id,),one=True)['n']
-                s.update(gpu_snapshot(n,gpu_reserved))
-                if s.get('gpu_uuid') and gpu_uuids[s['gpu_uuid']]>1:
-                    s.update(gpu_runtime_ready=False,gpu_available=0,gpu_registration_error='同一物理 GPU 重复登记，暂停 CUDA 分配')
-                from .applications import application
-                architectures=set(app.get('images',{app['architecture']:app.get('image')}))
-                try:architectures.update(application({'inference_backend':'cuda'})['images'])
-                except ValueError:pass
-                s['models']=[MODEL_ID] if n['architecture'] in architectures else []
-                if s['gpu_runtime_ready']:s['tags']+=['gpu','nvidia','cuda']
-                s['inference_profiles']=throughput_profiles(n,app.get('model_sha256'))
                 s.update(container_network_snapshot(n,self.client().cluster,now))
-                if 'cpu' in s['inference_profiles']:s['measured_fps']=s['inference_profiles']['cpu']['fps']
+                last=db.query("SELECT result FROM attempts WHERE node_id=? AND backend='k3s' AND status='SUCCEEDED' ORDER BY finished DESC LIMIT 1",(id,),one=True)
+                if last:s['measured_fps']=db.loads(last['result'],{}).get('measured_fps')
                 observed=now
                 if pool is not None:
                     authority=pool.get(id)
@@ -94,8 +84,6 @@ class ContainerExecution:
                     s['capacity']=min(s['capacity'],authority.get('capacity',1))
                     s['active']=max(s['active'],authority.get('active',0))
                     s['healthy']=s['healthy'] and authority.get('healthy',False)
-                    if 'gpu_available' in authority:s['gpu_available']=min(s['gpu_available'],max(0,authority['gpu_available']))
-                    if 'gpu_memory_free_mb' in authority and s['gpu_memory_free_mb'] is not None:s['gpu_memory_free_mb']=min(s['gpu_memory_free_mb'],authority['gpu_memory_free_mb'])
                     s['resource_source']='external_pool+kubernetes'
                     observed=min(now,float(authority['observed_at']))
                 previous=old.get(id)
