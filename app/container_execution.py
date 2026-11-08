@@ -6,6 +6,7 @@ from . import db
 from .config import DATA, MODEL, MODEL_ID, TERMINAL
 from .kube import Kube, job_manifest
 from .incidents import observe_node, reconcile_observation
+from .network_metrics import container_network_snapshot, overlay_pool_network
 router=APIRouter()
 controller=None
 
@@ -68,14 +69,16 @@ class ContainerExecution:
                    'available_memory_mb':max(0,n['memory']-reserved_row['memory']-max(0,n['active']-reserved)*1024),
                    'memory_budget_mb':n['memory'],'active':n['active'],'capacity':n['capacity'],
                    'runtime':n['runtime'],'kubelet':n['kubelet'],'physical_host':n['physical_host'],
-                   'resource_source':'kubernetes','network_source':'未测量','location':self.client().cluster}
+                   'resource_source':'kubernetes','location':self.client().cluster}
+                s.update(container_network_snapshot(n,self.client().cluster,now))
                 last=db.query("SELECT result FROM attempts WHERE node_id=? AND backend='k3s' AND status='SUCCEEDED' ORDER BY finished DESC LIMIT 1",(id,),one=True)
                 if last:s['measured_fps']=db.loads(last['result'],{}).get('measured_fps')
                 observed=now
                 if pool is not None:
                     authority=pool.get(id)
                     if not authority or authority['node_id']!=id:raise ValueError('资源池缺少节点映射')
-                    for key in ['bandwidth_mbps','network_source','tags','snapshot_version','location','input_reachable']:
+                    overlay_pool_network(s,authority)
+                    for key in ['tags','snapshot_version','location','input_reachable']:
                         if key in authority:s[key]=authority[key]
                     s['available_memory_mb']=min(s['available_memory_mb'],authority.get('available_memory_mb',0))
                     s['capacity']=min(s['capacity'],authority.get('capacity',1))

@@ -38,20 +38,20 @@ export default function TaskMetrics({task, Badge}) {
             <details className="measurement-method"><summary>统计口径与单位</summary>
                 <p>1 KiB = 1024 B，1 MiB = 1024² B，1 Mbit/s = 1,000,000 bit/s。接收速率 = 输入字节数 × 8 ÷ 下载秒数 ÷ 1,000,000。</p>
                 <p>处理吞吐来自视频解码、采样推理及结果整理过程。为与执行器口径一致，计算速率时将小于 1 毫秒的正耗时按 1 毫秒处理；零耗时、缺失或无效值不参与速率汇总。</p>
-                <p>当前默认环境为同一服务器上的进程执行器，传输经过服务器回环；这些观测不代表真实车端无线链路性能。</p>
+                <p>当前默认环境为同一服务器上的 K3s 逻辑节点，传输经过容器网络；这些观测不代表真实车端无线链路性能。</p>
             </details>
         </section>
         <section className="panel">
             <div className="panel-title"><h2>调度时网络观测</h2><span>每次分配保存的节点快照</span></div>
-            <p className="note">展示当时选中节点的 HTTP 往返耗时、最近片段下载速率及本片传输估计。快照可能来自此前任务，不随节点当前状态变化，也不作为本次片段的下载实测。</p>
+            <p className="note">展示调度当时选中节点的网络观测及本片传输估计。容器下载速率使用近 5 分钟内最多 8 个成功分片，按下载耗时加权；无有效样本时不估算。样本时间保守使用服务器记录的分片开始时间；历史决策不追溯修改。HTTP 往返仅在单独采集时展示，当前 K3s 路径未采集。</p>
             {metrics.snapshots.length ? <div className="measurement-scroll" role="region" aria-label="调度时网络观测明细" tabIndex={0}>
                 <table className="measurement-table snapshot-measurements">
-                    <thead><tr><th>片段 / 执行尝试</th><th>目标节点</th><th>快照时间</th><th>HTTP往返</th><th>最近下载速率</th><th>预计传输耗时</th><th>观测来源</th></tr></thead>
+                    <thead><tr><th>片段 / 执行尝试</th><th>目标节点</th><th>快照时间</th><th>HTTP往返</th><th>调度用传输速率</th><th>预计传输耗时</th><th>观测来源</th></tr></thead>
                     <tbody>{metrics.snapshots.map(row => <tr key={row.id}>
                         <td><strong>{row.ordinal == null ? '片段未知' : '片段 ' + (row.ordinal + 1)}</strong><small title={row.id}>{row.id}</small><Badge s={row.status}/></td>
-                        <td>{row.nodeId}</td><td>{observedAt(row.observedAt)}</td>
+                        <td>{row.nodeId}</td><td>{observedAt(row.observedAt)}{row.networkObservedAt && <small>传输样本：{observedAt(row.networkObservedAt)}</small>}</td>
                         <td>{metricValue(row.rttMs, 'ms')}</td><td>{metricValue(row.bandwidthMbps, 'Mbit/s')}</td>
-                        <td>{metricValue(row.transferSeconds, 's', 3)}</td><td className="measurement-source">{row.source}</td>
+                        <td>{metricValue(row.transferSeconds, 's', 3)}</td><td className="measurement-source">{row.source}{row.networkSampleCount && <small>{row.networkSampleCount} 个分片样本</small>}{row.networkExpiresAt && <small>有效至：{observedAt(row.networkExpiresAt)}</small>}</td>
                     </tr>)}</tbody>
                 </table>
             </div> : <p className="measurement-empty">尚未产生节点分配，暂无调度网络快照。</p>}

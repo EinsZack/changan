@@ -1,0 +1,20 @@
+{
+  "task_id": "task_c2b7a50ce9a94bbe",
+  "status": "SUCCEEDED",
+  "total": 24,
+  "sampled_frames": 48,
+  "sessions": 4,
+  "model_loads": 4,
+  "measured_dispatches": 16,
+  "all_cleaned": true,
+  "historical_tasks_preserved": 68,
+  "historical_decisions_unchanged": true,
+  "health": {
+    "status": "ok",
+    "service": "changan-orchestrator",
+    "version": "0.5.1",
+    "time": 1794109585.284203
+  },
+  "image": "changan-registry:5000/changan/video@sha256:5f98ed009293d739d1f2a148e620875be4ff306e2769adfcfef67e585fb6f3b6",
+  "at": 1794109585.2854567
+}

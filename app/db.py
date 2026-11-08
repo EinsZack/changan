@@ -55,6 +55,7 @@ CREATE TABLE IF NOT EXISTS execution_sessions(
  reservation_id TEXT, reservation_released INTEGER NOT NULL DEFAULT 0, error TEXT);
 CREATE UNIQUE INDEX IF NOT EXISTS one_live_task_node_session ON execution_sessions(task_id,node_id) WHERE cleanup_state!='DONE';
 CREATE INDEX IF NOT EXISTS attempts_session ON attempts(session_id);
+CREATE INDEX IF NOT EXISTS attempts_node_transfer ON attempts(node_id,finished DESC) WHERE backend='k3s' AND status='SUCCEEDED';
 ''')
         for i in range(4 if os.getenv('CHANGAN_BACKEND','k3s')=='process' else 0):
             c.execute('INSERT OR IGNORE INTO nodes(id,endpoint,cluster_id,kind) VALUES(?,?,?,?)', (f'lab-{i+1}',f'http://127.0.0.1:{8321+i}','server-lab','server_process'))

@@ -6,7 +6,7 @@ ROOT=Path(__file__).resolve().parent.parent
 env=os.environ.copy();env['PATH']=str(ROOT/'vendor/docker')+':'+env['PATH']
 env['DOCKER_HOST']='unix://'+str(ROOT/'data/k3s/docker.sock')
 env['DOCKER_BUILDKIT']='0'
-tag='127.0.0.1:5500/changan/video:0.5.0'
+tag='127.0.0.1:5500/changan/video:0.5.1'
 def run(*args,**kw):return subprocess.run(args,cwd=ROOT,env=env,check=True,**kw)
 run('docker','build','--network','host','-f','deploy/Dockerfile.video','-t',tag,'.')
 run('docker','push',tag)

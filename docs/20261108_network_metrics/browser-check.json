@@ -1,0 +1,10 @@
+{
+  "task_id": "task_266782346b3d47b7",
+  "total": 24,
+  "transfer_count": 24,
+  "receive_mbps": 2.812945092691744,
+  "saved_network_decisions": 16,
+  "page_errors": [],
+  "environment": "same server K3s logical nodes; no THOR or vehicle network",
+  "at": "2026-11-08T03:45:18.327Z"
+}

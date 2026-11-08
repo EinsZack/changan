@@ -123,7 +123,8 @@ def run_session(config):
                 result.update({'task_id': p['task_id'], 'segment_id': p['segment_id'], 'attempt_id': p['attempt_id'],
                                'session_id': sid, 'actual_node': p['target_node'], 'pod_uid': uid, 'model_id': MODEL_ID,
                                'artifacts': artifacts, 'input_sha256': p['input_sha256'], 'input_bytes': len(r.content),
-                               'download_seconds': download, 'observed_transfer_mbps': len(r.content) * 8 / max(download, .000001) / 1e6})
+                               'input_transfer_seconds': download, 'download_seconds': download,
+                               'observed_transfer_mbps': len(r.content) * 8 / max(download, .001) / 1e6})
                 event('FINALIZING', 1, result=result)
                 print(json.dumps({'session_id': sid, 'attempt_id': p['attempt_id'], 'pod_uid': uid, 'event': 'segment_completed', 'sampled_frames': result['sampled_frames']}), flush=True)
             except (SessionStopped, InterruptedError):

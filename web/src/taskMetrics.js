@@ -9,7 +9,7 @@ export function taskMeasurements(task) {
         const result = segment.status === 'SUCCEEDED' && segment.active_attempt &&
             segment.result?.attempt_id === segment.active_attempt ? segment.result : null;
         const inputBytes = nonnegative(result?.input_bytes);
-        const transferSeconds = positive(result?.input_transfer_seconds);
+        const transferSeconds = positive(result?.input_transfer_seconds) ?? positive(result?.download_seconds);
         const processingSeconds = positive(result?.elapsed_seconds);
         const sampledFrames = nonnegative(result?.sampled_frames);
         const receiveMbps = inputBytes !== null && transferSeconds !== null ?
@@ -31,6 +31,9 @@ export function taskMeasurements(task) {
             id: attempt.id, ordinal: segments.find(segment => segment.id === attempt.segment_id)?.ordinal,
             nodeId: attempt.node_id, status: attempt.status,
             observedAt: positive(candidate?.snapshot_at),
+            networkObservedAt: positive(snapshot.network_observed_at),
+            networkExpiresAt: positive(snapshot.network_expires_at),
+            networkSampleCount: positive(snapshot.network_sample_count),
             rttMs: nonnegative(snapshot.observed_http_rtt_ms),
             bandwidthMbps: positive(snapshot.bandwidth_mbps),
             transferSeconds: nonnegative(candidate?.transfer_seconds),

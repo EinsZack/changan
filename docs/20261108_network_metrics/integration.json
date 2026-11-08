@@ -1,0 +1,48 @@
+{
+  "task_id": "task_266782346b3d47b7",
+  "status": "SUCCEEDED",
+  "total": 24,
+  "sampled_frames": 240,
+  "sessions": 4,
+  "model_loads": 4,
+  "measured_dispatches": 16,
+  "unknown_dispatches": 8,
+  "node_networks": [
+    {
+      "node_id": "lab-1",
+      "bandwidth_mbps": 2.4493560507854664,
+      "network_sample_count": 6,
+      "network_observed_at": 1794109459.6061978,
+      "network_expires_at": 1794109739.5875285,
+      "network_source": "近期成功分片 HTTP 下载实测（含请求与落盘；同机 K3s 逻辑节点）"
+    },
+    {
+      "node_id": "lab-2",
+      "bandwidth_mbps": 2.3283523385284077,
+      "network_sample_count": 6,
+      "network_observed_at": 1794109461.127733,
+      "network_expires_at": 1794109738.8257666,
+      "network_source": "近期成功分片 HTTP 下载实测（含请求与落盘；同机 K3s 逻辑节点）"
+    },
+    {
+      "node_id": "lab-3",
+      "bandwidth_mbps": 5.715746751699043,
+      "network_sample_count": 6,
+      "network_observed_at": 1794109458.9237962,
+      "network_expires_at": 1794109737.690376,
+      "network_source": "近期成功分片 HTTP 下载实测（含请求与落盘；同机 K3s 逻辑节点）"
+    },
+    {
+      "node_id": "lab-4",
+      "bandwidth_mbps": 2.4114037494930196,
+      "network_sample_count": 6,
+      "network_observed_at": 1794109459.6867085,
+      "network_expires_at": 1794109739.3913426,
+      "network_source": "近期成功分片 HTTP 下载实测（含请求与落盘；同机 K3s 逻辑节点）"
+    }
+  ],
+  "image": "changan-registry:5000/changan/video@sha256:5f98ed009293d739d1f2a148e620875be4ff306e2769adfcfef67e585fb6f3b6",
+  "all_cleaned": true,
+  "environment": "same server / four K3s logical nodes / CPU ONNX; no THOR",
+  "at": 1794109473.5295255
+}

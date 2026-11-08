@@ -1,0 +1,13 @@
+
+> changan-orchestrator-web@0.5.1 build
+> vite build --outDir ../tmp/task-metrics-web-dist
+
+vite v6.4.3 building for production...
+transforming...
+✓ 1581 modules transformed.
+rendering chunks...
+computing gzip size...
+../tmp/task-metrics-web-dist/index.html                   0.39 kB │ gzip:  0.32 kB
+../tmp/task-metrics-web-dist/assets/index-Dg5Kr8xC.css   26.57 kB │ gzip:  6.63 kB
+../tmp/task-metrics-web-dist/assets/index-B1LaF6ng.js   310.25 kB │ gzip: 93.37 kB
+✓ built in 2.48s

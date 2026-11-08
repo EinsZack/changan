@@ -1,11 +1,12 @@
 import time, math
 from .config import MODEL_ID
+from .network_metrics import positive
 
 def choose(nodes, params, duration, input_bytes, algorithm, cursor=0):
     began=time.monotonic(); now=time.time(); rows=[]
     weights=algorithm.get('weights',{})
     for n in nodes:
-        s=n.get('snapshot') or {}; why=[]
+        s=dict(n.get('snapshot') or {}); why=[]
         if n.get('error'): why.append(n['error'])
         if not n.get('enabled'): why.append('节点已停用')
         if n.get('session_blocked'):why.append(n['session_blocked'])
@@ -22,7 +23,12 @@ def choose(nodes, params, duration, input_bytes, algorithm, cursor=0):
         if not s.get('input_reachable',True): why.append('输入通道不可达')
         fps=s.get('measured_fps') or 8.0
         compute=duration*params.get('sample_fps',2)/max(fps,0.1)
-        bandwidth=s.get('bandwidth_mbps')
+        bandwidth=positive(s.get('bandwidth_mbps'))
+        expires=s.get('network_expires_at')
+        if expires is not None and (positive(expires) is None or expires<=now):
+            bandwidth=None
+            s['network_source']='网络观测已过期，等待新的下载实测或资源池快照'
+        s['bandwidth_mbps']=bandwidth
         transfer=input_bytes*8/(bandwidth*1e6) if bandwidth else 0
         queue=s.get('active',0)*compute
         score=compute*weights.get('compute',1)+transfer*weights.get('transfer',1)+queue*weights.get('queue',1)

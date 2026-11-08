@@ -121,3 +121,30 @@ test('keeps narrow screens usable with scrolling tables and visible units', asyn
     await page.screenshot({path: '../docs/screenshots/task-metrics-fixture-mobile.png', fullPage: true});
     expect(errors).toEqual([]);
 });
+
+test('shows existing container results and explains missing or measured scheduling inputs', async ({page}) => {
+    const task = fixture();
+    task.segments.forEach(segment => {
+        segment.result.download_seconds = segment.result.input_transfer_seconds;
+        delete segment.result.input_transfer_seconds;
+    });
+    const first = task.attempts[0].decision.candidates[0];
+    first.transfer_seconds = null;
+    first.network_source = '暂无近期分片下载实测（尚无样本或样本已过期）';
+    first.snapshot = {};
+    const second = task.attempts[1].decision.candidates[0];
+    second.network_source = '近期成功分片 HTTP 下载实测（同机 K3s 逻辑节点；测试夹具）';
+    second.snapshot = {bandwidth_mbps: 20, network_observed_at: task.created - 10,
+        network_expires_at: task.created + 290, network_sample_count: 2};
+    const errors = await openFixture(page, () => task);
+    await expect(page.locator('.measurement-cards')).toContainText('8.00 Mbit/s');
+    const snapshots = page.getByRole('region', {name: '调度时网络观测明细'});
+    await expect(snapshots).toContainText('2 个分片样本');
+    await expect(snapshots).toContainText('传输样本：');
+    await expect(snapshots).toContainText('有效至：');
+    await page.getByRole('button', {name: '调度决策', exact: true}).click();
+    await page.locator('.panel-title select').selectOption('try-0');
+    await expect(page.getByText('暂无有效传输观测', {exact: false})).toBeVisible();
+    await expect(page.getByText(first.network_source, {exact: true})).toBeVisible();
+    expect(errors).toEqual([]);
+});

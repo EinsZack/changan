@@ -90,3 +90,25 @@ test('formats bytes, units and missing data consistently', () => {
     assert.equal(durationValue(0), '—');
     assert.equal(durationValue(0.00001), '< 0.001 s');
 });
+
+test('accepts the container download protocol used by existing A/B tasks', () => {
+    const metrics = taskMeasurements({segments: [
+        segment('0', {input_bytes: 193034, download_seconds: 0.06685654819011688, observed_transfer_mbps: 23.09829091996531}),
+        segment('1', {input_bytes: 1000000, input_transfer_seconds: 1, download_seconds: 2}),
+    ]});
+    assert.equal(metrics.transferCount, 2);
+    assert.ok(Math.abs(metrics.rows[0].receiveMbps - 23.09829091996531) < 1e-10);
+    assert.equal(metrics.rows[1].receiveMbps, 8);
+});
+
+test('download compatibility still rejects zero/invalid durations and unpaired rates', () => {
+    const metrics = taskMeasurements({segments: [
+        segment('0', {input_bytes: 1000, download_seconds: 0, observed_transfer_mbps: 99}),
+        segment('1', {input_bytes: 1000, download_seconds: '1'}),
+        segment('2', {input_bytes: 1000, download_seconds: .0001}),
+    ]});
+    assert.equal(metrics.transferCount, 1);
+    assert.equal(metrics.rows[0].receiveMbps, null);
+    assert.equal(metrics.rows[1].receiveMbps, null);
+    assert.equal(metrics.rows[2].receiveMbps, 8);
+});
