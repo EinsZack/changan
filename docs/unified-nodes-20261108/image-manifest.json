@@ -1,0 +1,116 @@
+{
+  "node": {
+    "id": "sha256:e6a42852fdc384a7125ef1fab9c66d720bdb244df95604a7289c43eb115b7acb",
+    "local_ref": "127.0.0.1:5500/changan/k3s-node@sha256:08b51d42e181f121e6a9b93c775f2820c391be1ac43e9a337b7fee1f4efa535b",
+    "cluster_ref": "changan-registry:5000/changan/k3s-node@sha256:08b51d42e181f121e6a9b93c775f2820c391be1ac43e9a337b7fee1f4efa535b",
+    "provenance": {
+      "driver": "590.48.01",
+      "packages": [
+        {
+          "Package": "libnvidia-container1",
+          "Version": "1.18.2-1",
+          "SHA256": "cbeaf450277d4f98c97663320fb713f9d2dae115ba7855841cbb1b50cd08efda",
+          "url": "https://nvidia.github.io/libnvidia-container/stable/deb/amd64/libnvidia-container1_1.18.2-1_amd64.deb"
+        },
+        {
+          "Package": "libnvidia-container-tools",
+          "Version": "1.18.2-1",
+          "SHA256": "4118d174b4d47f1800b15fb4c79de6cd01d68fcd2ed0eaa1d8d2cb8bd54506b2",
+          "url": "https://nvidia.github.io/libnvidia-container/stable/deb/amd64/libnvidia-container-tools_1.18.2-1_amd64.deb"
+        },
+        {
+          "Package": "nvidia-container-toolkit-base",
+          "Version": "1.18.2-1",
+          "SHA256": "c5dd04dca8fce125c087676480b8663a5f4ea1d1814b13bfb5ce673e517f94ae",
+          "url": "https://nvidia.github.io/libnvidia-container/stable/deb/amd64/nvidia-container-toolkit-base_1.18.2-1_amd64.deb"
+        },
+        {
+          "Package": "nvidia-container-toolkit",
+          "Version": "1.18.2-1",
+          "SHA256": "3e991c4dab2604b3110fb555394e1cdd72ccd88ec27bb580e19e8664182bcf79",
+          "url": "https://nvidia.github.io/libnvidia-container/stable/deb/amd64/nvidia-container-toolkit_1.18.2-1_amd64.deb"
+        },
+        {
+          "Package": "libcap2",
+          "Version": "1:2.66-4+deb12u3+b1",
+          "SHA256": "8d684c673e7483802a5c447834b0df6fce006eb3a7109e1be412f5ad425bb24f",
+          "url": "https://deb.debian.org/debian/pool/main/libc/libcap2/libcap2_2.66-4+deb12u3+b1_amd64.deb"
+        },
+        {
+          "Package": "libseccomp2",
+          "Version": "2.5.4-1+deb12u1",
+          "SHA256": "108fe67957ca7cf9ba51d801118a1b37d404bea7b6e365025cd00779e9eca38d",
+          "url": "https://deb.debian.org/debian/pool/main/libs/libseccomp/libseccomp2_2.5.4-1+deb12u1_amd64.deb"
+        }
+      ],
+      "driver_files": {
+        "usr/lib/x86_64-linux-gnu/libnvidia-fbc.so.1": "symlink:libnvidia-fbc.so.590.48.01",
+        "usr/lib/x86_64-linux-gnu/libseccomp.so.2.5.4": "df79d556924ecb71a946482802a0a0d584c30a7a25e564eccf19b7b72996bbbe",
+        "usr/lib/x86_64-linux-gnu/libnvidia-egl-gbm.so.1.1.3": "3bf89e74f1031d3df86632a1368fc982a67e42570fb55e065ebf9030265c909e",
+        "usr/lib/x86_64-linux-gnu/libnvidia-ngx.so.1": "symlink:libnvidia-ngx.so.590.48.01",
+        "usr/lib/x86_64-linux-gnu/libnvidia-fbc.so.590.48.01": "60c4be87e1bcccb89d4e624f63634b5bd96cd83d4521c07ca8b2ba90618b71ed",
+        "usr/lib/x86_64-linux-gnu/libnvidia-glvkspirv.so.590.48.01": "aa88939daefe93862d60350391cd18f427eb20112b211b55af9697da0f1c0cb9",
+        "usr/lib/x86_64-linux-gnu/libnvidia-eglcore.so.590.48.01": "5df2f31172b0065e2812fd6d7a1da797cdfcc430036dd66bd31cac71aed355d8",
+        "usr/lib/x86_64-linux-gnu/libnvidia-nvvm.so.590.48.01": "0b178d52804c0cb73cc65af33e4208715b711f95dbf82861b9c360af3879bd78",
+        "usr/lib/x86_64-linux-gnu/libcuda.so.1": "symlink:libcuda.so.590.48.01",
+        "usr/lib/x86_64-linux-gnu/libnvidia-egl-wayland.so.1.1.21": "1b9b2341b2dd52112b8ad99415082ce48b08e051262a2dcf4b81fd9a968589c8",
+        "usr/lib/x86_64-linux-gnu/libcuda.so": "symlink:libcuda.so.1",
+        "usr/lib/x86_64-linux-gnu/libnvidia-ptxjitcompiler.so.590.48.01": "97640e4eafec56b57a63ee83de90419c510aff856e5f2f45fdac99205e84c643",
+        "usr/lib/x86_64-linux-gnu/libnvcuvid.so.1": "symlink:libnvcuvid.so.590.48.01",
+        "usr/lib/x86_64-linux-gnu/libnvidia-ml.so": "symlink:libnvidia-ml.so.1",
+        "usr/lib/x86_64-linux-gnu/libcudadebugger.so.590.48.01": "6dba07d218a44bce4401a28fb27e9187acbd3e86168490b2952a262895b39511",
+        "usr/lib/x86_64-linux-gnu/libnvidia-ngx.so.590.48.01": "70ef120a5d2e1cc92029291a7c46d83818c451ce0b3d58e32a211cd869e6b619",
+        "usr/lib/x86_64-linux-gnu/libseccomp.so.2": "symlink:libseccomp.so.2.5.4",
+        "usr/lib/x86_64-linux-gnu/libnvidia-nvvm.so": "symlink:libnvidia-nvvm.so.4",
+        "usr/lib/x86_64-linux-gnu/libnvidia-encode.so.590.48.01": "9d7655e268eb56da60122ca79847e6924e92f1fa15ffe08477b22cb78a76176d",
+        "usr/lib/x86_64-linux-gnu/libnvidia-encode.so": "symlink:libnvidia-encode.so.1",
+        "usr/lib/x86_64-linux-gnu/libnvidia-glsi.so.590.48.01": "b8d22a9638903a69ee62bfe529b75f7616a896907e9f3e68efb89d5b2e5f779c",
+        "usr/lib/x86_64-linux-gnu/libcap.so.2": "symlink:libcap.so.2.66",
+        "usr/lib/x86_64-linux-gnu/libnvidia-tls.so.590.48.01": "0b85549b67a88ded908ead86c7b133d851d7e9cb5c917cf5ad83340e5f6770ee",
+        "usr/lib/x86_64-linux-gnu/libnvidia-fbc.so": "symlink:libnvidia-fbc.so.1",
+        "usr/lib/x86_64-linux-gnu/libcuda.so.590.48.01": "e24ade728a7b2280b60f5603855db23ca137d87d342ecac4219157d2cc5c3694",
+        "usr/lib/x86_64-linux-gnu/libnvidia-ptxjitcompiler.so": "symlink:libnvidia-ptxjitcompiler.so.1",
+        "usr/lib/x86_64-linux-gnu/libnvidia-opticalflow.so": "symlink:libnvidia-opticalflow.so.1",
+        "usr/lib/x86_64-linux-gnu/libnvidia-vksc-core.so.1": "symlink:libnvidia-vksc-core.so.590.48.01",
+        "usr/lib/x86_64-linux-gnu/libnvidia-allocator.so": "symlink:libnvidia-allocator.so.1",
+        "usr/lib/x86_64-linux-gnu/libnvidia-ml.so.1": "symlink:libnvidia-ml.so.590.48.01",
+        "usr/lib/x86_64-linux-gnu/libnvidia-allocator.so.1": "symlink:libnvidia-allocator.so.590.48.01",
+        "usr/lib/x86_64-linux-gnu/libnvidia-pkcs11-openssl3.so.590.48.01": "de928a0be8bd43e8c64d5a4a3589904db4b94edb70bc4f2e1042a0a08a1b6940",
+        "usr/lib/x86_64-linux-gnu/libnvidia-vksc-core.so.590.48.01": "28340bb5a0fac3e42f5615de6bcfb1af32fa8c724588dacd89791e8576f62375",
+        "usr/lib/x86_64-linux-gnu/libnvidia-present.so.590.48.01": "6d2aa4bfb487c1ad852c9b23946c7b963d99bfa0bde259b720a33787bd34100c",
+        "usr/lib/x86_64-linux-gnu/libcap.so.2.66": "206b61879ef80e797677e3b4c21f7b76ef9e963c4c4fd4e1311eb44fdde13165",
+        "usr/lib/x86_64-linux-gnu/libnvidia-egl-wayland.so.1.1.13": "c9ee7e0a7cd9a91f59fc88270ccf7c21f43b62312aff88d4b1121616242fc885",
+        "usr/lib/x86_64-linux-gnu/libnvidia-cfg.so.590.48.01": "0989748837f1362fa1df663467cc2234454c0910e3d3958b8e12cdb7ea97bed2",
+        "usr/lib/x86_64-linux-gnu/libnvidia-ml.so.590.48.01": "12f3bcd4ba447599a2077297e3a4ff4288205b082c2e76346718ae85c058c4b2",
+        "usr/lib/x86_64-linux-gnu/libnvidia-gpucomp.so.590.48.01": "cd1b2da104e21c9a12903504a54654be0cd930a7dc7b47074650aaa0ccc8a9ca",
+        "usr/lib/x86_64-linux-gnu/libnvcuvid.so": "symlink:libnvcuvid.so.1",
+        "usr/lib/x86_64-linux-gnu/libcudadebugger.so.1": "symlink:libcudadebugger.so.590.48.01",
+        "usr/lib/x86_64-linux-gnu/libnvidia-rtcore.so.590.48.01": "40b4061e21d3d6076d09b4582f9f6c6fbc85ea9af95b14fdabaa38eb2c4ed1ef",
+        "usr/lib/x86_64-linux-gnu/libnvidia-opencl.so.590.48.01": "dde6042b8be3301e183d9a8acef17b6cfc0478811bd9a77971fea8746d60211a",
+        "usr/lib/x86_64-linux-gnu/libnvidia-egl-gbm.so.1": "symlink:libnvidia-egl-gbm.so.1.1.3",
+        "usr/lib/x86_64-linux-gnu/libnvidia-cfg.so": "symlink:libnvidia-cfg.so.1",
+        "usr/lib/x86_64-linux-gnu/libnvidia-opticalflow.so.1": "symlink:libnvidia-opticalflow.so.590.48.01",
+        "usr/lib/x86_64-linux-gnu/libnvidia-opticalflow.so.590.48.01": "b5ec7e111102755a37fc66f01e9194f9c91afaa08530cc7f855f700538b157c9",
+        "usr/lib/x86_64-linux-gnu/libnvidia-glcore.so.590.48.01": "56f9a3b4b9bb9aecb8a494ada22b8f7309b9b4965ac15f50f456b1eebc97c7b6",
+        "usr/lib/x86_64-linux-gnu/libnvidia-allocator.so.590.48.01": "5882ca5508809a03a833d082c8d62c376f12cd3cd7d09f087ba98cbe2be6bd6b",
+        "usr/lib/x86_64-linux-gnu/libnvidia-tileiras.so.590.48.01": "1e2c0c545172e2d54916f93b9fc362c139b34b4f6586ae95286ab7a0f4c83b8a",
+        "usr/lib/x86_64-linux-gnu/libnvidia-cfg.so.1": "symlink:libnvidia-cfg.so.590.48.01",
+        "usr/lib/x86_64-linux-gnu/libnvidia-nvvm.so.4": "symlink:libnvidia-nvvm.so.590.48.01",
+        "usr/lib/x86_64-linux-gnu/libnvidia-ptxjitcompiler.so.1": "symlink:libnvidia-ptxjitcompiler.so.590.48.01",
+        "usr/lib/x86_64-linux-gnu/libnvcuvid.so.590.48.01": "e827f4df4e96158ae08c3ec042b31ca2558c407c7c4de82d7fa05293cca381f6",
+        "usr/lib/x86_64-linux-gnu/libnvidia-egl-wayland.so.1": "symlink:libnvidia-egl-wayland.so.1.1.21",
+        "usr/lib/x86_64-linux-gnu/libnvidia-encode.so.1": "symlink:libnvidia-encode.so.590.48.01",
+        "usr/lib/x86_64-linux-gnu/libnvidia-opencl.so.1": "symlink:libnvidia-opencl.so.590.48.01",
+        "usr/lib/x86_64-linux-gnu/libnvidia-pkcs11.so.590.48.01": "3cfec4bef08776ae3a067b1e41679d9f6aa0d8613de1d16846ef8b7533d109ab",
+        "usr/bin/nvidia-smi": "78c2d203c12619673ddd5ae9c487a79689c9461de40a9b948f3f4615f26dba29"
+      }
+    }
+  },
+  "business": {
+    "id": "sha256:a1b1abf83992b07c97ab59b833dd9b7078097adb684f76bb2e1564dab7e3eb2f",
+    "local_ref": "127.0.0.1:5500/changan/video-unified@sha256:b7e1577e634d2ec1c1adc848179f021ba24f44c3ec7f2ff5c872361c50a55f65",
+    "cluster_ref": "changan-registry:5000/changan/video-unified@sha256:b7e1577e634d2ec1c1adc848179f021ba24f44c3ec7f2ff5c872361c50a55f65",
+    "model_sha256": "427cc366d34e27ff7a03e2899b5e3671425c262ea2291f88bb942bc1cc70b0f7",
+    "wheel_count": 24
+  }
+}

@@ -1,0 +1,10 @@
+numpy==2.2.5
+opencv-python-headless==4.11.0.86
+onnxruntime-gpu==1.23.2
+httpx==0.28.1
+nvidia-cuda-runtime-cu12==12.8.90
+nvidia-cublas-cu12==12.8.4.1
+nvidia-cudnn-cu12==9.10.2.21
+nvidia-cufft-cu12==11.3.3.83
+nvidia-curand-cu12==10.3.9.90
+nvidia-cuda-nvrtc-cu12==12.8.93

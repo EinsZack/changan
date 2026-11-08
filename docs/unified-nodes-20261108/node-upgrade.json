@@ -1,0 +1,77 @@
+{
+  "date": "2026-11-08",
+  "nodes": [
+    {
+      "lab": "lab-1",
+      "node": "k3d-changan-dev-agent-0",
+      "uid": "c4fa33cb-ce31-4eee-b051-d43d7d47c41d",
+      "gpu_selection": "GPU-1ba5825e-38ee-5dc3-2514-eb000355f95b",
+      "gpu_allocatable": 1,
+      "image": "127.0.0.1:5500/changan/k3s-node@sha256:08b51d42e181f121e6a9b93c775f2820c391be1ac43e9a337b7fee1f4efa535b",
+      "identity_preserved": true,
+      "ip": "172.29.1.3",
+      "ready": true,
+      "original_mounts_preserved": true,
+      "cpu_limit": 3.0,
+      "memory_limit_bytes": 8589934592,
+      "entrypoint": [
+        "/bin/k3d-entrypoint.sh"
+      ]
+    },
+    {
+      "lab": "lab-2",
+      "node": "k3d-changan-dev-agent-1",
+      "uid": "94f6ce00-4847-46a7-94a4-c79e7868cd7a",
+      "gpu_selection": "GPU-1ba5825e-38ee-5dc3-2514-eb000355f95b",
+      "gpu_allocatable": 1,
+      "image": "127.0.0.1:5500/changan/k3s-node@sha256:08b51d42e181f121e6a9b93c775f2820c391be1ac43e9a337b7fee1f4efa535b",
+      "identity_preserved": true,
+      "ip": "172.29.1.6",
+      "ready": true,
+      "original_mounts_preserved": true,
+      "cpu_limit": 3.0,
+      "memory_limit_bytes": 8589934592,
+      "entrypoint": [
+        "/bin/k3d-entrypoint.sh"
+      ]
+    },
+    {
+      "lab": "lab-3",
+      "node": "k3d-changan-dev-agent-2",
+      "uid": "cf8ff936-aac4-46d5-be2f-f7b2f5df65f4",
+      "gpu_selection": "GPU-1ba5825e-38ee-5dc3-2514-eb000355f95b",
+      "gpu_allocatable": 1,
+      "image": "127.0.0.1:5500/changan/k3s-node@sha256:08b51d42e181f121e6a9b93c775f2820c391be1ac43e9a337b7fee1f4efa535b",
+      "identity_preserved": true,
+      "ip": "172.29.1.5",
+      "ready": true,
+      "original_mounts_preserved": true,
+      "cpu_limit": 3.0,
+      "memory_limit_bytes": 8589934592,
+      "entrypoint": [
+        "/bin/k3d-entrypoint.sh"
+      ]
+    },
+    {
+      "lab": "lab-4",
+      "node": "k3d-changan-dev-agent-3",
+      "uid": "7181c5c1-0462-42f4-b26c-800198faaa0e",
+      "gpu_selection": "GPU-1ba5825e-38ee-5dc3-2514-eb000355f95b",
+      "gpu_allocatable": 1,
+      "image": "127.0.0.1:5500/changan/k3s-node@sha256:08b51d42e181f121e6a9b93c775f2820c391be1ac43e9a337b7fee1f4efa535b",
+      "identity_preserved": true,
+      "ip": "172.29.1.4",
+      "ready": true,
+      "original_mounts_preserved": true,
+      "cpu_limit": 3.0,
+      "memory_limit_bytes": 8589934592,
+      "entrypoint": [
+        "/bin/k3d-entrypoint.sh"
+      ]
+    }
+  ],
+  "logical_gpu_resources": 4,
+  "distinct_physical_gpu_uuids": 1,
+  "sharing": "user-authorized simulated sharing",
+  "kubernetes_node_count": 5
+}

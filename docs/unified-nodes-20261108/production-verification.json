@@ -1,0 +1,25 @@
+{
+  "task_id": "task_34f35f7cc0d24ea6",
+  "status": "SUCCEEDED",
+  "segments": 24,
+  "sampled_frames": 48,
+  "sessions": 4,
+  "model_loads": 4,
+  "per_session_completed": [
+    5,
+    8,
+    5,
+    6
+  ],
+  "all_cleaned": true,
+  "elapsed_seconds": 29.975910663604736,
+  "environment": "same physical server / four simulated lab nodes / unified CPU-CUDA image / unmodified v0.5.1 worker uses CPU",
+  "health": {
+    "status": "ok",
+    "service": "changan-orchestrator",
+    "version": "0.5.1",
+    "time": 1794125559.8654335
+  },
+  "segments_with_transfer_metrics": 24,
+  "unified_image_used_by_all_sessions": true
+}

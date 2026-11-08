@@ -1,0 +1,649 @@
+{
+  "image": "changan-registry:5000/changan/video-unified@sha256:b7e1577e634d2ec1c1adc848179f021ba24f44c3ec7f2ff5c872361c50a55f65",
+  "cases": [
+    {
+      "lab": "lab-1",
+      "pod_uid": "a35a1d20-15c4-49ce-a6eb-3743145c12a7",
+      "container_id": "containerd://e9d9010ac2c38dc08a87d522e53771c94e826419373ae614183bfd61b5ec30de",
+      "image_id": "changan-registry:5000/changan/video-unified@sha256:b7e1577e634d2ec1c1adc848179f021ba24f44c3ec7f2ff5c872361c50a55f65",
+      "phase": "Succeeded",
+      "container_lifetime": {
+        "containerID": "containerd://e9d9010ac2c38dc08a87d522e53771c94e826419373ae614183bfd61b5ec30de",
+        "exitCode": 0,
+        "finishedAt": "2026-11-08T08:10:53Z",
+        "reason": "Completed",
+        "startedAt": "2026-11-08T08:09:55Z"
+      },
+      "pod_spec": {
+        "nodeSelector": {
+          "kubernetes.io/hostname": "k3d-changan-dev-agent-0"
+        },
+        "restartPolicy": "Never",
+        "activeDeadlineSeconds": 600,
+        "automountServiceAccountToken": false,
+        "securityContext": {
+          "runAsUser": 10001,
+          "runAsGroup": 10001,
+          "runAsNonRoot": true,
+          "fsGroup": 10001,
+          "seccompProfile": {
+            "type": "RuntimeDefault"
+          }
+        },
+        "containers": [
+          {
+            "name": "compute",
+            "image": "changan-registry:5000/changan/video-unified@sha256:b7e1577e634d2ec1c1adc848179f021ba24f44c3ec7f2ff5c872361c50a55f65",
+            "imagePullPolicy": "IfNotPresent",
+            "command": [
+              "python",
+              "/opt/diagnostics/cpu_gpu_probe.py"
+            ],
+            "env": [
+              {
+                "name": "POD_NAME",
+                "valueFrom": {
+                  "fieldRef": {
+                    "fieldPath": "metadata.name"
+                  }
+                }
+              },
+              {
+                "name": "NODE_NAME",
+                "valueFrom": {
+                  "fieldRef": {
+                    "fieldPath": "spec.nodeName"
+                  }
+                }
+              },
+              {
+                "name": "EXPECTED_GPU_UUIDS",
+                "value": "GPU-1ba5825e-38ee-5dc3-2514-eb000355f95b"
+              }
+            ],
+            "resources": {
+              "requests": {
+                "cpu": "1",
+                "memory": "2Gi",
+                "nvidia.com/gpu": "1"
+              },
+              "limits": {
+                "cpu": "2",
+                "memory": "2Gi",
+                "nvidia.com/gpu": "1"
+              }
+            },
+            "securityContext": {
+              "allowPrivilegeEscalation": false,
+              "readOnlyRootFilesystem": true,
+              "capabilities": {
+                "drop": [
+                  "ALL"
+                ]
+              }
+            },
+            "volumeMounts": [
+              {
+                "name": "tmp",
+                "mountPath": "/tmp"
+              }
+            ]
+          }
+        ],
+        "volumes": [
+          {
+            "name": "tmp",
+            "emptyDir": {
+              "sizeLimit": "128Mi"
+            }
+          }
+        ],
+        "runtimeClassName": "nvidia"
+      },
+      "result": {
+        "pod": "runtime-lab-1-both",
+        "node": "k3d-changan-dev-agent-0",
+        "pid": 1,
+        "uid": 10001,
+        "ort_version": "1.23.2",
+        "model_sha256": "427cc366d34e27ff7a03e2899b5e3671425c262ea2291f88bb942bc1cc70b0f7",
+        "mode": "cpu-gpu-cpu",
+        "stages": [
+          {
+            "backend": "cpu",
+            "pid": 1,
+            "seconds": 0.08098688628524542,
+            "shape": [
+              1,
+              3549,
+              85
+            ]
+          },
+          {
+            "backend": "cuda",
+            "pid": 1,
+            "seconds": 56.873027076013386,
+            "shape": [
+              1,
+              3549,
+              85
+            ],
+            "cuda_compute_events": 203,
+            "provider_events": {
+              "CUDAExecutionProvider": 203
+            }
+          },
+          {
+            "backend": "cpu",
+            "pid": 1,
+            "same_cached_session": true,
+            "output_unchanged": true
+          }
+        ],
+        "gpu": {
+          "device_id": 0,
+          "uuid": "GPU-1ba5825e-38ee-5dc3-2514-eb000355f95b",
+          "name": "NVIDIA GeForce RTX 5090",
+          "visible_devices": 1,
+          "devices": [
+            {
+              "device_id": 0,
+              "uuid": "GPU-1ba5825e-38ee-5dc3-2514-eb000355f95b",
+              "name": "NVIDIA GeForce RTX 5090"
+            }
+          ]
+        },
+        "cpu_gpu_comparison": {
+          "max_abs_difference": 1.1801719665527344e-05,
+          "rtol": 0.002,
+          "atol": 0.0002,
+          "allclose": true
+        }
+      }
+    },
+    {
+      "lab": "lab-2",
+      "pod_uid": "30f9750a-5c87-422e-b356-3420e1b14e38",
+      "container_id": "containerd://13aefc817442444efe77fe166f6e9340c1520dcfc425d99e8c15406dce94e33f",
+      "image_id": "changan-registry:5000/changan/video-unified@sha256:b7e1577e634d2ec1c1adc848179f021ba24f44c3ec7f2ff5c872361c50a55f65",
+      "phase": "Succeeded",
+      "container_lifetime": {
+        "containerID": "containerd://13aefc817442444efe77fe166f6e9340c1520dcfc425d99e8c15406dce94e33f",
+        "exitCode": 0,
+        "finishedAt": "2026-11-08T08:10:08Z",
+        "reason": "Completed",
+        "startedAt": "2026-11-08T08:09:56Z"
+      },
+      "pod_spec": {
+        "nodeSelector": {
+          "kubernetes.io/hostname": "k3d-changan-dev-agent-1"
+        },
+        "restartPolicy": "Never",
+        "activeDeadlineSeconds": 600,
+        "automountServiceAccountToken": false,
+        "securityContext": {
+          "runAsUser": 10001,
+          "runAsGroup": 10001,
+          "runAsNonRoot": true,
+          "fsGroup": 10001,
+          "seccompProfile": {
+            "type": "RuntimeDefault"
+          }
+        },
+        "containers": [
+          {
+            "name": "compute",
+            "image": "changan-registry:5000/changan/video-unified@sha256:b7e1577e634d2ec1c1adc848179f021ba24f44c3ec7f2ff5c872361c50a55f65",
+            "imagePullPolicy": "IfNotPresent",
+            "command": [
+              "python",
+              "/opt/diagnostics/cpu_gpu_probe.py"
+            ],
+            "env": [
+              {
+                "name": "POD_NAME",
+                "valueFrom": {
+                  "fieldRef": {
+                    "fieldPath": "metadata.name"
+                  }
+                }
+              },
+              {
+                "name": "NODE_NAME",
+                "valueFrom": {
+                  "fieldRef": {
+                    "fieldPath": "spec.nodeName"
+                  }
+                }
+              },
+              {
+                "name": "EXPECTED_GPU_UUIDS",
+                "value": "GPU-1ba5825e-38ee-5dc3-2514-eb000355f95b"
+              }
+            ],
+            "resources": {
+              "requests": {
+                "cpu": "1",
+                "memory": "2Gi",
+                "nvidia.com/gpu": "1"
+              },
+              "limits": {
+                "cpu": "2",
+                "memory": "2Gi",
+                "nvidia.com/gpu": "1"
+              }
+            },
+            "securityContext": {
+              "allowPrivilegeEscalation": false,
+              "readOnlyRootFilesystem": true,
+              "capabilities": {
+                "drop": [
+                  "ALL"
+                ]
+              }
+            },
+            "volumeMounts": [
+              {
+                "name": "tmp",
+                "mountPath": "/tmp"
+              }
+            ]
+          }
+        ],
+        "volumes": [
+          {
+            "name": "tmp",
+            "emptyDir": {
+              "sizeLimit": "128Mi"
+            }
+          }
+        ],
+        "runtimeClassName": "nvidia"
+      },
+      "result": {
+        "pod": "runtime-lab-2-both",
+        "node": "k3d-changan-dev-agent-1",
+        "pid": 1,
+        "uid": 10001,
+        "ort_version": "1.23.2",
+        "model_sha256": "427cc366d34e27ff7a03e2899b5e3671425c262ea2291f88bb942bc1cc70b0f7",
+        "mode": "cpu-gpu-cpu",
+        "stages": [
+          {
+            "backend": "cpu",
+            "pid": 1,
+            "seconds": 0.0831281403079629,
+            "shape": [
+              1,
+              3549,
+              85
+            ]
+          },
+          {
+            "backend": "cuda",
+            "pid": 1,
+            "seconds": 10.540206041187048,
+            "shape": [
+              1,
+              3549,
+              85
+            ],
+            "cuda_compute_events": 203,
+            "provider_events": {
+              "CUDAExecutionProvider": 203
+            }
+          },
+          {
+            "backend": "cpu",
+            "pid": 1,
+            "same_cached_session": true,
+            "output_unchanged": true
+          }
+        ],
+        "gpu": {
+          "device_id": 0,
+          "uuid": "GPU-1ba5825e-38ee-5dc3-2514-eb000355f95b",
+          "name": "NVIDIA GeForce RTX 5090",
+          "visible_devices": 1,
+          "devices": [
+            {
+              "device_id": 0,
+              "uuid": "GPU-1ba5825e-38ee-5dc3-2514-eb000355f95b",
+              "name": "NVIDIA GeForce RTX 5090"
+            }
+          ]
+        },
+        "cpu_gpu_comparison": {
+          "max_abs_difference": 1.1801719665527344e-05,
+          "rtol": 0.002,
+          "atol": 0.0002,
+          "allclose": true
+        }
+      }
+    },
+    {
+      "lab": "lab-3",
+      "pod_uid": "e7742642-894c-4cc7-825a-8620d36a0073",
+      "container_id": "containerd://fb4038930bcb580074ad734f3b8536ec404ae5915542cd9665dc5f99185f3b11",
+      "image_id": "changan-registry:5000/changan/video-unified@sha256:b7e1577e634d2ec1c1adc848179f021ba24f44c3ec7f2ff5c872361c50a55f65",
+      "phase": "Succeeded",
+      "container_lifetime": {
+        "containerID": "containerd://fb4038930bcb580074ad734f3b8536ec404ae5915542cd9665dc5f99185f3b11",
+        "exitCode": 0,
+        "finishedAt": "2026-11-08T08:10:09Z",
+        "reason": "Completed",
+        "startedAt": "2026-11-08T08:09:56Z"
+      },
+      "pod_spec": {
+        "nodeSelector": {
+          "kubernetes.io/hostname": "k3d-changan-dev-agent-2"
+        },
+        "restartPolicy": "Never",
+        "activeDeadlineSeconds": 600,
+        "automountServiceAccountToken": false,
+        "securityContext": {
+          "runAsUser": 10001,
+          "runAsGroup": 10001,
+          "runAsNonRoot": true,
+          "fsGroup": 10001,
+          "seccompProfile": {
+            "type": "RuntimeDefault"
+          }
+        },
+        "containers": [
+          {
+            "name": "compute",
+            "image": "changan-registry:5000/changan/video-unified@sha256:b7e1577e634d2ec1c1adc848179f021ba24f44c3ec7f2ff5c872361c50a55f65",
+            "imagePullPolicy": "IfNotPresent",
+            "command": [
+              "python",
+              "/opt/diagnostics/cpu_gpu_probe.py"
+            ],
+            "env": [
+              {
+                "name": "POD_NAME",
+                "valueFrom": {
+                  "fieldRef": {
+                    "fieldPath": "metadata.name"
+                  }
+                }
+              },
+              {
+                "name": "NODE_NAME",
+                "valueFrom": {
+                  "fieldRef": {
+                    "fieldPath": "spec.nodeName"
+                  }
+                }
+              },
+              {
+                "name": "EXPECTED_GPU_UUIDS",
+                "value": "GPU-1ba5825e-38ee-5dc3-2514-eb000355f95b"
+              }
+            ],
+            "resources": {
+              "requests": {
+                "cpu": "1",
+                "memory": "2Gi",
+                "nvidia.com/gpu": "1"
+              },
+              "limits": {
+                "cpu": "2",
+                "memory": "2Gi",
+                "nvidia.com/gpu": "1"
+              }
+            },
+            "securityContext": {
+              "allowPrivilegeEscalation": false,
+              "readOnlyRootFilesystem": true,
+              "capabilities": {
+                "drop": [
+                  "ALL"
+                ]
+              }
+            },
+            "volumeMounts": [
+              {
+                "name": "tmp",
+                "mountPath": "/tmp"
+              }
+            ]
+          }
+        ],
+        "volumes": [
+          {
+            "name": "tmp",
+            "emptyDir": {
+              "sizeLimit": "128Mi"
+            }
+          }
+        ],
+        "runtimeClassName": "nvidia"
+      },
+      "result": {
+        "pod": "runtime-lab-3-both",
+        "node": "k3d-changan-dev-agent-2",
+        "pid": 1,
+        "uid": 10001,
+        "ort_version": "1.23.2",
+        "model_sha256": "427cc366d34e27ff7a03e2899b5e3671425c262ea2291f88bb942bc1cc70b0f7",
+        "mode": "cpu-gpu-cpu",
+        "stages": [
+          {
+            "backend": "cpu",
+            "pid": 1,
+            "seconds": 0.08000814728438854,
+            "shape": [
+              1,
+              3549,
+              85
+            ]
+          },
+          {
+            "backend": "cuda",
+            "pid": 1,
+            "seconds": 10.973800299689174,
+            "shape": [
+              1,
+              3549,
+              85
+            ],
+            "cuda_compute_events": 203,
+            "provider_events": {
+              "CUDAExecutionProvider": 203
+            }
+          },
+          {
+            "backend": "cpu",
+            "pid": 1,
+            "same_cached_session": true,
+            "output_unchanged": true
+          }
+        ],
+        "gpu": {
+          "device_id": 0,
+          "uuid": "GPU-1ba5825e-38ee-5dc3-2514-eb000355f95b",
+          "name": "NVIDIA GeForce RTX 5090",
+          "visible_devices": 1,
+          "devices": [
+            {
+              "device_id": 0,
+              "uuid": "GPU-1ba5825e-38ee-5dc3-2514-eb000355f95b",
+              "name": "NVIDIA GeForce RTX 5090"
+            }
+          ]
+        },
+        "cpu_gpu_comparison": {
+          "max_abs_difference": 1.1801719665527344e-05,
+          "rtol": 0.002,
+          "atol": 0.0002,
+          "allclose": true
+        }
+      }
+    },
+    {
+      "lab": "lab-4",
+      "pod_uid": "ace60534-f784-44e6-9b4e-e8493d480b9b",
+      "container_id": "containerd://f8a17a0cc0a60cab81947ed1e2e6cdc5e0c502e3a860443536885089d692a6cd",
+      "image_id": "changan-registry:5000/changan/video-unified@sha256:b7e1577e634d2ec1c1adc848179f021ba24f44c3ec7f2ff5c872361c50a55f65",
+      "phase": "Succeeded",
+      "container_lifetime": {
+        "containerID": "containerd://f8a17a0cc0a60cab81947ed1e2e6cdc5e0c502e3a860443536885089d692a6cd",
+        "exitCode": 0,
+        "finishedAt": "2026-11-08T08:10:09Z",
+        "reason": "Completed",
+        "startedAt": "2026-11-08T08:09:56Z"
+      },
+      "pod_spec": {
+        "nodeSelector": {
+          "kubernetes.io/hostname": "k3d-changan-dev-agent-3"
+        },
+        "restartPolicy": "Never",
+        "activeDeadlineSeconds": 600,
+        "automountServiceAccountToken": false,
+        "securityContext": {
+          "runAsUser": 10001,
+          "runAsGroup": 10001,
+          "runAsNonRoot": true,
+          "fsGroup": 10001,
+          "seccompProfile": {
+            "type": "RuntimeDefault"
+          }
+        },
+        "containers": [
+          {
+            "name": "compute",
+            "image": "changan-registry:5000/changan/video-unified@sha256:b7e1577e634d2ec1c1adc848179f021ba24f44c3ec7f2ff5c872361c50a55f65",
+            "imagePullPolicy": "IfNotPresent",
+            "command": [
+              "python",
+              "/opt/diagnostics/cpu_gpu_probe.py"
+            ],
+            "env": [
+              {
+                "name": "POD_NAME",
+                "valueFrom": {
+                  "fieldRef": {
+                    "fieldPath": "metadata.name"
+                  }
+                }
+              },
+              {
+                "name": "NODE_NAME",
+                "valueFrom": {
+                  "fieldRef": {
+                    "fieldPath": "spec.nodeName"
+                  }
+                }
+              },
+              {
+                "name": "EXPECTED_GPU_UUIDS",
+                "value": "GPU-1ba5825e-38ee-5dc3-2514-eb000355f95b"
+              }
+            ],
+            "resources": {
+              "requests": {
+                "cpu": "1",
+                "memory": "2Gi",
+                "nvidia.com/gpu": "1"
+              },
+              "limits": {
+                "cpu": "2",
+                "memory": "2Gi",
+                "nvidia.com/gpu": "1"
+              }
+            },
+            "securityContext": {
+              "allowPrivilegeEscalation": false,
+              "readOnlyRootFilesystem": true,
+              "capabilities": {
+                "drop": [
+                  "ALL"
+                ]
+              }
+            },
+            "volumeMounts": [
+              {
+                "name": "tmp",
+                "mountPath": "/tmp"
+              }
+            ]
+          }
+        ],
+        "volumes": [
+          {
+            "name": "tmp",
+            "emptyDir": {
+              "sizeLimit": "128Mi"
+            }
+          }
+        ],
+        "runtimeClassName": "nvidia"
+      },
+      "result": {
+        "pod": "runtime-lab-4-both",
+        "node": "k3d-changan-dev-agent-3",
+        "pid": 1,
+        "uid": 10001,
+        "ort_version": "1.23.2",
+        "model_sha256": "427cc366d34e27ff7a03e2899b5e3671425c262ea2291f88bb942bc1cc70b0f7",
+        "mode": "cpu-gpu-cpu",
+        "stages": [
+          {
+            "backend": "cpu",
+            "pid": 1,
+            "seconds": 0.083339705131948,
+            "shape": [
+              1,
+              3549,
+              85
+            ]
+          },
+          {
+            "backend": "cuda",
+            "pid": 1,
+            "seconds": 10.624245402403176,
+            "shape": [
+              1,
+              3549,
+              85
+            ],
+            "cuda_compute_events": 203,
+            "provider_events": {
+              "CUDAExecutionProvider": 203
+            }
+          },
+          {
+            "backend": "cpu",
+            "pid": 1,
+            "same_cached_session": true,
+            "output_unchanged": true
+          }
+        ],
+        "gpu": {
+          "device_id": 0,
+          "uuid": "GPU-1ba5825e-38ee-5dc3-2514-eb000355f95b",
+          "name": "NVIDIA GeForce RTX 5090",
+          "visible_devices": 1,
+          "devices": [
+            {
+              "device_id": 0,
+              "uuid": "GPU-1ba5825e-38ee-5dc3-2514-eb000355f95b",
+              "name": "NVIDIA GeForce RTX 5090"
+            }
+          ]
+        },
+        "cpu_gpu_comparison": {
+          "max_abs_difference": 1.1801719665527344e-05,
+          "rtol": 0.002,
+          "atol": 0.0002,
+          "allclose": true
+        }
+      }
+    }
+  ],
+  "environment": "one physical server; four general CPU/GPU k3d nodes; shared server GPUs",
+  "concurrent": true,
+  "all_containers_overlapped": true,
+  "cleaned": true
+}

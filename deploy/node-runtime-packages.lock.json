@@ -1,0 +1,38 @@
+[
+  {
+    "Package": "libnvidia-container1",
+    "Version": "1.18.2-1",
+    "SHA256": "cbeaf450277d4f98c97663320fb713f9d2dae115ba7855841cbb1b50cd08efda",
+    "url": "https://nvidia.github.io/libnvidia-container/stable/deb/amd64/libnvidia-container1_1.18.2-1_amd64.deb"
+  },
+  {
+    "Package": "libnvidia-container-tools",
+    "Version": "1.18.2-1",
+    "SHA256": "4118d174b4d47f1800b15fb4c79de6cd01d68fcd2ed0eaa1d8d2cb8bd54506b2",
+    "url": "https://nvidia.github.io/libnvidia-container/stable/deb/amd64/libnvidia-container-tools_1.18.2-1_amd64.deb"
+  },
+  {
+    "Package": "nvidia-container-toolkit-base",
+    "Version": "1.18.2-1",
+    "SHA256": "c5dd04dca8fce125c087676480b8663a5f4ea1d1814b13bfb5ce673e517f94ae",
+    "url": "https://nvidia.github.io/libnvidia-container/stable/deb/amd64/nvidia-container-toolkit-base_1.18.2-1_amd64.deb"
+  },
+  {
+    "Package": "nvidia-container-toolkit",
+    "Version": "1.18.2-1",
+    "SHA256": "3e991c4dab2604b3110fb555394e1cdd72ccd88ec27bb580e19e8664182bcf79",
+    "url": "https://nvidia.github.io/libnvidia-container/stable/deb/amd64/nvidia-container-toolkit_1.18.2-1_amd64.deb"
+  },
+  {
+    "Package": "libcap2",
+    "Version": "1:2.66-4+deb12u3+b1",
+    "SHA256": "8d684c673e7483802a5c447834b0df6fce006eb3a7109e1be412f5ad425bb24f",
+    "url": "https://deb.debian.org/debian/pool/main/libc/libcap2/libcap2_2.66-4+deb12u3+b1_amd64.deb"
+  },
+  {
+    "Package": "libseccomp2",
+    "Version": "2.5.4-1+deb12u1",
+    "SHA256": "108fe67957ca7cf9ba51d801118a1b37d404bea7b6e365025cd00779e9eca38d",
+    "url": "https://deb.debian.org/debian/pool/main/libs/libseccomp/libseccomp2_2.5.4-1+deb12u1_amd64.deb"
+  }
+]

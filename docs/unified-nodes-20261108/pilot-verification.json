@@ -1,0 +1,268 @@
+{
+  "image": "changan-registry:5000/changan/video-unified@sha256:b7e1577e634d2ec1c1adc848179f021ba24f44c3ec7f2ff5c872361c50a55f65",
+  "cases": [
+    {
+      "lab": "lab-2",
+      "pod_uid": "5b22e1fb-e08a-4b14-811d-355b22c16da5",
+      "container_id": "containerd://badfaad306b0bc421032ef34471838daff6a1faf546859ef594bb081c991b998",
+      "image_id": "changan-registry:5000/changan/video-unified@sha256:b7e1577e634d2ec1c1adc848179f021ba24f44c3ec7f2ff5c872361c50a55f65",
+      "phase": "Succeeded",
+      "pod_spec": {
+        "nodeSelector": {
+          "kubernetes.io/hostname": "k3d-changan-dev-agent-1"
+        },
+        "restartPolicy": "Never",
+        "activeDeadlineSeconds": 600,
+        "automountServiceAccountToken": false,
+        "securityContext": {
+          "runAsUser": 10001,
+          "runAsGroup": 10001,
+          "runAsNonRoot": true,
+          "fsGroup": 10001,
+          "seccompProfile": {
+            "type": "RuntimeDefault"
+          }
+        },
+        "containers": [
+          {
+            "name": "compute",
+            "image": "changan-registry:5000/changan/video-unified@sha256:b7e1577e634d2ec1c1adc848179f021ba24f44c3ec7f2ff5c872361c50a55f65",
+            "imagePullPolicy": "IfNotPresent",
+            "command": [
+              "python",
+              "/opt/diagnostics/cpu_gpu_probe.py",
+              "--cpu-only"
+            ],
+            "env": [
+              {
+                "name": "POD_NAME",
+                "valueFrom": {
+                  "fieldRef": {
+                    "fieldPath": "metadata.name"
+                  }
+                }
+              },
+              {
+                "name": "NODE_NAME",
+                "valueFrom": {
+                  "fieldRef": {
+                    "fieldPath": "spec.nodeName"
+                  }
+                }
+              }
+            ],
+            "resources": {
+              "requests": {
+                "cpu": "1",
+                "memory": "2Gi"
+              },
+              "limits": {
+                "cpu": "2",
+                "memory": "2Gi"
+              }
+            },
+            "securityContext": {
+              "allowPrivilegeEscalation": false,
+              "readOnlyRootFilesystem": true,
+              "capabilities": {
+                "drop": [
+                  "ALL"
+                ]
+              }
+            },
+            "volumeMounts": [
+              {
+                "name": "tmp",
+                "mountPath": "/tmp"
+              }
+            ]
+          }
+        ],
+        "volumes": [
+          {
+            "name": "tmp",
+            "emptyDir": {
+              "sizeLimit": "128Mi"
+            }
+          }
+        ]
+      },
+      "result": {
+        "pod": "runtime-lab-2-cpu",
+        "node": "k3d-changan-dev-agent-1",
+        "pid": 1,
+        "uid": 10001,
+        "ort_version": "1.23.2",
+        "model_sha256": "427cc366d34e27ff7a03e2899b5e3671425c262ea2291f88bb942bc1cc70b0f7",
+        "mode": "cpu",
+        "stages": [
+          {
+            "backend": "cpu",
+            "pid": 1,
+            "seconds": 0.08316867239773273,
+            "shape": [
+              1,
+              3549,
+              85
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "lab": "lab-2",
+      "pod_uid": "8aca34ae-be1f-4447-861a-d8c05ae90ce0",
+      "container_id": "containerd://b3296881a57d6a2ceb8621fcadec7ff0dc60893e109a41c5fd907eb68633f8e2",
+      "image_id": "changan-registry:5000/changan/video-unified@sha256:b7e1577e634d2ec1c1adc848179f021ba24f44c3ec7f2ff5c872361c50a55f65",
+      "phase": "Succeeded",
+      "pod_spec": {
+        "nodeSelector": {
+          "kubernetes.io/hostname": "k3d-changan-dev-agent-1"
+        },
+        "restartPolicy": "Never",
+        "activeDeadlineSeconds": 600,
+        "automountServiceAccountToken": false,
+        "securityContext": {
+          "runAsUser": 10001,
+          "runAsGroup": 10001,
+          "runAsNonRoot": true,
+          "fsGroup": 10001,
+          "seccompProfile": {
+            "type": "RuntimeDefault"
+          }
+        },
+        "containers": [
+          {
+            "name": "compute",
+            "image": "changan-registry:5000/changan/video-unified@sha256:b7e1577e634d2ec1c1adc848179f021ba24f44c3ec7f2ff5c872361c50a55f65",
+            "imagePullPolicy": "IfNotPresent",
+            "command": [
+              "python",
+              "/opt/diagnostics/cpu_gpu_probe.py"
+            ],
+            "env": [
+              {
+                "name": "POD_NAME",
+                "valueFrom": {
+                  "fieldRef": {
+                    "fieldPath": "metadata.name"
+                  }
+                }
+              },
+              {
+                "name": "NODE_NAME",
+                "valueFrom": {
+                  "fieldRef": {
+                    "fieldPath": "spec.nodeName"
+                  }
+                }
+              },
+              {
+                "name": "EXPECTED_GPU_UUIDS",
+                "value": "GPU-1ba5825e-38ee-5dc3-2514-eb000355f95b"
+              }
+            ],
+            "resources": {
+              "requests": {
+                "cpu": "1",
+                "memory": "2Gi",
+                "nvidia.com/gpu": "1"
+              },
+              "limits": {
+                "cpu": "2",
+                "memory": "2Gi",
+                "nvidia.com/gpu": "1"
+              }
+            },
+            "securityContext": {
+              "allowPrivilegeEscalation": false,
+              "readOnlyRootFilesystem": true,
+              "capabilities": {
+                "drop": [
+                  "ALL"
+                ]
+              }
+            },
+            "volumeMounts": [
+              {
+                "name": "tmp",
+                "mountPath": "/tmp"
+              }
+            ]
+          }
+        ],
+        "volumes": [
+          {
+            "name": "tmp",
+            "emptyDir": {
+              "sizeLimit": "128Mi"
+            }
+          }
+        ],
+        "runtimeClassName": "nvidia"
+      },
+      "result": {
+        "pod": "runtime-lab-2-both",
+        "node": "k3d-changan-dev-agent-1",
+        "pid": 1,
+        "uid": 10001,
+        "ort_version": "1.23.2",
+        "model_sha256": "427cc366d34e27ff7a03e2899b5e3671425c262ea2291f88bb942bc1cc70b0f7",
+        "mode": "cpu-gpu-cpu",
+        "stages": [
+          {
+            "backend": "cpu",
+            "pid": 1,
+            "seconds": 0.09161962755024433,
+            "shape": [
+              1,
+              3549,
+              85
+            ]
+          },
+          {
+            "backend": "cuda",
+            "pid": 1,
+            "seconds": 64.09864381980151,
+            "shape": [
+              1,
+              3549,
+              85
+            ],
+            "cuda_compute_events": 203,
+            "provider_events": {
+              "CUDAExecutionProvider": 203
+            }
+          },
+          {
+            "backend": "cpu",
+            "pid": 1,
+            "same_cached_session": true,
+            "output_unchanged": true
+          }
+        ],
+        "gpu": {
+          "device_id": 0,
+          "uuid": "GPU-1ba5825e-38ee-5dc3-2514-eb000355f95b",
+          "name": "NVIDIA GeForce RTX 5090",
+          "visible_devices": 1,
+          "devices": [
+            {
+              "device_id": 0,
+              "uuid": "GPU-1ba5825e-38ee-5dc3-2514-eb000355f95b",
+              "name": "NVIDIA GeForce RTX 5090"
+            }
+          ]
+        },
+        "cpu_gpu_comparison": {
+          "max_abs_difference": 1.1801719665527344e-05,
+          "rtol": 0.002,
+          "atol": 0.0002,
+          "allclose": true
+        }
+      }
+    }
+  ],
+  "environment": "one physical server; four general CPU/GPU k3d nodes; shared server GPUs",
+  "cleaned": true
+}

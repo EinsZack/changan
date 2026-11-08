@@ -1,0 +1,1 @@
+{"pod": "runtime-lab-2-cpu", "node": "k3d-changan-dev-agent-1", "pid": 1, "uid": 10001, "ort_version": "1.23.2", "model_sha256": "427cc366d34e27ff7a03e2899b5e3671425c262ea2291f88bb942bc1cc70b0f7", "mode": "cpu", "stages": [{"backend": "cpu", "pid": 1, "seconds": 0.08316867239773273, "shape": [1, 3549, 85]}]}

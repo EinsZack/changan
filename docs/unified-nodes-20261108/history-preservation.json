@@ -1,0 +1,27 @@
+{
+  "tasks": {
+    "original_rows": 76,
+    "current_rows": 77,
+    "all_original_rows_unchanged": true
+  },
+  "segments": {
+    "original_rows": 701,
+    "current_rows": 725,
+    "all_original_rows_unchanged": true
+  },
+  "attempts": {
+    "original_rows": 669,
+    "current_rows": 693,
+    "all_original_rows_unchanged": true
+  },
+  "execution_sessions": {
+    "original_rows": 28,
+    "current_rows": 32,
+    "all_original_rows_unchanged": true
+  },
+  "events": {
+    "original_rows": 5397,
+    "current_rows": 5603,
+    "all_original_rows_unchanged": true
+  }
+}

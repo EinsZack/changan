@@ -1,0 +1,22 @@
+# General CPU/GPU lab node; host driver matched, amd64 only. Not a THOR image.
+FROM rancher/k3s@sha256:2074403abe1bded11ef3dde09d457e13be8e0b64c218b1c4f8269b4565cfbc65 AS k3s
+FROM python:3.11-slim-bookworm@sha256:a83ba18aef0f865b1a4a611c2cf460fe446f2795673bbb9fe43be570439e3b39
+COPY toolkit/ /
+COPY driver/ /
+RUN ldconfig && mkdir -p /etc/nvidia-container-runtime && \
+    nvidia-ctk config --in-place --set nvidia-container-cli.no-cgroups=false && \
+    nvidia-ctk config --in-place --set nvidia-container-runtime.mode=legacy
+COPY --from=k3s /bin/ /bin/
+COPY --from=k3s /var/lib/rancher/k3s/data/cni/ /var/lib/rancher/k3s/data/cni/
+COPY runtime-provenance.json /opt/changan/runtime-provenance.json
+ENV PATH="/var/lib/rancher/k3s/data/cni:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/bin/aux" \
+    CRI_CONFIG_FILE="/var/lib/rancher/k3s/agent/etc/crictl.yaml" \
+    NVIDIA_DRIVER_CAPABILITIES="compute,utility"
+LABEL changan.runtime="cpu-gpu" changan.host-driver="590.48.01"
+VOLUME /var/lib/kubelet
+VOLUME /var/lib/rancher/k3s
+VOLUME /var/lib/cni
+VOLUME /var/log
+VOLUME /etc/rancher/node
+ENTRYPOINT ["/bin/k3s"]
+CMD ["agent"]
