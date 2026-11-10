@@ -108,3 +108,16 @@ def test_cuda_cache_settings_validation(monkeypatch):
     monkeypatch.setenv('CHANGAN_CUDA_CACHE_MAX_BYTES', str(8 * 1024**3))
     with pytest.raises(ValueError):
         cuda_cache_settings()
+
+
+@pytest.mark.asyncio
+async def test_control_plane_stall_defers_heartbeat_expiry_but_real_loss_still_detected():
+    e, sessions, tid = setup_session()
+    db.execute("UPDATE execution_sessions SET heartbeat_at=?", (time.time() - 40,))
+    sessions.last_step = time.time() - 20  # coordinator could not run for 20 s
+    await sessions.reconcile()
+    assert get_session('session_one')['status'] == 'READY'
+    sessions.heartbeat_grace_until = 0; sessions.last_step = time.time()
+    await sessions.reconcile()
+    assert get_session('session_one')['status'] == 'STOPPING'
+    await e.close()

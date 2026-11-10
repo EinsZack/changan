@@ -20,6 +20,11 @@ router = APIRouter()
 MODE = 'task_session'
 HEARTBEAT_TIMEOUT = 30
 STARTUP_TIMEOUT = 180
+# A pause this long between two coordinator steps means the control plane itself stalled (seen on
+# 2026-11-10: SQLite commits blocked 10-30 s by host disk contention). Heartbeats could not be
+# recorded either, so stale heartbeat_at is not evidence of a lost node for one timeout window.
+CONTROL_STALL_SECONDS = 8
+CONTAINER_LEASE_SECONDS = 60
 
 
 def get_session(sid, conn=None):
@@ -84,6 +89,16 @@ class SessionExecution:
     def __init__(self, owner):
         self.owner = owner
         self.engine = owner.engine
+        self.last_step = None
+        self.heartbeat_grace_until = 0
+
+    def note_progress(self):
+        now = time.time()
+        if self.last_step and now - self.last_step > CONTROL_STALL_SECONDS and now >= self.heartbeat_grace_until:
+            self.heartbeat_grace_until = now + HEARTBEAT_TIMEOUT
+            import logging
+            logging.getLogger('changan.sessions').warning('Control plane stalled %.1f s; heartbeat expiry deferred until %.0f', now - self.last_step, self.heartbeat_grace_until)
+        self.last_step = now
 
     def scheduling_nodes(self, nodes, task_id):
         for n in nodes:
@@ -203,7 +218,7 @@ class SessionExecution:
         base = os.getenv('CHANGAN_CONTAINER_BASE', self.engine.base)
         payload = {'execution_mode': MODE, 'session_id': s['id'], 'session_token': s['token'],
                    'task_id': s['task_id'], 'target_node': s['node_id'], 'base_url': base,
-                   'model_sha256': w['model_sha256'], 'heartbeat_seconds': 2, 'lease_seconds': 20,
+                   'model_sha256': w['model_sha256'], 'heartbeat_seconds': 2, 'lease_seconds': CONTAINER_LEASE_SECONDS,
                    'timing_version': w.get('timing_version'), 'model_policy': w.get('model_policy','cpu'),
                    'model_device_id': w.get('model_device_id',0)}
         if not w.get('job_submit_started_at'):
@@ -245,14 +260,17 @@ class SessionExecution:
             except Exception:
                 # Keep the durable decision pending while an external API is uncertain.
                 pass
+        self.note_progress()
         for s in db.query("SELECT * FROM execution_sessions WHERE cleanup_state!='DONE' ORDER BY created"):
             try:
+                self.note_progress()
                 await self.reconcile_one(s)
             except Exception as e:
                 w = db.loads(get_session(s['id'])['workload'])
                 if time.time() - w.get('last_api_error', 0) > 15:
                     patch_workload(s['id'], {'last_api_error': time.time()})
                     db.event(s['task_id'], 'session_api_unavailable', {'stage': 'execute', 'state': 'UNKNOWN', 'session_id': s['id'], 'message': '集群状态待核对，保留会话资源', 'error_type': type(e).__name__})
+        self.note_progress()
         if self.engine.resource_provider.enabled:
             for s in db.query("SELECT * FROM execution_sessions WHERE cleanup_state='DONE' AND reservation_id IS NOT NULL AND reservation_released=0"):
                 try:
@@ -275,7 +293,7 @@ class SessionExecution:
             self.stop(sid, '任务结束，回收执行会话', 'CANCELED')
         elif not s['ready_at'] and now - s['created'] > min(STARTUP_TIMEOUT, params['attempt_timeout']):
             self.stop(sid, '容器或模型准备超时', 'TIMED_OUT')
-        elif s['heartbeat_at'] and now - s['heartbeat_at'] > HEARTBEAT_TIMEOUT:
+        elif s['heartbeat_at'] and now - s['heartbeat_at'] > HEARTBEAT_TIMEOUT and now >= self.heartbeat_grace_until:
             self.stop(sid, '会话心跳超时，隔离旧执行并重新分配分片', 'TIMED_OUT')
         elif node and node['error'] == '节点不在 K3s 可执行节点集合':
             self.stop(sid, '节点已退出可执行节点集合，重新分配未完成分片')
