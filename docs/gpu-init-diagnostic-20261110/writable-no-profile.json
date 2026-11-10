@@ -1,0 +1,55 @@
+{
+  "label": "writable-no-profile",
+  "pid": 223,
+  "ort": "1.23.2",
+  "home": "/",
+  "home_writable": false,
+  "cache": "/work/cuda-cache",
+  "env": {
+    "CUDA_CACHE_PATH": "/work/cuda-cache",
+    "CUDA_CACHE_DISABLE": null,
+    "CUDA_MODULE_LOADING": null,
+    "CUDA_FORCE_PTX_JIT": null,
+    "CUDA_DISABLE_PTX_JIT": null
+  },
+  "cache_before": {
+    "count": 8,
+    "bytes": 87394146
+  },
+  "libs": {
+    "nvidia-cudnn-cu12": "9.10.2.21",
+    "nvidia-cuda-runtime-cu12": "12.8.90",
+    "nvidia-cublas-cu12": "12.8.4.1"
+  },
+  "preload_seconds": 0.07125252764672041,
+  "session_seconds": 0.19744020700454712,
+  "providers": [
+    "CUDAExecutionProvider",
+    "CPUExecutionProvider"
+  ],
+  "cpu_before": "usage_usec 161978154\nuser_usec 156243760\nsystem_usec 5734394\ncore_sched.force_idle_usec 0\nnr_periods 1608\nnr_throttled 14\nthrottled_usec 31302176\nnr_bursts 0\nburst_usec 0\n",
+  "cpu_after_first": "usage_usec 162666083\nuser_usec 156633825\nsystem_usec 6032257\ncore_sched.force_idle_usec 0\nnr_periods 1615\nnr_throttled 14\nthrottled_usec 31302176\nnr_bursts 0\nburst_usec 0\n",
+  "cache_after_first": {
+    "count": 8,
+    "bytes": 87394146
+  },
+  "runs_seconds": [
+    0.6873706504702568,
+    0.009995842352509499,
+    0.008082471787929535,
+    0.008900166489183903,
+    0.00887265894562006,
+    0.008842416107654572
+  ],
+  "output_shapes": [
+    [
+      1,
+      3549,
+      85
+    ]
+  ],
+  "cache_after": {
+    "count": 8,
+    "bytes": 87394146
+  }
+}

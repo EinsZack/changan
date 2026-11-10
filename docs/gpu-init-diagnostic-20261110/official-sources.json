@@ -1,0 +1,21 @@
+{
+  "accessed_on": "2026-11-10",
+  "sources": [
+    {
+      "name": "ort",
+      "url": "https://onnxruntime.ai/docs/execution-providers/CUDA-ExecutionProvider.html",
+      "facts_zh": [
+        "当前配置cudnn_conv_algo_search=HEURISTIC，官方说明为启发式算法选择。",
+        "不能依据默认EXHAUSTIVE选项推断当前程序正在穷举搜索。"
+      ]
+    },
+    {
+      "name": "cuda",
+      "url": "https://docs.nvidia.com/cuda/cuda-programming-guide/05-appendices/environment-variables.html",
+      "facts_zh": [
+        "Linux默认JIT缓存路径为~/.nv/ComputeCache，自定义CUDA_CACHE_PATH需要相应访问权限。",
+        "CUDA_DISABLE_PTX_JIT用于禁用PTX JIT，可做依赖检查；本次空缓存负向验证实际报错。"
+      ]
+    }
+  ]
+}

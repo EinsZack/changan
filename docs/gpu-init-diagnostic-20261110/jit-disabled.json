@@ -1,0 +1,6 @@
+{
+  "returncode": 1,
+  "seconds": 1.2193906987085938,
+  "stdout": "",
+  "stderr": "\u001b[1;31m2026-11-10 06:28:14.144924316 [E:onnxruntime:, sequential_executor.cc:572 ExecuteKernel] Non-zero status code returned while running Slice node. Name:'Slice_34' Status Message: CUDA error cudaErrorJitCompilationDisabled:PTX JIT compilation was disabled\u001b[m\nTraceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"<string>\", line 18, in <module>\n  File \"/usr/local/lib/python3.11/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py\", line 287, in run\n    return self._sess.run(output_names, input_feed, run_options)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nonnxruntime.capi.onnxruntime_pybind11_state.Fail: [ONNXRuntimeError] : 1 : FAIL : Non-zero status code returned while running Slice node. Name:'Slice_34' Status Message: CUDA error cudaErrorJitCompilationDisabled:PTX JIT compilation was disabled\ncommand terminated with exit code 1\n"
+}

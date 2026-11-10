@@ -1,0 +1,151 @@
+{
+  "label": "default-profile",
+  "pid": 7,
+  "ort": "1.23.2",
+  "home": "/",
+  "home_writable": false,
+  "cache": "/.nv/ComputeCache",
+  "env": {
+    "CUDA_CACHE_PATH": null,
+    "CUDA_CACHE_DISABLE": null,
+    "CUDA_MODULE_LOADING": null,
+    "CUDA_FORCE_PTX_JIT": null,
+    "CUDA_DISABLE_PTX_JIT": null
+  },
+  "cache_before": {
+    "count": 0,
+    "bytes": 0
+  },
+  "libs": {
+    "nvidia-cudnn-cu12": "9.10.2.21",
+    "nvidia-cuda-runtime-cu12": "12.8.90",
+    "nvidia-cublas-cu12": "12.8.4.1"
+  },
+  "preload_seconds": 0.10676433425396681,
+  "session_seconds": 0.48395678773522377,
+  "providers": [
+    "CUDAExecutionProvider",
+    "CPUExecutionProvider"
+  ],
+  "cpu_before": "usage_usec 1785324\nuser_usec 1436704\nsystem_usec 348619\ncore_sched.force_idle_usec 0\nnr_periods 19\nnr_throttled 4\nthrottled_usec 10558925\nnr_bursts 0\nburst_usec 0\n",
+  "cpu_after_first": "usage_usec 79468614\nuser_usec 77497897\nsystem_usec 1970717\ncore_sched.force_idle_usec 0\nnr_periods 796\nnr_throttled 4\nthrottled_usec 10558925\nnr_bursts 0\nburst_usec 0\n",
+  "cache_after_first": {
+    "count": 0,
+    "bytes": 0
+  },
+  "runs_seconds": [
+    77.61981178168207,
+    0.012160556390881538,
+    0.008582567796111107,
+    0.00889197364449501,
+    0.00883176364004612,
+    0.008918121457099915
+  ],
+  "output_shapes": [
+    [
+      1,
+      3549,
+      85
+    ]
+  ],
+  "profile_file": "/work/default-profile_2026-11-10_06-24-12.json",
+  "top_nodes": [
+    {
+      "name": "Add_59_kernel_time",
+      "dur_ms": 66669.044,
+      "op": "Add",
+      "provider": "CUDAExecutionProvider"
+    },
+    {
+      "name": "Resize_165_kernel_time",
+      "dur_ms": 8557.044,
+      "op": "Resize",
+      "provider": "CUDAExecutionProvider"
+    },
+    {
+      "name": "Sigmoid_306_kernel_time",
+      "dur_ms": 806.301,
+      "op": "Sigmoid",
+      "provider": "CUDAExecutionProvider"
+    },
+    {
+      "name": "Mul_43/QuickGeluFusion/_kernel_time",
+      "dur_ms": 491.547,
+      "op": "QuickGelu",
+      "provider": "CUDAExecutionProvider"
+    },
+    {
+      "name": "Slice_34_kernel_time",
+      "dur_ms": 467.728,
+      "op": "Slice",
+      "provider": "CUDAExecutionProvider"
+    },
+    {
+      "name": "Conv_41_kernel_time",
+      "dur_ms": 229.798,
+      "op": "Conv",
+      "provider": "CUDAExecutionProvider"
+    },
+    {
+      "name": "Concat_40_kernel_time",
+      "dur_ms": 194.299,
+      "op": "Concat",
+      "provider": "CUDAExecutionProvider"
+    },
+    {
+      "name": "Conv_50_kernel_time",
+      "dur_ms": 86.263,
+      "op": "Conv",
+      "provider": "CUDAExecutionProvider"
+    },
+    {
+      "name": "Conv_304_kernel_time",
+      "dur_ms": 10.183,
+      "op": "Conv",
+      "provider": "CUDAExecutionProvider"
+    },
+    {
+      "name": "MaxPool_140_kernel_time",
+      "dur_ms": 9.06,
+      "op": "MaxPool",
+      "provider": "CUDAExecutionProvider"
+    },
+    {
+      "name": "Conv_303_kernel_time",
+      "dur_ms": 4.006,
+      "op": "Conv",
+      "provider": "CUDAExecutionProvider"
+    },
+    {
+      "name": "Conv_154_kernel_time",
+      "dur_ms": 3.004,
+      "op": "Conv",
+      "provider": "CUDAExecutionProvider"
+    },
+    {
+      "name": "Conv_132_kernel_time",
+      "dur_ms": 2.459,
+      "op": "Conv",
+      "provider": "CUDAExecutionProvider"
+    },
+    {
+      "name": "Conv_56_kernel_time",
+      "dur_ms": 2.297,
+      "op": "Conv",
+      "provider": "CUDAExecutionProvider"
+    },
+    {
+      "name": "Conv_61_kernel_time",
+      "dur_ms": 1.964,
+      "op": "Conv",
+      "provider": "CUDAExecutionProvider"
+    }
+  ],
+  "provider_events": {
+    "CUDAExecutionProvider": 1218
+  },
+  "cache_after": {
+    "count": 0,
+    "bytes": 0
+  }
+}
