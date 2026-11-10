@@ -1,0 +1,1208 @@
+{
+  "date": "2026-11-10",
+  "timezone": "Asia/Shanghai",
+  "read_only_investigation": true,
+  "business_configuration_changed": false,
+  "new_business_tasks_created": false,
+  "tasks": [
+    {
+      "id": "task_780767757a54421c",
+      "created_beijing": "2026-11-10T15:12:54.690291+08:00",
+      "status": "SUCCEEDED",
+      "params": {
+        "segment_seconds": 1.0,
+        "sample_fps": 15.0,
+        "algorithm": "resource_aware"
+      },
+      "source_fps": 10.0,
+      "total": 24,
+      "completed": 24,
+      "sampled_frames": 240,
+      "seconds_from_task_started": 69.68437027931213,
+      "attempt_statuses": {
+        "SUCCEEDED": 24
+      },
+      "retries_total": 0,
+      "fault_events": [],
+      "event_counts": {
+        "created": 1,
+        "stage": 3,
+        "decision": 24,
+        "dispatch_request": 24,
+        "session_created": 4,
+        "no_candidate": 7,
+        "dispatch_batch": 12,
+        "session_claimed": 4,
+        "session_ready": 4,
+        "dispatch_ack": 24,
+        "execution": 96,
+        "session_stopping": 4,
+        "session_cleaned": 4
+      },
+      "nodes": [
+        {
+          "node_id": "lab-1",
+          "session_id": "session_77a66933a7f4497a",
+          "pod_name": "video-session-77a66933a7f4497a-fs4lx",
+          "session_created_offset": 5.361988544464111,
+          "ready_offset": 22.20768165588379,
+          "completed": 10,
+          "model_seconds": 11.462735301814973,
+          "model_load_count": 1,
+          "runtime": {
+            "policy": "auto",
+            "actual_backend": "cuda",
+            "ort_version": "1.23.2",
+            "gpu": {
+              "device_id": 0,
+              "uuid": "GPU-1ba5825e-38ee-5dc3-2514-eb000355f95b",
+              "name": "NVIDIA GeForce RTX 5090",
+              "visible_devices": 1
+            },
+            "fallback_reason": null,
+            "cuda_compute_events": 203,
+            "provider_events": {
+              "CUDAExecutionProvider": 203
+            },
+            "timings": {
+              "session_seconds": 0.1990950796753168,
+              "warmup_seconds": 11.126171302981675,
+              "verification_seconds": 0.003098808228969574,
+              "initialization_seconds": 11.432495754212141
+            },
+            "initialization_stages": [
+              {
+                "name": "device",
+                "started_at": 1794294785.6000445,
+                "seconds": 0.07290960289537907
+              },
+              {
+                "name": "model_load",
+                "started_at": 1794294785.6733744,
+                "seconds": 0.1990950796753168,
+                "backend": "cuda"
+              },
+              {
+                "name": "warmup",
+                "started_at": 1794294785.8726861,
+                "seconds": 11.126171302981675,
+                "backend": "cuda"
+              }
+            ],
+            "providers": [
+              "CUDAExecutionProvider",
+              "CPUExecutionProvider"
+            ]
+          },
+          "sampled_frames": 100,
+          "first_attempt": {
+            "id": "try_dc6f2fc795fb4fa1",
+            "segment_id": "seg_51a5531ceb6643af",
+            "status": "SUCCEEDED",
+            "created": 1794294779.9540794,
+            "started": 1794294797.1564646,
+            "finished": 1794294798.5140219
+          },
+          "first_execution_offset": 22.353822946548462,
+          "last_completed_offset": 45.343801736831665,
+          "milestones": [
+            {
+              "type": "session_created",
+              "offset_seconds": 5.363753795623779
+            },
+            {
+              "type": "session_claimed",
+              "offset_seconds": 10.68135380744934
+            },
+            {
+              "type": "session_ready",
+              "offset_seconds": 22.207741260528564
+            },
+            {
+              "type": "session_stopping",
+              "offset_seconds": 77.1090886592865
+            },
+            {
+              "type": "session_cleaned",
+              "offset_seconds": 83.71702194213867
+            }
+          ],
+          "cleanup_state": "DONE"
+        },
+        {
+          "node_id": "lab-2",
+          "session_id": "session_249891d3c60e43ee",
+          "pod_name": "video-session-249891d3c60e43ee-hzwtq",
+          "session_created_offset": 4.797010660171509,
+          "ready_offset": 67.25150442123413,
+          "completed": 1,
+          "model_seconds": 58.22841315064579,
+          "model_load_count": 1,
+          "runtime": {
+            "policy": "auto",
+            "actual_backend": "cuda",
+            "ort_version": "1.23.2",
+            "gpu": {
+              "device_id": 0,
+              "uuid": "GPU-1ba5825e-38ee-5dc3-2514-eb000355f95b",
+              "name": "NVIDIA GeForce RTX 5090",
+              "visible_devices": 1
+            },
+            "fallback_reason": null,
+            "cuda_compute_events": 203,
+            "provider_events": {
+              "CUDAExecutionProvider": 203
+            },
+            "timings": {
+              "session_seconds": 0.5440895510837436,
+              "warmup_seconds": 57.009878197684884,
+              "verification_seconds": 0.0049699777737259865,
+              "initialization_seconds": 58.19808443635702
+            },
+            "initialization_stages": [
+              {
+                "name": "device",
+                "started_at": 1794294783.8810759,
+                "seconds": 0.6085293190553784
+              },
+              {
+                "name": "model_load",
+                "started_at": 1794294784.4899755,
+                "seconds": 0.5440895510837436,
+                "backend": "cuda"
+              },
+              {
+                "name": "warmup",
+                "started_at": 1794294785.0342577,
+                "seconds": 57.009878197684884,
+                "backend": "cuda"
+              }
+            ],
+            "providers": [
+              "CUDAExecutionProvider",
+              "CPUExecutionProvider"
+            ]
+          },
+          "sampled_frames": 10,
+          "first_attempt": {
+            "id": "try_edd89413c81946a5",
+            "segment_id": "seg_e45c94b20e604182",
+            "status": "SUCCEEDED",
+            "created": 1794294779.4839683,
+            "started": 1794294842.0993924,
+            "finished": 1794294842.5883198
+          },
+          "first_execution_offset": 67.29675078392029,
+          "last_completed_offset": 67.78567814826965,
+          "milestones": [
+            {
+              "type": "session_created",
+              "offset_seconds": 4.798689126968384
+            },
+            {
+              "type": "session_claimed",
+              "offset_seconds": 8.981320142745972
+            },
+            {
+              "type": "session_ready",
+              "offset_seconds": 67.25153636932373
+            },
+            {
+              "type": "session_stopping",
+              "offset_seconds": 76.96627283096313
+            },
+            {
+              "type": "session_cleaned",
+              "offset_seconds": 82.82492899894714
+            }
+          ],
+          "cleanup_state": "DONE"
+        },
+        {
+          "node_id": "lab-3",
+          "session_id": "session_96330882d36b4d42",
+          "pod_name": "video-session-96330882d36b4d42-g7g56",
+          "session_created_offset": 4.287450075149536,
+          "ready_offset": 20.768767833709717,
+          "completed": 12,
+          "model_seconds": 12.653860830701888,
+          "model_load_count": 1,
+          "runtime": {
+            "policy": "auto",
+            "actual_backend": "cuda",
+            "ort_version": "1.23.2",
+            "gpu": {
+              "device_id": 0,
+              "uuid": "GPU-1ba5825e-38ee-5dc3-2514-eb000355f95b",
+              "name": "NVIDIA GeForce RTX 5090",
+              "visible_devices": 1
+            },
+            "fallback_reason": null,
+            "cuda_compute_events": 203,
+            "provider_events": {
+              "CUDAExecutionProvider": 203
+            },
+            "timings": {
+              "session_seconds": 0.9985259231179953,
+              "warmup_seconds": 10.818234375678003,
+              "verification_seconds": 0.003451664000749588,
+              "initialization_seconds": 12.62213586177677
+            },
+            "initialization_stages": [
+              {
+                "name": "device",
+                "started_at": 1794294782.9715655,
+                "seconds": 0.7095919698476791
+              },
+              {
+                "name": "model_load",
+                "started_at": 1794294783.7416801,
+                "seconds": 0.9985259231179953,
+                "backend": "cuda"
+              },
+              {
+                "name": "warmup",
+                "started_at": 1794294784.7404594,
+                "seconds": 10.818234375678003,
+                "backend": "cuda"
+              }
+            ],
+            "providers": [
+              "CUDAExecutionProvider",
+              "CPUExecutionProvider"
+            ]
+          },
+          "sampled_frames": 120,
+          "first_attempt": {
+            "id": "try_8a3a62e86b754114",
+            "segment_id": "seg_67d1d45986ca4f62",
+            "status": "SUCCEEDED",
+            "created": 1794294778.8245847,
+            "started": 1794294795.5819614,
+            "finished": 1794294796.1965067
+          },
+          "first_execution_offset": 20.779319763183594,
+          "last_completed_offset": 45.2576687335968,
+          "milestones": [
+            {
+              "type": "session_created",
+              "offset_seconds": 4.289109945297241
+            },
+            {
+              "type": "session_claimed",
+              "offset_seconds": 8.095831632614136
+            },
+            {
+              "type": "session_ready",
+              "offset_seconds": 20.76883339881897
+            },
+            {
+              "type": "session_stopping",
+              "offset_seconds": 74.15748691558838
+            },
+            {
+              "type": "session_cleaned",
+              "offset_seconds": 80.77136468887329
+            }
+          ],
+          "cleanup_state": "DONE"
+        },
+        {
+          "node_id": "lab-4",
+          "session_id": "session_4b4e464269754776",
+          "pod_name": "video-session-4b4e464269754776-8pvvr",
+          "session_created_offset": 3.77765154838562,
+          "ready_offset": 68.06215047836304,
+          "completed": 1,
+          "model_seconds": 58.9374220687896,
+          "model_load_count": 1,
+          "runtime": {
+            "policy": "auto",
+            "actual_backend": "cuda",
+            "ort_version": "1.23.2",
+            "gpu": {
+              "device_id": 0,
+              "uuid": "GPU-1ba5825e-38ee-5dc3-2514-eb000355f95b",
+              "name": "NVIDIA GeForce RTX 5090",
+              "visible_devices": 1
+            },
+            "fallback_reason": null,
+            "cuda_compute_events": 203,
+            "provider_events": {
+              "CUDAExecutionProvider": 203
+            },
+            "timings": {
+              "session_seconds": 0.5611687321215868,
+              "warmup_seconds": 57.62573816254735,
+              "verification_seconds": 0.004008748568594456,
+              "initialization_seconds": 58.90722322743386
+            },
+            "initialization_stages": [
+              {
+                "name": "device",
+                "started_at": 1794294783.8096406,
+                "seconds": 0.6859627235680819
+              },
+              {
+                "name": "model_load",
+                "started_at": 1794294784.49604,
+                "seconds": 0.5611687321215868,
+                "backend": "cuda"
+              },
+              {
+                "name": "warmup",
+                "started_at": 1794294785.0574164,
+                "seconds": 57.62573816254735,
+                "backend": "cuda"
+              }
+            ],
+            "providers": [
+              "CUDAExecutionProvider",
+              "CPUExecutionProvider"
+            ]
+          },
+          "sampled_frames": 10,
+          "first_attempt": {
+            "id": "try_c336b687b11d480b",
+            "segment_id": "seg_f136ae99071b4aa3",
+            "status": "SUCCEEDED",
+            "created": 1794294778.2972546,
+            "started": 1794294842.9586887,
+            "finished": 1794294843.5756378
+          },
+          "first_execution_offset": 68.15604710578918,
+          "last_completed_offset": 68.77299618721008,
+          "milestones": [
+            {
+              "type": "session_created",
+              "offset_seconds": 3.778589963912964
+            },
+            {
+              "type": "session_claimed",
+              "offset_seconds": 8.693074941635132
+            },
+            {
+              "type": "session_ready",
+              "offset_seconds": 68.06221580505371
+            },
+            {
+              "type": "session_stopping",
+              "offset_seconds": 73.95365357398987
+            },
+            {
+              "type": "session_cleaned",
+              "offset_seconds": 80.022225856781
+            }
+          ],
+          "cleanup_state": "DONE"
+        }
+      ]
+    },
+    {
+      "id": "task_b5c3397c311a495a",
+      "created_beijing": "2026-11-10T14:21:00.556829+08:00",
+      "status": "SUCCEEDED",
+      "params": {
+        "segment_seconds": 1.0,
+        "sample_fps": 15.0,
+        "algorithm": "resource_aware"
+      },
+      "source_fps": 10.0,
+      "total": 24,
+      "completed": 24,
+      "sampled_frames": 240,
+      "seconds_from_task_started": 79.97387719154358,
+      "attempt_statuses": {
+        "SUCCEEDED": 24
+      },
+      "retries_total": 0,
+      "fault_events": [],
+      "event_counts": {
+        "created": 1,
+        "stage": 3,
+        "decision": 24,
+        "dispatch_request": 24,
+        "session_created": 4,
+        "no_candidate": 12,
+        "dispatch_batch": 20,
+        "session_claimed": 4,
+        "session_ready": 4,
+        "dispatch_ack": 24,
+        "execution": 96,
+        "session_stopping": 4,
+        "session_cleaned": 4
+      },
+      "nodes": [
+        {
+          "node_id": "lab-1",
+          "session_id": "session_0f2590db47394fee",
+          "pod_name": "video-session-0f2590db47394fee-wrhg4",
+          "session_created_offset": 4.1172380447387695,
+          "ready_offset": 68.88587522506714,
+          "completed": 2,
+          "model_seconds": 59.13272858876735,
+          "model_load_count": 1,
+          "runtime": {
+            "policy": "auto",
+            "actual_backend": "cuda",
+            "ort_version": "1.23.2",
+            "gpu": {
+              "device_id": 0,
+              "uuid": "GPU-1ba5825e-38ee-5dc3-2514-eb000355f95b",
+              "name": "NVIDIA GeForce RTX 5090",
+              "visible_devices": 1
+            },
+            "fallback_reason": null,
+            "cuda_compute_events": 203,
+            "provider_events": {
+              "CUDAExecutionProvider": 203
+            },
+            "timings": {
+              "session_seconds": 0.20713172387331724,
+              "warmup_seconds": 58.78749919962138,
+              "verification_seconds": 0.00402708537876606,
+              "initialization_seconds": 59.10135125089437
+            },
+            "initialization_stages": [
+              {
+                "name": "device",
+                "started_at": 1794291671.9864995,
+                "seconds": 0.07150764763355255
+              },
+              {
+                "name": "model_load",
+                "started_at": 1794291672.0583656,
+                "seconds": 0.20713172387331724,
+                "backend": "cuda"
+              },
+              {
+                "name": "warmup",
+                "started_at": 1794291672.2656682,
+                "seconds": 58.78749919962138,
+                "backend": "cuda"
+              }
+            ],
+            "providers": [
+              "CUDAExecutionProvider",
+              "CPUExecutionProvider"
+            ]
+          },
+          "sampled_frames": 20,
+          "first_attempt": {
+            "id": "try_8e337215a10d4802",
+            "segment_id": "seg_e7b8a3b7732549d1",
+            "status": "SUCCEEDED",
+            "created": 1794291666.1796932,
+            "started": 1794291731.0988123,
+            "finished": 1794291733.300827
+          },
+          "first_execution_offset": 68.91730666160583,
+          "last_completed_offset": 73.15481758117676,
+          "milestones": [
+            {
+              "type": "session_created",
+              "offset_seconds": 4.118934154510498
+            },
+            {
+              "type": "session_claimed",
+              "offset_seconds": 9.726984739303589
+            },
+            {
+              "type": "session_ready",
+              "offset_seconds": 68.88590836524963
+            },
+            {
+              "type": "session_stopping",
+              "offset_seconds": 83.71917462348938
+            },
+            {
+              "type": "session_cleaned",
+              "offset_seconds": 89.32928419113159
+            }
+          ],
+          "cleanup_state": "DONE"
+        },
+        {
+          "node_id": "lab-2",
+          "session_id": "session_4edba6fd086a4e0f",
+          "pod_name": "video-session-4edba6fd086a4e0f-h5chw",
+          "session_created_offset": 7.167710542678833,
+          "ready_offset": 78.05078601837158,
+          "completed": 1,
+          "model_seconds": 59.32424942962825,
+          "model_load_count": 1,
+          "runtime": {
+            "policy": "auto",
+            "actual_backend": "cuda",
+            "ort_version": "1.23.2",
+            "gpu": {
+              "device_id": 0,
+              "uuid": "GPU-1ba5825e-38ee-5dc3-2514-eb000355f95b",
+              "name": "NVIDIA GeForce RTX 5090",
+              "visible_devices": 1
+            },
+            "fallback_reason": null,
+            "cuda_compute_events": 203,
+            "provider_events": {
+              "CUDAExecutionProvider": 203
+            },
+            "timings": {
+              "session_seconds": 0.5113333091139793,
+              "warmup_seconds": 58.52626054175198,
+              "verification_seconds": 0.004992936737835407,
+              "initialization_seconds": 59.27786198537797
+            },
+            "initialization_stages": [
+              {
+                "name": "device",
+                "started_at": 1794291680.9069176,
+                "seconds": 0.2001573145389557
+              },
+              {
+                "name": "model_load",
+                "started_at": 1794291681.1075525,
+                "seconds": 0.5113333091139793,
+                "backend": "cuda"
+              },
+              {
+                "name": "warmup",
+                "started_at": 1794291681.61911,
+                "seconds": 58.52626054175198,
+                "backend": "cuda"
+              }
+            ],
+            "providers": [
+              "CUDAExecutionProvider",
+              "CPUExecutionProvider"
+            ]
+          },
+          "sampled_frames": 10,
+          "first_attempt": {
+            "id": "try_a984bc984aa448c5",
+            "segment_id": "seg_e9196eac0f664f8f",
+            "status": "SUCCEEDED",
+            "created": 1794291669.1905642,
+            "started": 1794291740.380584,
+            "finished": 1794291741.9833257
+          },
+          "first_execution_offset": 78.19907832145691,
+          "last_completed_offset": 79.80182003974915,
+          "milestones": [
+            {
+              "type": "session_created",
+              "offset_seconds": 7.169400215148926
+            },
+            {
+              "type": "session_claimed",
+              "offset_seconds": 18.619717836380005
+            },
+            {
+              "type": "session_ready",
+              "offset_seconds": 78.05089282989502
+            },
+            {
+              "type": "session_stopping",
+              "offset_seconds": 84.92151737213135
+            },
+            {
+              "type": "session_cleaned",
+              "offset_seconds": 91.44141626358032
+            }
+          ],
+          "cleanup_state": "DONE"
+        },
+        {
+          "node_id": "lab-3",
+          "session_id": "session_23c90e74173b4233",
+          "pod_name": "video-session-23c90e74173b4233-52vl2",
+          "session_created_offset": 4.9152021408081055,
+          "ready_offset": 30.45967960357666,
+          "completed": 20,
+          "model_seconds": 11.74870693590492,
+          "model_load_count": 1,
+          "runtime": {
+            "policy": "auto",
+            "actual_backend": "cuda",
+            "ort_version": "1.23.2",
+            "gpu": {
+              "device_id": 0,
+              "uuid": "GPU-1ba5825e-38ee-5dc3-2514-eb000355f95b",
+              "name": "NVIDIA GeForce RTX 5090",
+              "visible_devices": 1
+            },
+            "fallback_reason": null,
+            "cuda_compute_events": 203,
+            "provider_events": {
+              "CUDAExecutionProvider": 203
+            },
+            "timings": {
+              "session_seconds": 0.23363735061138868,
+              "warmup_seconds": 10.902771139517426,
+              "verification_seconds": 0.3059597797691822,
+              "initialization_seconds": 11.685161517001688
+            },
+            "initialization_stages": [
+              {
+                "name": "device",
+                "started_at": 1794291680.6661193,
+                "seconds": 0.12050992250442505
+              },
+              {
+                "name": "model_load",
+                "started_at": 1794291680.7919388,
+                "seconds": 0.23363735061138868,
+                "backend": "cuda"
+              },
+              {
+                "name": "warmup",
+                "started_at": 1794291681.0257714,
+                "seconds": 10.902771139517426,
+                "backend": "cuda"
+              }
+            ],
+            "providers": [
+              "CUDAExecutionProvider",
+              "CPUExecutionProvider"
+            ]
+          },
+          "sampled_frames": 200,
+          "first_attempt": {
+            "id": "try_87c030e5bfda4993",
+            "segment_id": "seg_375842f4572a4be3",
+            "status": "SUCCEEDED",
+            "created": 1794291666.822885,
+            "started": 1794291692.6997519,
+            "finished": 1794291693.145462
+          },
+          "first_execution_offset": 30.518246173858643,
+          "last_completed_offset": 73.38698744773865,
+          "milestones": [
+            {
+              "type": "session_created",
+              "offset_seconds": 4.9169957637786865
+            },
+            {
+              "type": "session_claimed",
+              "offset_seconds": 18.33194661140442
+            },
+            {
+              "type": "session_ready",
+              "offset_seconds": 30.459745407104492
+            },
+            {
+              "type": "session_stopping",
+              "offset_seconds": 84.21586871147156
+            },
+            {
+              "type": "session_cleaned",
+              "offset_seconds": 90.33316278457642
+            }
+          ],
+          "cleanup_state": "DONE"
+        },
+        {
+          "node_id": "lab-4",
+          "session_id": "session_19c17bbcfb4d423a",
+          "pod_name": "video-session-19c17bbcfb4d423a-lp74b",
+          "session_created_offset": 4.421627998352051,
+          "ready_offset": 77.52977752685547,
+          "completed": 1,
+          "model_seconds": 61.010000196285546,
+          "model_load_count": 1,
+          "runtime": {
+            "policy": "auto",
+            "actual_backend": "cuda",
+            "ort_version": "1.23.2",
+            "gpu": {
+              "device_id": 0,
+              "uuid": "GPU-1ba5825e-38ee-5dc3-2514-eb000355f95b",
+              "name": "NVIDIA GeForce RTX 5090",
+              "visible_devices": 1
+            },
+            "fallback_reason": null,
+            "cuda_compute_events": 203,
+            "provider_events": {
+              "CUDAExecutionProvider": 203
+            },
+            "timings": {
+              "session_seconds": 0.2564998073503375,
+              "warmup_seconds": 59.715631786733866,
+              "verification_seconds": 0.004871985875070095,
+              "initialization_seconds": 60.94546875171363
+            },
+            "initialization_stages": [
+              {
+                "name": "device",
+                "started_at": 1794291678.0837991,
+                "seconds": 0.07432027906179428
+              },
+              {
+                "name": "model_load",
+                "started_at": 1794291678.158541,
+                "seconds": 0.2564998073503375,
+                "backend": "cuda"
+              },
+              {
+                "name": "warmup",
+                "started_at": 1794291678.415214,
+                "seconds": 59.715631786733866,
+                "backend": "cuda"
+              }
+            ],
+            "providers": [
+              "CUDAExecutionProvider",
+              "CPUExecutionProvider"
+            ]
+          },
+          "sampled_frames": 10,
+          "first_attempt": {
+            "id": "try_6cab61563baf49fe",
+            "segment_id": "seg_10685dafe77a470f",
+            "status": "SUCCEEDED",
+            "created": 1794291666.5156531,
+            "started": 1794291739.8024495,
+            "finished": 1794291740.634113
+          },
+          "first_execution_offset": 77.62094378471375,
+          "last_completed_offset": 78.45260739326477,
+          "milestones": [
+            {
+              "type": "session_created",
+              "offset_seconds": 4.422288656234741
+            },
+            {
+              "type": "session_claimed",
+              "offset_seconds": 15.74052882194519
+            },
+            {
+              "type": "session_ready",
+              "offset_seconds": 77.52984404563904
+            },
+            {
+              "type": "session_stopping",
+              "offset_seconds": 84.15940809249878
+            },
+            {
+              "type": "session_cleaned",
+              "offset_seconds": 90.08458352088928
+            }
+          ],
+          "cleanup_state": "DONE"
+        }
+      ]
+    },
+    {
+      "id": "task_72e1373267a4450d",
+      "created_beijing": "2026-11-10T14:18:09.599065+08:00",
+      "status": "SUCCEEDED",
+      "params": {
+        "segment_seconds": 1.0,
+        "sample_fps": 15.0,
+        "algorithm": "resource_aware"
+      },
+      "source_fps": 10.0,
+      "total": 24,
+      "completed": 24,
+      "sampled_frames": 240,
+      "seconds_from_task_started": 71.73825407028198,
+      "attempt_statuses": {
+        "SUCCEEDED": 24
+      },
+      "retries_total": 0,
+      "fault_events": [],
+      "event_counts": {
+        "created": 1,
+        "stage": 3,
+        "decision": 24,
+        "dispatch_request": 24,
+        "session_created": 4,
+        "no_candidate": 7,
+        "dispatch_batch": 11,
+        "session_claimed": 4,
+        "session_ready": 4,
+        "dispatch_ack": 24,
+        "execution": 96,
+        "session_stopping": 4,
+        "session_cleaned": 4
+      },
+      "nodes": [
+        {
+          "node_id": "lab-1",
+          "session_id": "session_bdf422fba2d441f5",
+          "pod_name": "video-session-bdf422fba2d441f5-5pp75",
+          "session_created_offset": 4.527529716491699,
+          "ready_offset": 70.34230279922485,
+          "completed": 1,
+          "model_seconds": 60.037496039643884,
+          "model_load_count": 1,
+          "runtime": {
+            "policy": "auto",
+            "actual_backend": "cuda",
+            "ort_version": "1.23.2",
+            "gpu": {
+              "device_id": 0,
+              "uuid": "GPU-1ba5825e-38ee-5dc3-2514-eb000355f95b",
+              "name": "NVIDIA GeForce RTX 5090",
+              "visible_devices": 1
+            },
+            "fallback_reason": null,
+            "cuda_compute_events": 203,
+            "provider_events": {
+              "CUDAExecutionProvider": 203
+            },
+            "timings": {
+              "session_seconds": 0.43564008735120296,
+              "warmup_seconds": 59.44405175931752,
+              "verification_seconds": 0.004213951528072357,
+              "initialization_seconds": 59.99422403983772
+            },
+            "initialization_stages": [
+              {
+                "name": "device",
+                "started_at": 1794291500.0922348,
+                "seconds": 0.07863850705325603
+              },
+              {
+                "name": "model_load",
+                "started_at": 1794291500.1712463,
+                "seconds": 0.43564008735120296,
+                "backend": "cuda"
+              },
+              {
+                "name": "warmup",
+                "started_at": 1794291500.607122,
+                "seconds": 59.44405175931752,
+                "backend": "cuda"
+              }
+            ],
+            "providers": [
+              "CUDAExecutionProvider",
+              "CPUExecutionProvider"
+            ]
+          },
+          "sampled_frames": 10,
+          "first_attempt": {
+            "id": "try_604d9ab728d84878",
+            "segment_id": "seg_970924723f544a25",
+            "status": "SUCCEEDED",
+            "created": 1794291494.152725,
+            "started": 1794291560.0895922,
+            "finished": 1794291560.819585
+          },
+          "first_execution_offset": 70.3711154460907,
+          "last_completed_offset": 71.10110831260681,
+          "milestones": [
+            {
+              "type": "session_created",
+              "offset_seconds": 4.5292067527771
+            },
+            {
+              "type": "session_claimed",
+              "offset_seconds": 10.224642515182495
+            },
+            {
+              "type": "session_ready",
+              "offset_seconds": 70.34234261512756
+            },
+            {
+              "type": "session_stopping",
+              "offset_seconds": 77.20769238471985
+            },
+            {
+              "type": "session_cleaned",
+              "offset_seconds": 82.58215975761414
+            }
+          ],
+          "cleanup_state": "DONE"
+        },
+        {
+          "node_id": "lab-2",
+          "session_id": "session_f1a920e4fa3143c5",
+          "pod_name": "video-session-f1a920e4fa3143c5-bnx5p",
+          "session_created_offset": 5.321386337280273,
+          "ready_offset": 30.269806623458862,
+          "completed": 8,
+          "model_seconds": 11.981077565811574,
+          "model_load_count": 1,
+          "runtime": {
+            "policy": "auto",
+            "actual_backend": "cuda",
+            "ort_version": "1.23.2",
+            "gpu": {
+              "device_id": 0,
+              "uuid": "GPU-1ba5825e-38ee-5dc3-2514-eb000355f95b",
+              "name": "NVIDIA GeForce RTX 5090",
+              "visible_devices": 1
+            },
+            "fallback_reason": null,
+            "cuda_compute_events": 203,
+            "provider_events": {
+              "CUDAExecutionProvider": 203
+            },
+            "timings": {
+              "session_seconds": 0.2774573368951678,
+              "warmup_seconds": 11.441647917032242,
+              "verification_seconds": 0.0030374638736248016,
+              "initialization_seconds": 11.945347333326936
+            },
+            "initialization_stages": [
+              {
+                "name": "device",
+                "started_at": 1794291508.0649996,
+                "seconds": 0.19089381769299507
+              },
+              {
+                "name": "model_load",
+                "started_at": 1794291508.2567413,
+                "seconds": 0.2774573368951678,
+                "backend": "cuda"
+              },
+              {
+                "name": "warmup",
+                "started_at": 1794291508.5344365,
+                "seconds": 11.441647917032242,
+                "backend": "cuda"
+              }
+            ],
+            "providers": [
+              "CUDAExecutionProvider",
+              "CPUExecutionProvider"
+            ]
+          },
+          "sampled_frames": 80,
+          "first_attempt": {
+            "id": "try_c03acc22f9de4e85",
+            "segment_id": "seg_683c1869d95e4d6c",
+            "status": "SUCCEEDED",
+            "created": 1794291494.9513624,
+            "started": 1794291520.0284152,
+            "finished": 1794291520.937877
+          },
+          "first_execution_offset": 30.309938430786133,
+          "last_completed_offset": 50.764567852020264,
+          "milestones": [
+            {
+              "type": "session_created",
+              "offset_seconds": 5.322202205657959
+            },
+            {
+              "type": "session_claimed",
+              "offset_seconds": 18.20168137550354
+            },
+            {
+              "type": "session_ready",
+              "offset_seconds": 30.26987600326538
+            },
+            {
+              "type": "session_stopping",
+              "offset_seconds": 77.92208743095398
+            },
+            {
+              "type": "session_cleaned",
+              "offset_seconds": 83.77806353569031
+            }
+          ],
+          "cleanup_state": "DONE"
+        },
+        {
+          "node_id": "lab-3",
+          "session_id": "session_7a94e6b3652e4c13",
+          "pod_name": "video-session-7a94e6b3652e4c13-4gq8l",
+          "session_created_offset": 4.9648823738098145,
+          "ready_offset": 30.516315460205078,
+          "completed": 7,
+          "model_seconds": 13.481264546513557,
+          "model_load_count": 1,
+          "runtime": {
+            "policy": "auto",
+            "actual_backend": "cuda",
+            "ort_version": "1.23.2",
+            "gpu": {
+              "device_id": 0,
+              "uuid": "GPU-1ba5825e-38ee-5dc3-2514-eb000355f95b",
+              "name": "NVIDIA GeForce RTX 5090",
+              "visible_devices": 1
+            },
+            "fallback_reason": null,
+            "cuda_compute_events": 203,
+            "provider_events": {
+              "CUDAExecutionProvider": 203
+            },
+            "timings": {
+              "session_seconds": 0.527270938269794,
+              "warmup_seconds": 10.932074296288192,
+              "verification_seconds": 0.003043888136744499,
+              "initialization_seconds": 13.439060464501381
+            },
+            "initialization_stages": [
+              {
+                "name": "device",
+                "started_at": 1794291506.829689,
+                "seconds": 1.9345606062561274
+              },
+              {
+                "name": "model_load",
+                "started_at": 1794291508.7647173,
+                "seconds": 0.527270938269794,
+                "backend": "cuda"
+              },
+              {
+                "name": "warmup",
+                "started_at": 1794291509.2923098,
+                "seconds": 10.932074296288192,
+                "backend": "cuda"
+              }
+            ],
+            "providers": [
+              "CUDAExecutionProvider",
+              "CPUExecutionProvider"
+            ]
+          },
+          "sampled_frames": 70,
+          "first_attempt": {
+            "id": "try_edd723e705254954",
+            "segment_id": "seg_370d3a8fe9704c0f",
+            "status": "SUCCEEDED",
+            "created": 1794291494.4575932,
+            "started": 1794291520.361886,
+            "finished": 1794291521.9174473
+          },
+          "first_execution_offset": 30.643409252166748,
+          "last_completed_offset": 50.58547616004944,
+          "milestones": [
+            {
+              "type": "session_created",
+              "offset_seconds": 4.967030048370361
+            },
+            {
+              "type": "session_claimed",
+              "offset_seconds": 16.955632209777832
+            },
+            {
+              "type": "session_ready",
+              "offset_seconds": 30.51634669303894
+            },
+            {
+              "type": "session_stopping",
+              "offset_seconds": 77.82608985900879
+            },
+            {
+              "type": "session_cleaned",
+              "offset_seconds": 82.78390574455261
+            }
+          ],
+          "cleanup_state": "DONE"
+        },
+        {
+          "node_id": "lab-4",
+          "session_id": "session_43a8bc29219e403e",
+          "pod_name": "video-session-43a8bc29219e403e-z9hcw",
+          "session_created_offset": 5.843383073806763,
+          "ready_offset": 28.51990556716919,
+          "completed": 8,
+          "model_seconds": 11.184340846724808,
+          "model_load_count": 1,
+          "runtime": {
+            "policy": "auto",
+            "actual_backend": "cuda",
+            "ort_version": "1.23.2",
+            "gpu": {
+              "device_id": 0,
+              "uuid": "GPU-1ba5825e-38ee-5dc3-2514-eb000355f95b",
+              "name": "NVIDIA GeForce RTX 5090",
+              "visible_devices": 1
+            },
+            "fallback_reason": null,
+            "cuda_compute_events": 203,
+            "provider_events": {
+              "CUDAExecutionProvider": 203
+            },
+            "timings": {
+              "session_seconds": 0.24999215360730886,
+              "warmup_seconds": 10.780338045209646,
+              "verification_seconds": 0.0029743369668722153,
+              "initialization_seconds": 11.146789331920445
+            },
+            "initialization_stages": [
+              {
+                "name": "device",
+                "started_at": 1794291507.1187077,
+                "seconds": 0.07505611702799797
+              },
+              {
+                "name": "model_load",
+                "started_at": 1794291507.1995416,
+                "seconds": 0.24999215360730886,
+                "backend": "cuda"
+              },
+              {
+                "name": "warmup",
+                "started_at": 1794291507.4497523,
+                "seconds": 10.780338045209646,
+                "backend": "cuda"
+              }
+            ],
+            "providers": [
+              "CUDAExecutionProvider",
+              "CPUExecutionProvider"
+            ]
+          },
+          "sampled_frames": 80,
+          "first_attempt": {
+            "id": "try_c77c64964bd64004",
+            "segment_id": "seg_6be4aebdec0a4a3e",
+            "status": "SUCCEEDED",
+            "created": 1794291495.3271968,
+            "started": 1794291518.2484765,
+            "finished": 1794291519.6219695
+          },
+          "first_execution_offset": 28.52999973297119,
+          "last_completed_offset": 51.18542766571045,
+          "milestones": [
+            {
+              "type": "session_created",
+              "offset_seconds": 5.845449209213257
+            },
+            {
+              "type": "session_claimed",
+              "offset_seconds": 17.282859086990356
+            },
+            {
+              "type": "session_ready",
+              "offset_seconds": 28.519936084747314
+            },
+            {
+              "type": "session_stopping",
+              "offset_seconds": 78.30702471733093
+            },
+            {
+              "type": "session_cleaned",
+              "offset_seconds": 84.51692914962769
+            }
+          ],
+          "cleanup_state": "DONE"
+        }
+      ]
+    }
+  ],
+  "artifacts": [
+    {
+      "file": "exports/task_780767757a54421c.json.gz",
+      "uncompressed_sha256": "9964edfe7a9664b45a18fdc7b92fd22e4c0c5363d14df9a354dbc7bf2e7eb023",
+      "uncompressed_bytes": 1025264
+    },
+    {
+      "file": "exports/task_b5c3397c311a495a.json.gz",
+      "uncompressed_sha256": "ad8ba07f235cbcf18fac9369fd2829f80f753d965077627e1fee2eb8fd4fa3fc",
+      "uncompressed_bytes": 1075186
+    },
+    {
+      "file": "exports/task_72e1373267a4450d.json.gz",
+      "uncompressed_sha256": "bffb81bcb3b09647b8f891e77c312875b57ba61f67769067a5d6f8d82b80448e",
+      "uncompressed_bytes": 1007082
+    }
+  ],
+  "repository_commit": "587e6775286d216a6b3a215b35ff19e2e0ef208b",
+  "business_release": "0.5.2",
+  "business_code_commit": "5c463fd964a8befb488f84e2d1a8587467260906"
+}
