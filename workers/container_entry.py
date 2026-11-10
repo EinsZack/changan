@@ -1,4 +1,7 @@
 """One task/node session loads its model once and processes successive assignments."""
+import time
+_ENTRY_AT = time.time()
+_ENTRY_CLOCK = time.perf_counter()
 import hashlib
 import json
 import os
@@ -9,6 +12,7 @@ import time
 from pathlib import Path
 import httpx
 from .inference import Detector, analyze
+_IMPORTS_SECONDS = time.perf_counter() - _ENTRY_CLOCK
 
 MODEL_ID = 'yolox-tiny-coco-416-v1'
 
@@ -67,17 +71,26 @@ def run_session(config):
 
     heartbeat_thread = None
     try:
+        claim_at = time.time()
+        claim_clock = time.perf_counter()
         request('POST', session_url + '/claim', headers=headers)
+        claim_seconds = time.perf_counter() - claim_clock
         heartbeat_thread = threading.Thread(target=keep_alive, daemon=True)
         heartbeat_thread.start()
-        began = time.monotonic()
+        model_at = time.time()
+        began = time.perf_counter()
         model = Path('/opt/model/yolox_tiny.onnx')
         if hashlib.sha256(model.read_bytes()).hexdigest() != config['model_sha256']:
             raise ValueError('模型摘要不一致')
-        detector = Detector(model)
-        load_seconds = time.monotonic() - began
+        detector = Detector(model, policy=config.get('model_policy','cpu'),
+                            device_id=config.get('model_device_id',0), instrument=config.get('timing_version') == 1)
+        load_seconds = time.perf_counter() - began
+        startup = {'entry_at':_ENTRY_AT, 'imports_seconds':_IMPORTS_SECONDS,
+                   'claim_started_at':claim_at, 'claim_seconds':claim_seconds,
+                   'model_started_at':model_at, 'model_ready_at':time.time(), 'model_load_seconds':load_seconds}
         request('POST', session_url + '/ready', headers=headers,
-                json={'model_sha256': detector.sha256, 'model_load_seconds': load_seconds})
+                json={'model_sha256': detector.sha256, 'model_load_seconds': load_seconds,
+                      'startup_timing':startup, 'inference_runtime':detector.runtime})
         print(json.dumps({'session_id': sid, 'pod_uid': uid, 'event': 'model_loaded', 'model_load_seconds': load_seconds}), flush=True)
         while not stop.is_set():
             response = request('POST', session_url + '/next', headers=headers).json()
@@ -98,11 +111,13 @@ def run_session(config):
 
             try:
                 event('RUNNING')
-                began = time.monotonic()
+                segment_at = time.time()
+                segment_clock = time.perf_counter()
+                began = segment_clock
                 r = request('GET', p['input_url'], headers=attempt_headers)
                 video = out / 'input.mp4'
                 video.write_bytes(r.content)
-                download = time.monotonic() - began
+                download = time.perf_counter() - began
                 if hashlib.sha256(r.content).hexdigest() != p['input_sha256']:
                     raise ValueError('输入摘要不一致')
                 last_progress = 0
@@ -113,13 +128,24 @@ def run_session(config):
                         event('RUNNING', value)
                         last_progress = time.monotonic()
 
+                analyze_offset = time.perf_counter() - segment_clock
+                analyze_clock = time.perf_counter()
                 result = analyze(detector, video, out, p['params'], progress, stop.is_set)
+                analyze_seconds = time.perf_counter() - analyze_clock
                 event('UPLOADING', .99)
+                upload_offset = time.perf_counter() - segment_clock
+                upload_clock = time.perf_counter()
                 artifacts = []
                 for name in result['previews']:
                     content = (out / name).read_bytes()
                     h = attempt_headers | {'X-Content-SHA256': hashlib.sha256(content).hexdigest()}
                     artifacts.append(request('PUT', p['base_url'] + '/artifacts/' + name, content=content, headers=h).json())
+                upload_seconds = time.perf_counter() - upload_clock
+                result['segment_timing'] = {'version':1, 'started_at':segment_at,
+                    'total_seconds':time.perf_counter()-segment_clock,
+                    'phases':[{'name':'download','offset_seconds':0.,'seconds':download},
+                              {'name':'analyze','offset_seconds':analyze_offset,'seconds':analyze_seconds},
+                              {'name':'upload','offset_seconds':upload_offset,'seconds':upload_seconds}]}
                 result.update({'task_id': p['task_id'], 'segment_id': p['segment_id'], 'attempt_id': p['attempt_id'],
                                'session_id': sid, 'actual_node': p['target_node'], 'pod_uid': uid, 'model_id': MODEL_ID,
                                'artifacts': artifacts, 'input_sha256': p['input_sha256'], 'input_bytes': len(r.content),

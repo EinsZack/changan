@@ -1,0 +1,125 @@
+{
+  "config": {
+    "argv": [
+      "/usr/bin/node",
+      "/root/projects/changan-orchestrator/web/node_modules/.bin/playwright",
+      "test",
+      "-c",
+      "playwright.timing-real.config.js"
+    ],
+    "configFile": "/root/projects/changan-orchestrator/web/playwright.timing-real.config.js",
+    "rootDir": "/root/projects/changan-orchestrator/web/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/root/projects/changan-orchestrator/web/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/root/projects/changan-orchestrator/web/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "timing-real.spec.js"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "../docs/gpu-timing-20261110/browser-real-report.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 1,
+    "webServer": {
+      "command": "npx vite preview --config vite.timing.config.js --host 127.0.0.1 --port 18313 --strictPort --outDir ../tmp/task-metrics-web-dist",
+      "url": "http://127.0.0.1:18313",
+      "reuseExistingServer": false
+    }
+  },
+  "suites": [
+    {
+      "title": "timing-real.spec.js",
+      "file": "timing-real.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "real GPU timing, CPU comparison and mobile",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5312,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-10T03:58:39.918Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "69be1590b5c51bbcda5d-fd71c0d02acc9a364f73",
+          "file": "timing-real.spec.js",
+          "line": 3,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-10T03:58:37.478Z",
+    "duration": 8170.023,
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

@@ -46,9 +46,11 @@ class ContainerExecution:
     def application(self):
         image=os.getenv('CHANGAN_VIDEO_IMAGE','')
         if '@sha256:' not in image:raise ValueError('CHANGAN_VIDEO_IMAGE 必须固定为镜像摘要')
-        return {'id':'video-analysis','version':'2','execution_mode':'task_session','image':image,'architecture':os.getenv('CHANGAN_IMAGE_ARCH','amd64'),
+        policy=os.getenv('CHANGAN_MODEL_DEVICE','auto')
+        if policy not in ('auto','cpu','cuda'):raise ValueError('CHANGAN_MODEL_DEVICE 无效')
+        return {'id':'video-analysis','version':'3','timing_version':1,'container_memory_floor_mb':2048,'model_policy':policy,'model_device_id':int(os.getenv('CHANGAN_MODEL_GPU_DEVICE_ID','0')),'execution_mode':'task_session','image':image,'architecture':os.getenv('CHANGAN_IMAGE_ARCH','amd64'),
                 'model_id':MODEL_ID,'model_sha256':hashlib.sha256(MODEL.read_bytes()).hexdigest(),
-                'runtime':'ONNX Runtime CPU','image_pull_secret':os.getenv('CHANGAN_IMAGE_PULL_SECRET')}
+                'runtime':'ONNX Runtime CPU / CUDA（模型自动选择）','image_pull_secret':os.getenv('CHANGAN_IMAGE_PULL_SECRET')}
     async def refresh(self):
         old={n['id']:n for n in db.query('SELECT * FROM nodes')}
         try:
@@ -70,6 +72,9 @@ class ContainerExecution:
                    'memory_budget_mb':n['memory'],'active':n['active'],'capacity':n['capacity'],
                    'runtime':n['runtime'],'kubelet':n['kubelet'],'physical_host':n['physical_host'],
                    'resource_source':'kubernetes','location':self.client().cluster}
+                s['gpu_slots']=n.get('gpu_slots',0)
+                s['gpu_available']=n.get('gpu_slots',0)>0
+                if s['gpu_available']:s['tags'].append('gpu')
                 s.update(container_network_snapshot(n,self.client().cluster,now))
                 last=db.query("SELECT result FROM attempts WHERE node_id=? AND backend='k3s' AND status='SUCCEEDED' ORDER BY finished DESC LIMIT 1",(id,),one=True)
                 if last:s['measured_fps']=db.loads(last['result'],{}).get('measured_fps')

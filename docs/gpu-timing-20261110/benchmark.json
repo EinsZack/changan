@@ -1,0 +1,1091 @@
+{
+  "environment": "one server, four logical K3s agents; shared RTX 5090; not THOR",
+  "conditions": "same image/model/input, 24 x 1s, 15 requested fps (240 actual frames), CPU request1/limit2, GPU visible for both policies; sequential; per-task model load and warmup",
+  "runs": [
+    {
+      "task_id": "task_62c7937f07c74db7",
+      "name": "GPU启动与四lab复用验证",
+      "policy": "auto",
+      "nodes": [
+        "lab-1",
+        "lab-2",
+        "lab-3",
+        "lab-4"
+      ],
+      "image": "changan-registry:5000/changan/video-unified@sha256:19f97fb50e56d5cc8ebf744983f4eecf985cf43e3ef74a8b9919d9a3600507a1",
+      "input_sha256": "e61fdd9e19f04d903e180204a7d0e54e0a0bef79b479123619117e299d1a13fb",
+      "params": {
+        "sample_fps": 15.0,
+        "confidence": 0.35,
+        "segment_seconds": 1.0
+      },
+      "elapsed_seconds": 78.1878821849823,
+      "frames": 240,
+      "forward_seconds_sum": 1.3310968913137913,
+      "analysis_seconds_sum": 8.870560238137841,
+      "download_seconds_sum": 4.823436909355223,
+      "counts": {
+        "person": 1517,
+        "bicycle": 0,
+        "car": 244,
+        "motorcycle": 0,
+        "bus": 0,
+        "truck": 240
+      },
+      "sessions": [
+        {
+          "node": "lab-1",
+          "model_load_count": 1,
+          "ready_seconds": 47.30932307243347,
+          "model_seconds": 32.6285773543641,
+          "runtime": {
+            "policy": "auto",
+            "actual_backend": "cuda",
+            "ort_version": "1.23.2",
+            "gpu": {
+              "device_id": 0,
+              "uuid": "GPU-1ba5825e-38ee-5dc3-2514-eb000355f95b",
+              "name": "NVIDIA GeForce RTX 5090",
+              "visible_devices": 1
+            },
+            "fallback_reason": null,
+            "cuda_compute_events": 203,
+            "provider_events": {
+              "CUDAExecutionProvider": 203
+            },
+            "timings": {
+              "session_seconds": 3.3882152903825045,
+              "warmup_seconds": 18.501086059957743,
+              "verification_seconds": 0.012244170531630516,
+              "initialization_seconds": 32.54765136260539
+            },
+            "initialization_stages": [
+              {
+                "name": "device",
+                "started_at": 1794282541.435027,
+                "seconds": 10.60237923823297
+              },
+              {
+                "name": "model_load",
+                "started_at": 1794282552.039163,
+                "seconds": 3.3882152903825045,
+                "backend": "cuda"
+              },
+              {
+                "name": "warmup",
+                "started_at": 1794282555.4277258,
+                "seconds": 18.501086059957743,
+                "backend": "cuda"
+              }
+            ],
+            "providers": [
+              "CUDAExecutionProvider",
+              "CPUExecutionProvider"
+            ]
+          },
+          "lifecycle": {
+            "6e895219-baa6-4407-8794-26fa50dbe29c": {
+              "pod_uid": "6e895219-baa6-4407-8794-26fa50dbe29c",
+              "pod_name": "video-session-808656e083da493e-fgrdt",
+              "node_name": "k3d-changan-dev-agent-0",
+              "pod_created_at": 1794282526.0,
+              "scheduled_at": 1794282526.0,
+              "container_started_at": 1794282529.0,
+              "events": [
+                {
+                  "reason": "Pulled",
+                  "at": 1794282528.0,
+                  "message": "Container image \"changan-registry:5000/changan/video-unified@sha256:19f97fb50e56d5cc8ebf744983f4eecf985cf43e3ef74a8b9919d9a3600507a1\" already present on machine and can be accessed by the pod"
+                },
+                {
+                  "reason": "Created",
+                  "at": 1794282529.0,
+                  "message": "Container created"
+                },
+                {
+                  "reason": "Started",
+                  "at": 1794282529.0,
+                  "message": "Container started"
+                }
+              ],
+              "image_ready_at": 1794282528.0,
+              "image_cached": true,
+              "startup_complete": true
+            }
+          }
+        },
+        {
+          "node": "lab-3",
+          "model_load_count": 1,
+          "ready_seconds": 53.57170248031616,
+          "model_seconds": 39.67169001698494,
+          "runtime": {
+            "policy": "auto",
+            "actual_backend": "cuda",
+            "ort_version": "1.23.2",
+            "gpu": {
+              "device_id": 0,
+              "uuid": "GPU-1ba5825e-38ee-5dc3-2514-eb000355f95b",
+              "name": "NVIDIA GeForce RTX 5090",
+              "visible_devices": 1
+            },
+            "fallback_reason": null,
+            "cuda_compute_events": 203,
+            "provider_events": {
+              "CUDAExecutionProvider": 203
+            },
+            "timings": {
+              "session_seconds": 4.113258058205247,
+              "warmup_seconds": 22.720857984386384,
+              "verification_seconds": 0.004873704165220261,
+              "initialization_seconds": 39.5907744159922
+            },
+            "initialization_stages": [
+              {
+                "name": "device",
+                "started_at": 1794282539.2647266,
+                "seconds": 12.709739077836275
+              },
+              {
+                "name": "model_load",
+                "started_at": 1794282551.9762814,
+                "seconds": 4.113258058205247,
+                "backend": "cuda"
+              },
+              {
+                "name": "warmup",
+                "started_at": 1794282556.0900888,
+                "seconds": 22.720857984386384,
+                "backend": "cuda"
+              }
+            ],
+            "providers": [
+              "CUDAExecutionProvider",
+              "CPUExecutionProvider"
+            ]
+          },
+          "lifecycle": {
+            "8f71142a-831c-408d-85f1-d5d66674086c": {
+              "pod_uid": "8f71142a-831c-408d-85f1-d5d66674086c",
+              "pod_name": "video-session-80dd0136c00d48e2-kr4fs",
+              "node_name": "k3d-changan-dev-agent-2",
+              "pod_created_at": 1794282526.0,
+              "scheduled_at": 1794282527.0,
+              "container_started_at": 1794282529.0,
+              "events": [
+                {
+                  "reason": "Pulled",
+                  "at": 1794282528.0,
+                  "message": "Container image \"changan-registry:5000/changan/video-unified@sha256:19f97fb50e56d5cc8ebf744983f4eecf985cf43e3ef74a8b9919d9a3600507a1\" already present on machine and can be accessed by the pod"
+                },
+                {
+                  "reason": "Created",
+                  "at": 1794282529.0,
+                  "message": "Container created"
+                },
+                {
+                  "reason": "Started",
+                  "at": 1794282529.0,
+                  "message": "Container started"
+                }
+              ],
+              "image_ready_at": 1794282528.0,
+              "image_cached": true,
+              "startup_complete": true
+            }
+          }
+        },
+        {
+          "node": "lab-2",
+          "model_load_count": 1,
+          "ready_seconds": 53.404335021972656,
+          "model_seconds": 38.452288987115026,
+          "runtime": {
+            "policy": "auto",
+            "actual_backend": "cuda",
+            "ort_version": "1.23.2",
+            "gpu": {
+              "device_id": 0,
+              "uuid": "GPU-1ba5825e-38ee-5dc3-2514-eb000355f95b",
+              "name": "NVIDIA GeForce RTX 5090",
+              "visible_devices": 1
+            },
+            "fallback_reason": null,
+            "cuda_compute_events": 203,
+            "provider_events": {
+              "CUDAExecutionProvider": 203
+            },
+            "timings": {
+              "session_seconds": 4.484566074796021,
+              "warmup_seconds": 23.0479792682454,
+              "verification_seconds": 0.013305537402629852,
+              "initialization_seconds": 38.37552949041128
+            },
+            "initialization_stages": [
+              {
+                "name": "device",
+                "started_at": 1794282541.2824786,
+                "seconds": 10.745981570333242
+              },
+              {
+                "name": "model_load",
+                "started_at": 1794282552.030333,
+                "seconds": 4.484566074796021,
+                "backend": "cuda"
+              },
+              {
+                "name": "warmup",
+                "started_at": 1794282556.5152912,
+                "seconds": 23.0479792682454,
+                "backend": "cuda"
+              }
+            ],
+            "providers": [
+              "CUDAExecutionProvider",
+              "CPUExecutionProvider"
+            ]
+          },
+          "lifecycle": {
+            "629f34f5-0fb7-428e-8062-52a9eaa080a4": {
+              "pod_uid": "629f34f5-0fb7-428e-8062-52a9eaa080a4",
+              "pod_name": "video-session-3f3656eff4934c03-xg9br",
+              "node_name": "k3d-changan-dev-agent-1",
+              "pod_created_at": 1794282527.0,
+              "scheduled_at": 1794282527.0,
+              "events": [
+                {
+                  "reason": "Pulled",
+                  "at": 1794282528.0,
+                  "message": "Container image \"changan-registry:5000/changan/video-unified@sha256:19f97fb50e56d5cc8ebf744983f4eecf985cf43e3ef74a8b9919d9a3600507a1\" already present on machine and can be accessed by the pod"
+                },
+                {
+                  "reason": "Created",
+                  "at": 1794282529.0,
+                  "message": "Container created"
+                },
+                {
+                  "reason": "Started",
+                  "at": 1794282529.0,
+                  "message": "Container started"
+                }
+              ],
+              "image_ready_at": 1794282528.0,
+              "image_cached": true,
+              "container_started_at": 1794282529.0,
+              "startup_complete": true,
+              "termination": {
+                "reason": "Error",
+                "exit_code": 137,
+                "finished_at": 1794282619.0
+              }
+            }
+          }
+        },
+        {
+          "node": "lab-4",
+          "model_load_count": 1,
+          "ready_seconds": 68.29216837882996,
+          "model_seconds": 56.673123117536306,
+          "runtime": {
+            "policy": "auto",
+            "actual_backend": "cuda",
+            "ort_version": "1.23.2",
+            "gpu": {
+              "device_id": 0,
+              "uuid": "GPU-1ba5825e-38ee-5dc3-2514-eb000355f95b",
+              "name": "NVIDIA GeForce RTX 5090",
+              "visible_devices": 1
+            },
+            "fallback_reason": null,
+            "cuda_compute_events": 203,
+            "provider_events": {
+              "CUDAExecutionProvider": 203
+            },
+            "timings": {
+              "session_seconds": 0.29882017616182566,
+              "warmup_seconds": 56.18354105204344,
+              "verification_seconds": 0.005304173566401005,
+              "initialization_seconds": 56.60179803799838
+            },
+            "initialization_stages": [
+              {
+                "name": "device",
+                "started_at": 1794282539.063083,
+                "seconds": 0.075538813136518
+              },
+              {
+                "name": "model_load",
+                "started_at": 1794282539.1390707,
+                "seconds": 0.29882017616182566,
+                "backend": "cuda"
+              },
+              {
+                "name": "warmup",
+                "started_at": 1794282539.4381247,
+                "seconds": 56.18354105204344,
+                "backend": "cuda"
+              }
+            ],
+            "providers": [
+              "CUDAExecutionProvider",
+              "CPUExecutionProvider"
+            ]
+          },
+          "lifecycle": {
+            "e101aa94-c3e1-46f1-acd1-510fd845d1eb": {
+              "pod_uid": "e101aa94-c3e1-46f1-acd1-510fd845d1eb",
+              "pod_name": "video-session-40b67c768ea24209-ghdfl",
+              "node_name": "k3d-changan-dev-agent-3",
+              "pod_created_at": 1794282527.0,
+              "scheduled_at": 1794282527.0,
+              "container_started_at": 1794282530.0,
+              "events": [
+                {
+                  "reason": "Pulled",
+                  "at": 1794282529.0,
+                  "message": "Container image \"changan-registry:5000/changan/video-unified@sha256:19f97fb50e56d5cc8ebf744983f4eecf985cf43e3ef74a8b9919d9a3600507a1\" already present on machine and can be accessed by the pod"
+                },
+                {
+                  "reason": "Created",
+                  "at": 1794282529.0,
+                  "message": "Container created"
+                },
+                {
+                  "reason": "Started",
+                  "at": 1794282530.0,
+                  "message": "Container started"
+                }
+              ],
+              "image_ready_at": 1794282529.0,
+              "image_cached": true,
+              "startup_complete": true,
+              "termination": {
+                "reason": "Completed",
+                "exit_code": 0,
+                "finished_at": 1794282601.0
+              }
+            }
+          }
+        }
+      ],
+      "forward_ms_per_frame": 5.546237047140798
+    },
+    {
+      "task_id": "task_4e79369a0b414b48",
+      "name": "CPU/GPU同条件对照 1 · cpu",
+      "policy": "cpu",
+      "nodes": [
+        "lab-1"
+      ],
+      "image": "changan-registry:5000/changan/video-unified@sha256:19f97fb50e56d5cc8ebf744983f4eecf985cf43e3ef74a8b9919d9a3600507a1",
+      "input_sha256": "e61fdd9e19f04d903e180204a7d0e54e0a0bef79b479123619117e299d1a13fb",
+      "params": {
+        "sample_fps": 15.0,
+        "confidence": 0.35,
+        "segment_seconds": 1.0
+      },
+      "elapsed_seconds": 53.373337268829346,
+      "frames": 240,
+      "forward_seconds_sum": 13.027525398880243,
+      "analysis_seconds_sum": 17.038147760555148,
+      "download_seconds_sum": 0.3427303032949567,
+      "counts": {
+        "person": 1517,
+        "bicycle": 0,
+        "car": 244,
+        "motorcycle": 0,
+        "bus": 0,
+        "truck": 240
+      },
+      "sessions": [
+        {
+          "node": "lab-1",
+          "model_load_count": 1,
+          "ready_seconds": 3.612701177597046,
+          "model_seconds": 0.19572972878813744,
+          "runtime": {
+            "policy": "cpu",
+            "actual_backend": "cpu",
+            "ort_version": "1.23.2",
+            "gpu": null,
+            "fallback_reason": null,
+            "cuda_compute_events": 0,
+            "provider_events": {},
+            "timings": {
+              "session_seconds": 0.0757618797942996,
+              "warmup_seconds": 0.05308730714023113,
+              "verification_seconds": 4.92483377456665e-06,
+              "initialization_seconds": 0.16209842544049025
+            },
+            "initialization_stages": [
+              {
+                "name": "model_load",
+                "started_at": 1794282637.6904166,
+                "seconds": 0.0757618797942996,
+                "backend": "cpu"
+              },
+              {
+                "name": "warmup",
+                "started_at": 1794282637.766399,
+                "seconds": 0.05308730714023113,
+                "backend": "cpu"
+              }
+            ],
+            "providers": [
+              "CPUExecutionProvider"
+            ]
+          },
+          "lifecycle": {
+            "d3bcd6c4-0efa-4dba-8b12-526925a5efb7": {
+              "pod_uid": "d3bcd6c4-0efa-4dba-8b12-526925a5efb7",
+              "pod_name": "video-session-9c37052a1ac744e3-2f6jh",
+              "node_name": "k3d-changan-dev-agent-0",
+              "pod_created_at": 1794282634.0,
+              "scheduled_at": 1794282634.0,
+              "events": [
+                {
+                  "reason": "Pulled",
+                  "at": 1794282636.0,
+                  "message": "Container image \"changan-registry:5000/changan/video-unified@sha256:19f97fb50e56d5cc8ebf744983f4eecf985cf43e3ef74a8b9919d9a3600507a1\" already present on machine and can be accessed by the pod"
+                },
+                {
+                  "reason": "Created",
+                  "at": 1794282636.0,
+                  "message": "Container created"
+                },
+                {
+                  "reason": "Started",
+                  "at": 1794282637.0,
+                  "message": "Container started"
+                }
+              ],
+              "image_ready_at": 1794282636.0,
+              "image_cached": true,
+              "container_started_at": 1794282636.0,
+              "startup_complete": true
+            }
+          }
+        }
+      ],
+      "forward_ms_per_frame": 54.28135582866768
+    },
+    {
+      "task_id": "task_189e3bc7a1ad4d4e",
+      "name": "CPU/GPU同条件对照 1 · auto",
+      "policy": "auto",
+      "nodes": [
+        "lab-1"
+      ],
+      "image": "changan-registry:5000/changan/video-unified@sha256:19f97fb50e56d5cc8ebf744983f4eecf985cf43e3ef74a8b9919d9a3600507a1",
+      "input_sha256": "e61fdd9e19f04d903e180204a7d0e54e0a0bef79b479123619117e299d1a13fb",
+      "params": {
+        "sample_fps": 15.0,
+        "confidence": 0.35,
+        "segment_seconds": 1.0
+      },
+      "elapsed_seconds": 102.62456440925598,
+      "frames": 240,
+      "forward_seconds_sum": 1.2153479168191552,
+      "analysis_seconds_sum": 5.50303023122251,
+      "download_seconds_sum": 0.3645388847216964,
+      "counts": {
+        "person": 1517,
+        "bicycle": 0,
+        "car": 244,
+        "motorcycle": 0,
+        "bus": 0,
+        "truck": 240
+      },
+      "sessions": [
+        {
+          "node": "lab-1",
+          "model_load_count": 1,
+          "ready_seconds": 60.49761366844177,
+          "model_seconds": 56.55549838580191,
+          "runtime": {
+            "policy": "auto",
+            "actual_backend": "cuda",
+            "ort_version": "1.23.2",
+            "gpu": {
+              "device_id": 0,
+              "uuid": "GPU-1ba5825e-38ee-5dc3-2514-eb000355f95b",
+              "name": "NVIDIA GeForce RTX 5090",
+              "visible_devices": 1
+            },
+            "fallback_reason": null,
+            "cuda_compute_events": 203,
+            "provider_events": {
+              "CUDAExecutionProvider": 203
+            },
+            "timings": {
+              "session_seconds": 0.19834540225565434,
+              "warmup_seconds": 56.217701034620404,
+              "verification_seconds": 0.004247682169079781,
+              "initialization_seconds": 56.5237034317106
+            },
+            "initialization_stages": [
+              {
+                "name": "device",
+                "started_at": 1794282703.2429469,
+                "seconds": 0.07261607423424721
+              },
+              {
+                "name": "model_load",
+                "started_at": 1794282703.3159406,
+                "seconds": 0.19834540225565434,
+                "backend": "cuda"
+              },
+              {
+                "name": "warmup",
+                "started_at": 1794282703.5144417,
+                "seconds": 56.217701034620404,
+                "backend": "cuda"
+              }
+            ],
+            "providers": [
+              "CUDAExecutionProvider",
+              "CPUExecutionProvider"
+            ]
+          },
+          "lifecycle": {
+            "a1efd657-79f6-4fa4-ad6d-7053b54c01fd": {
+              "pod_uid": "a1efd657-79f6-4fa4-ad6d-7053b54c01fd",
+              "pod_name": "video-session-11dc31f4acc54478-2j5nb",
+              "node_name": "k3d-changan-dev-agent-0",
+              "pod_created_at": 1794282699.0,
+              "scheduled_at": 1794282699.0,
+              "events": [
+                {
+                  "reason": "Pulled",
+                  "at": 1794282701.0,
+                  "message": "Container image \"changan-registry:5000/changan/video-unified@sha256:19f97fb50e56d5cc8ebf744983f4eecf985cf43e3ef74a8b9919d9a3600507a1\" already present on machine and can be accessed by the pod"
+                },
+                {
+                  "reason": "Created",
+                  "at": 1794282701.0,
+                  "message": "Container created"
+                },
+                {
+                  "reason": "Started",
+                  "at": 1794282702.0,
+                  "message": "Container started"
+                }
+              ],
+              "image_ready_at": 1794282701.0,
+              "image_cached": true,
+              "container_started_at": 1794282702.0,
+              "startup_complete": true
+            }
+          }
+        }
+      ],
+      "forward_ms_per_frame": 5.063949653413147
+    },
+    {
+      "task_id": "task_4ca50a884a8f45a9",
+      "name": "CPU/GPU同条件对照 2 · auto",
+      "policy": "auto",
+      "nodes": [
+        "lab-1"
+      ],
+      "image": "changan-registry:5000/changan/video-unified@sha256:19f97fb50e56d5cc8ebf744983f4eecf985cf43e3ef74a8b9919d9a3600507a1",
+      "input_sha256": "e61fdd9e19f04d903e180204a7d0e54e0a0bef79b479123619117e299d1a13fb",
+      "params": {
+        "sample_fps": 15.0,
+        "confidence": 0.35,
+        "segment_seconds": 1.0
+      },
+      "elapsed_seconds": 101.04378581047058,
+      "frames": 240,
+      "forward_seconds_sum": 1.1991764409467578,
+      "analysis_seconds_sum": 5.11973191332072,
+      "download_seconds_sum": 0.6500535709783435,
+      "counts": {
+        "person": 1517,
+        "bicycle": 0,
+        "car": 244,
+        "motorcycle": 0,
+        "bus": 0,
+        "truck": 240
+      },
+      "sessions": [
+        {
+          "node": "lab-1",
+          "model_load_count": 1,
+          "ready_seconds": 59.906607151031494,
+          "model_seconds": 55.745521480217576,
+          "runtime": {
+            "policy": "auto",
+            "actual_backend": "cuda",
+            "ort_version": "1.23.2",
+            "gpu": {
+              "device_id": 0,
+              "uuid": "GPU-1ba5825e-38ee-5dc3-2514-eb000355f95b",
+              "name": "NVIDIA GeForce RTX 5090",
+              "visible_devices": 1
+            },
+            "fallback_reason": null,
+            "cuda_compute_events": 203,
+            "provider_events": {
+              "CUDAExecutionProvider": 203
+            },
+            "timings": {
+              "session_seconds": 0.2040803087875247,
+              "warmup_seconds": 55.397584033198655,
+              "verification_seconds": 0.003841191530227661,
+              "initialization_seconds": 55.71331693045795
+            },
+            "initialization_stages": [
+              {
+                "name": "device",
+                "started_at": 1794282813.9447563,
+                "seconds": 0.07585123740136623
+              },
+              {
+                "name": "model_load",
+                "started_at": 1794282814.0209603,
+                "seconds": 0.2040803087875247,
+                "backend": "cuda"
+              },
+              {
+                "name": "warmup",
+                "started_at": 1794282814.22523,
+                "seconds": 55.397584033198655,
+                "backend": "cuda"
+              }
+            ],
+            "providers": [
+              "CUDAExecutionProvider",
+              "CPUExecutionProvider"
+            ]
+          },
+          "lifecycle": {
+            "bdf50d81-364a-4220-a2f1-d0cca8fa6a20": {
+              "pod_uid": "bdf50d81-364a-4220-a2f1-d0cca8fa6a20",
+              "pod_name": "video-session-b993d4306b514acc-slv5n",
+              "node_name": "k3d-changan-dev-agent-0",
+              "pod_created_at": 1794282810.0,
+              "scheduled_at": 1794282810.0,
+              "events": [
+                {
+                  "reason": "Pulled",
+                  "at": 1794282812.0,
+                  "message": "Container image \"changan-registry:5000/changan/video-unified@sha256:19f97fb50e56d5cc8ebf744983f4eecf985cf43e3ef74a8b9919d9a3600507a1\" already present on machine and can be accessed by the pod"
+                },
+                {
+                  "reason": "Created",
+                  "at": 1794282812.0,
+                  "message": "Container created"
+                },
+                {
+                  "reason": "Started",
+                  "at": 1794282813.0,
+                  "message": "Container started"
+                }
+              ],
+              "image_ready_at": 1794282812.0,
+              "image_cached": true,
+              "container_started_at": 1794282813.0,
+              "startup_complete": true
+            }
+          }
+        }
+      ],
+      "forward_ms_per_frame": 4.996568503944824
+    },
+    {
+      "task_id": "task_93ad3f994f474089",
+      "name": "CPU/GPU同条件对照 2 · cpu",
+      "policy": "cpu",
+      "nodes": [
+        "lab-1"
+      ],
+      "image": "changan-registry:5000/changan/video-unified@sha256:19f97fb50e56d5cc8ebf744983f4eecf985cf43e3ef74a8b9919d9a3600507a1",
+      "input_sha256": "e61fdd9e19f04d903e180204a7d0e54e0a0bef79b479123619117e299d1a13fb",
+      "params": {
+        "sample_fps": 15.0,
+        "confidence": 0.35,
+        "segment_seconds": 1.0
+      },
+      "elapsed_seconds": 60.15283703804016,
+      "frames": 240,
+      "forward_seconds_sum": 12.579462473280728,
+      "analysis_seconds_sum": 15.410068253986537,
+      "download_seconds_sum": 0.31687286496162415,
+      "counts": {
+        "person": 1517,
+        "bicycle": 0,
+        "car": 244,
+        "motorcycle": 0,
+        "bus": 0,
+        "truck": 240
+      },
+      "sessions": [
+        {
+          "node": "lab-1",
+          "model_load_count": 1,
+          "ready_seconds": 4.412530899047852,
+          "model_seconds": 0.16841253731399775,
+          "runtime": {
+            "policy": "cpu",
+            "actual_backend": "cpu",
+            "ort_version": "1.23.2",
+            "gpu": null,
+            "fallback_reason": null,
+            "cuda_compute_events": 0,
+            "provider_events": {},
+            "timings": {
+              "session_seconds": 0.060074690729379654,
+              "warmup_seconds": 0.04690504167228937,
+              "verification_seconds": 6.300397217273712e-06,
+              "initialization_seconds": 0.13729745242744684
+            },
+            "initialization_stages": [
+              {
+                "name": "model_load",
+                "started_at": 1794283124.7594826,
+                "seconds": 0.060074690729379654,
+                "backend": "cpu"
+              },
+              {
+                "name": "warmup",
+                "started_at": 1794283124.8197248,
+                "seconds": 0.04690504167228937,
+                "backend": "cpu"
+              }
+            ],
+            "providers": [
+              "CPUExecutionProvider"
+            ]
+          },
+          "lifecycle": {
+            "7abd2473-d25c-4996-85dc-fa5b11f4bae7": {
+              "pod_uid": "7abd2473-d25c-4996-85dc-fa5b11f4bae7",
+              "pod_name": "video-session-310a06d4059645ec-sdzvd",
+              "node_name": "k3d-changan-dev-agent-0",
+              "pod_created_at": 1794283121.0,
+              "scheduled_at": 1794283121.0,
+              "container_started_at": 1794283124.0,
+              "events": [
+                {
+                  "reason": "Pulled",
+                  "at": 1794283123.0,
+                  "message": "Container image \"changan-registry:5000/changan/video-unified@sha256:19f97fb50e56d5cc8ebf744983f4eecf985cf43e3ef74a8b9919d9a3600507a1\" already present on machine and can be accessed by the pod"
+                },
+                {
+                  "reason": "Created",
+                  "at": 1794283123.0,
+                  "message": "Container created"
+                },
+                {
+                  "reason": "Started",
+                  "at": 1794283124.0,
+                  "message": "Container started"
+                }
+              ],
+              "image_ready_at": 1794283123.0,
+              "image_cached": true,
+              "startup_complete": true,
+              "termination": {
+                "reason": "Completed",
+                "exit_code": 0,
+                "finished_at": 1794283177.0
+              }
+            }
+          }
+        }
+      ],
+      "forward_ms_per_frame": 52.414426972003035
+    },
+    {
+      "task_id": "task_ee526d512a914d2e",
+      "name": "CPU/GPU同条件对照 3 · cpu",
+      "policy": "cpu",
+      "nodes": [
+        "lab-1"
+      ],
+      "image": "changan-registry:5000/changan/video-unified@sha256:19f97fb50e56d5cc8ebf744983f4eecf985cf43e3ef74a8b9919d9a3600507a1",
+      "input_sha256": "e61fdd9e19f04d903e180204a7d0e54e0a0bef79b479123619117e299d1a13fb",
+      "params": {
+        "sample_fps": 15.0,
+        "confidence": 0.35,
+        "segment_seconds": 1.0
+      },
+      "elapsed_seconds": 53.73844838142395,
+      "frames": 240,
+      "forward_seconds_sum": 12.237377935089171,
+      "analysis_seconds_sum": 15.815070013515651,
+      "download_seconds_sum": 0.329038605093956,
+      "counts": {
+        "person": 1517,
+        "bicycle": 0,
+        "car": 244,
+        "motorcycle": 0,
+        "bus": 0,
+        "truck": 240
+      },
+      "sessions": [
+        {
+          "node": "lab-1",
+          "model_load_count": 1,
+          "ready_seconds": 4.443026304244995,
+          "model_seconds": 0.17235736921429634,
+          "runtime": {
+            "policy": "cpu",
+            "actual_backend": "cpu",
+            "ort_version": "1.23.2",
+            "gpu": null,
+            "fallback_reason": null,
+            "cuda_compute_events": 0,
+            "provider_events": {},
+            "timings": {
+              "session_seconds": 0.05753496941179037,
+              "warmup_seconds": 0.05377522483468056,
+              "verification_seconds": 5.179084837436676e-06,
+              "initialization_seconds": 0.1408022716641426
+            },
+            "initialization_stages": [
+              {
+                "name": "model_load",
+                "started_at": 1794283197.117788,
+                "seconds": 0.05753496941179037,
+                "backend": "cpu"
+              },
+              {
+                "name": "warmup",
+                "started_at": 1794283197.175473,
+                "seconds": 0.05377522483468056,
+                "backend": "cpu"
+              }
+            ],
+            "providers": [
+              "CPUExecutionProvider"
+            ]
+          },
+          "lifecycle": {
+            "5d957f36-1a56-4a91-9bea-31178a9a9e80": {
+              "pod_uid": "5d957f36-1a56-4a91-9bea-31178a9a9e80",
+              "pod_name": "video-session-e710d3ea3dfd4059-jfsvl",
+              "node_name": "k3d-changan-dev-agent-0",
+              "pod_created_at": 1794283193.0,
+              "scheduled_at": 1794283193.0,
+              "events": [
+                {
+                  "reason": "Pulled",
+                  "at": 1794283195.0,
+                  "message": "Container image \"changan-registry:5000/changan/video-unified@sha256:19f97fb50e56d5cc8ebf744983f4eecf985cf43e3ef74a8b9919d9a3600507a1\" already present on machine and can be accessed by the pod"
+                },
+                {
+                  "reason": "Created",
+                  "at": 1794283195.0,
+                  "message": "Container created"
+                },
+                {
+                  "reason": "Started",
+                  "at": 1794283196.0,
+                  "message": "Container started"
+                }
+              ],
+              "image_ready_at": 1794283195.0,
+              "image_cached": true,
+              "container_started_at": 1794283196.0,
+              "startup_complete": true,
+              "termination": {
+                "reason": "Completed",
+                "exit_code": 0,
+                "finished_at": 1794283242.0
+              }
+            }
+          }
+        }
+      ],
+      "forward_ms_per_frame": 50.98907472953821
+    },
+    {
+      "task_id": "task_2b7f97782f2c42fd",
+      "name": "CPU/GPU同条件对照 3 · auto",
+      "policy": "auto",
+      "nodes": [
+        "lab-1"
+      ],
+      "image": "changan-registry:5000/changan/video-unified@sha256:19f97fb50e56d5cc8ebf744983f4eecf985cf43e3ef74a8b9919d9a3600507a1",
+      "input_sha256": "e61fdd9e19f04d903e180204a7d0e54e0a0bef79b479123619117e299d1a13fb",
+      "params": {
+        "sample_fps": 15.0,
+        "confidence": 0.35,
+        "segment_seconds": 1.0
+      },
+      "elapsed_seconds": 101.14690637588501,
+      "frames": 240,
+      "forward_seconds_sum": 1.200181177817285,
+      "analysis_seconds_sum": 5.532722162082791,
+      "download_seconds_sum": 0.579753796570003,
+      "counts": {
+        "person": 1517,
+        "bicycle": 0,
+        "car": 244,
+        "motorcycle": 0,
+        "bus": 0,
+        "truck": 240
+      },
+      "sessions": [
+        {
+          "node": "lab-1",
+          "model_load_count": 1,
+          "ready_seconds": 62.423670291900635,
+          "model_seconds": 58.154731028713286,
+          "runtime": {
+            "policy": "auto",
+            "actual_backend": "cuda",
+            "ort_version": "1.23.2",
+            "gpu": {
+              "device_id": 0,
+              "uuid": "GPU-1ba5825e-38ee-5dc3-2514-eb000355f95b",
+              "name": "NVIDIA GeForce RTX 5090",
+              "visible_devices": 1
+            },
+            "fallback_reason": null,
+            "cuda_compute_events": 203,
+            "provider_events": {
+              "CUDAExecutionProvider": 203
+            },
+            "timings": {
+              "session_seconds": 0.18971502967178822,
+              "warmup_seconds": 57.80589663237333,
+              "verification_seconds": 0.005201404914259911,
+              "initialization_seconds": 58.12295540049672
+            },
+            "initialization_stages": [
+              {
+                "name": "device",
+                "started_at": 1794283260.6233544,
+                "seconds": 0.09011727664619684
+              },
+              {
+                "name": "model_load",
+                "started_at": 1794283260.7139003,
+                "seconds": 0.18971502967178822,
+                "backend": "cuda"
+              },
+              {
+                "name": "warmup",
+                "started_at": 1794283260.9037843,
+                "seconds": 57.80589663237333,
+                "backend": "cuda"
+              }
+            ],
+            "providers": [
+              "CUDAExecutionProvider",
+              "CPUExecutionProvider"
+            ]
+          },
+          "lifecycle": {
+            "c737d91c-4df8-424b-9ee0-9aa78f227ca4": {
+              "pod_uid": "c737d91c-4df8-424b-9ee0-9aa78f227ca4",
+              "pod_name": "video-session-c8b7ca04ddd3463f-lfjkg",
+              "node_name": "k3d-changan-dev-agent-0",
+              "pod_created_at": 1794283256.0,
+              "scheduled_at": 1794283256.0,
+              "events": [
+                {
+                  "reason": "Pulled",
+                  "at": 1794283258.0,
+                  "message": "Container image \"changan-registry:5000/changan/video-unified@sha256:19f97fb50e56d5cc8ebf744983f4eecf985cf43e3ef74a8b9919d9a3600507a1\" already present on machine and can be accessed by the pod"
+                },
+                {
+                  "reason": "Created",
+                  "at": 1794283258.0,
+                  "message": "Container created"
+                },
+                {
+                  "reason": "Started",
+                  "at": 1794283259.0,
+                  "message": "Container started"
+                }
+              ],
+              "image_ready_at": 1794283258.0,
+              "image_cached": true,
+              "container_started_at": 1794283259.0,
+              "startup_complete": true,
+              "termination": {
+                "reason": "Completed",
+                "exit_code": 0,
+                "finished_at": 1794283354.0
+              }
+            }
+          }
+        }
+      ],
+      "forward_ms_per_frame": 5.000754907572022
+    }
+  ],
+  "output_consistency": [
+    {
+      "reference": "task_4e79369a0b414b48",
+      "task_id": "task_189e3bc7a1ad4d4e",
+      "same_labels_and_counts": true,
+      "max_confidence_difference": 9.999999999998899e-05,
+      "max_box_coordinate_difference_pixels": 0.0,
+      "confidence_tolerance": 0.001,
+      "box_tolerance_pixels": 0.2
+    },
+    {
+      "reference": "task_4e79369a0b414b48",
+      "task_id": "task_4ca50a884a8f45a9",
+      "same_labels_and_counts": true,
+      "max_confidence_difference": 9.999999999998899e-05,
+      "max_box_coordinate_difference_pixels": 0.0,
+      "confidence_tolerance": 0.001,
+      "box_tolerance_pixels": 0.2
+    },
+    {
+      "reference": "task_4e79369a0b414b48",
+      "task_id": "task_93ad3f994f474089",
+      "same_labels_and_counts": true,
+      "max_confidence_difference": 0.0,
+      "max_box_coordinate_difference_pixels": 0.0,
+      "confidence_tolerance": 0.001,
+      "box_tolerance_pixels": 0.2
+    },
+    {
+      "reference": "task_4e79369a0b414b48",
+      "task_id": "task_ee526d512a914d2e",
+      "same_labels_and_counts": true,
+      "max_confidence_difference": 0.0,
+      "max_box_coordinate_difference_pixels": 0.0,
+      "confidence_tolerance": 0.001,
+      "box_tolerance_pixels": 0.2
+    },
+    {
+      "reference": "task_4e79369a0b414b48",
+      "task_id": "task_2b7f97782f2c42fd",
+      "same_labels_and_counts": true,
+      "max_confidence_difference": 9.999999999998899e-05,
+      "max_box_coordinate_difference_pixels": 0.0,
+      "confidence_tolerance": 0.001,
+      "box_tolerance_pixels": 0.2
+    }
+  ],
+  "cpu_median": {
+    "elapsed_seconds": 53.73844838142395,
+    "forward_ms_per_frame": 52.414426972003035,
+    "analysis_seconds_sum": 15.815070013515651
+  },
+  "auto_median": {
+    "elapsed_seconds": 101.14690637588501,
+    "forward_ms_per_frame": 5.000754907572022,
+    "analysis_seconds_sum": 5.50303023122251
+  },
+  "steady_forward_ratio": 10.481302911414112,
+  "whole_task_ratio": 0.5312910726277639,
+  "excluded_development_runs": [
+    {
+      "task_id": "task_c7600dacdd514880",
+      "reason": "initial CUDA attempt exceeded old 1GiB memory limit, retried; not used in controlled comparison"
+    },
+    {
+      "task_id": "task_c922977bb2a14728",
+      "reason": "benchmark preparation overwrote requested CPU policy; actual CUDA; excluded and CPU rerun after fixing harness synchronization"
+    }
+  ]
+}

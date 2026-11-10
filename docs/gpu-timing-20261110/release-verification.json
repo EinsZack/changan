@@ -1,0 +1,75 @@
+{
+  "date": "2026-11-10",
+  "version": "0.5.2",
+  "base_commit": "8979c48af8aa52d2fee8f7a9ba974dd0b63d4bd1",
+  "production_task": "task_ec2166def2da4104",
+  "elapsed_seconds": 83.11911201477051,
+  "sampled_frames": 48,
+  "segments": 6,
+  "sessions": [
+    {
+      "node_id": "lab-4",
+      "pod_uid": "75bac161-816c-4637-96af-750665aa93ef",
+      "model_loads": 1,
+      "completed": 1,
+      "actual_backend": "cuda",
+      "model_seconds": 10.912597674876451,
+      "cuda_compute_events": 203,
+      "gpu_uuid": "GPU-1ba5825e-38ee-5dc3-2514-eb000355f95b",
+      "cleaned": true
+    },
+    {
+      "node_id": "lab-2",
+      "pod_uid": "16b087ef-e153-42b6-8eac-98417d903d20",
+      "model_loads": 1,
+      "completed": 1,
+      "actual_backend": "cuda",
+      "model_seconds": 57.654613935388625,
+      "cuda_compute_events": 203,
+      "gpu_uuid": "GPU-1ba5825e-38ee-5dc3-2514-eb000355f95b",
+      "cleaned": true
+    },
+    {
+      "node_id": "lab-1",
+      "pod_uid": "15342b90-3b01-46a9-9733-c3c05e5db159",
+      "model_loads": 1,
+      "completed": 3,
+      "actual_backend": "cuda",
+      "model_seconds": 11.55853448715061,
+      "cuda_compute_events": 203,
+      "gpu_uuid": "GPU-1ba5825e-38ee-5dc3-2514-eb000355f95b",
+      "cleaned": true
+    },
+    {
+      "node_id": "lab-3",
+      "pod_uid": "8d421368-1080-4933-95a8-1306176d95d4",
+      "model_loads": 1,
+      "completed": 1,
+      "actual_backend": "cuda",
+      "model_seconds": 65.53058111295104,
+      "cuda_compute_events": 203,
+      "gpu_uuid": "GPU-1ba5825e-38ee-5dc3-2514-eb000355f95b",
+      "cleaned": true
+    }
+  ],
+  "image": "changan-registry:5000/changan/video-unified@sha256:19f97fb50e56d5cc8ebf744983f4eecf985cf43e3ef74a8b9919d9a3600507a1",
+  "old_rows_unchanged": {
+    "tasks": 79,
+    "segments": 755,
+    "attempts": 723,
+    "execution_sessions": 40,
+    "events": 5880
+  },
+  "task_count": 80,
+  "backup_directory": "data/backups/20261110-gpu-timing",
+  "running_image_worker_hashes_verified": true,
+  "validation_services_stopped": true,
+  "tests": {
+    "backend": 119,
+    "frontend_helpers": 12,
+    "timing_fixture_browser": 4,
+    "network_browser": 5,
+    "real_comparison_browser": 1,
+    "production_browser": 1
+  }
+}

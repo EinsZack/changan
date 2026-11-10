@@ -65,7 +65,7 @@ def business():
         if not source.exists() or digest(source)!=row['sha256']:raise ValueError('Download locked wheel first: '+row['file'])
         dest=wheels/source.name
         if not dest.exists() or digest(dest)!=row['sha256']:shutil.copy2(source,dest)
-    return publish(context,'video-unified:0.5.1-runtime1') | {'model_sha256':digest(context/'model.onnx'),'wheel_count':len(locked)}
+    return publish(context,'video-unified:0.5.2-runtime2') | {'model_sha256':digest(context/'model.onnx'),'wheel_count':len(locked)}
 
 def main():
     p=argparse.ArgumentParser();p.add_argument('--target',choices=['node','business','all'],default='all');args=p.parse_args()

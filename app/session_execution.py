@@ -14,6 +14,7 @@ from . import db
 from .config import DATA, TERMINAL
 from .incidents import reconcile_observation
 from .kube import session_manifest
+from .execution_timing import validate_runtime, validate_startup, validate_segment, pod_lifecycle
 
 router = APIRouter()
 MODE = 'task_session'
@@ -130,7 +131,8 @@ class SessionExecution:
                 w = app | {'job_name': 'video-' + sid.replace('_', '-'), 'cluster': self.owner.client().cluster,
                            'namespace': self.owner.client().namespace, 'target_node': a['node_id'],
                            'kube_node': snapshot['kube_node'], 'node_uid': snapshot.get('node_uid'),
-                           'memory_mb': max(1024, params['min_memory_mb']), 'created_at': now}
+                           'memory_mb': max(1024, app.get('container_memory_floor_mb',0), params['min_memory_mb']), 'created_at': now,
+                           'gpu_access': bool(app.get('timing_version') and snapshot.get('gpu_available'))}
                 s = {'id': sid, 'task_id': task['id'], 'node_id': a['node_id'], 'token': secrets.token_urlsafe(32)}
                 c.execute("INSERT INTO execution_sessions(id,task_id,node_id,token,status,created,updated,workload) VALUES(?,?,?,?,'STARTING',?,?,?)",
                           (sid, task['id'], a['node_id'], s['token'], now, now, db.dumps(w)))
@@ -159,9 +161,13 @@ class SessionExecution:
         base = os.getenv('CHANGAN_CONTAINER_BASE', self.engine.base)
         payload = {'execution_mode': MODE, 'session_id': s['id'], 'session_token': s['token'],
                    'task_id': s['task_id'], 'target_node': s['node_id'], 'base_url': base,
-                   'model_sha256': w['model_sha256'], 'heartbeat_seconds': 2, 'lease_seconds': 20}
+                   'model_sha256': w['model_sha256'], 'heartbeat_seconds': 2, 'lease_seconds': 20,
+                   'timing_version': w.get('timing_version'), 'model_policy': w.get('model_policy','cpu'),
+                   'model_device_id': w.get('model_device_id',0)}
+        if not w.get('job_submit_started_at'):
+            patch_workload(s['id'], {'job_submit_started_at': time.time()})
         job = await self.owner.client().submit(session_manifest(s, w, params, remaining), payload)
-        patch_workload(s['id'], {'job_uid': job.metadata.uid})
+        patch_workload(s['id'], {'job_uid': job.metadata.uid, 'job_submit_finished_at': time.time()})
 
     def stop(self, sid, reason, failure_status='FAILED'):
         with db.connect() as c:
@@ -253,6 +259,26 @@ class SessionExecution:
             details.append({'name': p.metadata.name, 'uid': p.metadata.uid, 'node_name': p.spec.node_name,
                             'phase': p.status.phase, 'reasons': reasons, 'image_id': cs[0].image_id if cs else None})
         changes = {'pods': details}
+        # The coordinator alone owns lifecycle; readiness writes a different top-level key.
+        lifecycle = dict(w.get('lifecycle', {}))
+        for p in pods:
+            previous = lifecycle.get(p.metadata.uid, {})
+            if previous.get('startup_complete'):
+                lifecycle[p.metadata.uid] = previous | pod_lifecycle(p)
+            else:
+                events = []
+                if hasattr(k, 'pod_events'):
+                    try:
+                        events = await k.pod_events(p.metadata.uid)
+                    except Exception:
+                        # A missing event is unknown evidence, not zero image-pull time.
+                        pass
+                evidence = pod_lifecycle(p, events)
+                lifecycle[p.metadata.uid] = previous | evidence
+                if s['ready_at'] and evidence.get('container_started_at') and evidence.get('image_ready_at'):
+                    lifecycle[p.metadata.uid]['startup_complete'] = True
+        if lifecycle:
+            changes['lifecycle'] = lifecycle
         if any(p.metadata.uid == w.get('pod_uid') and p.status.phase in ('Succeeded', 'Failed') for p in pods):
             changes['termination_observed'] = True
         patch_workload(sid, changes)
@@ -318,6 +344,8 @@ async def claim_session(sid: str, request: Request):
         w.update({'job_uid': job.metadata.uid, 'pod_uid': uid, 'pod_name': pod.metadata.name, 'node_name': pod.spec.node_name})
         c.execute('UPDATE execution_sessions SET workload=?,heartbeat_at=?,updated=? WHERE id=?', (db.dumps(w), time.time(), time.time(), sid))
         if first:
+            w['claim_received_at'] = time.time()
+            c.execute('UPDATE execution_sessions SET workload=? WHERE id=?', (db.dumps(w),sid))
             db.event(s['task_id'], 'session_claimed', {'stage': 'execute', 'state': 'MODEL_LOADING', 'session_id': sid, 'pod_uid': uid, 'node_id': s['node_id']}, conn=c)
     return {'accepted': True}
 
@@ -342,12 +370,21 @@ async def ready(sid: str, request: Request):
     import math
     if body.get('model_sha256') != w['model_sha256'] or not isinstance(seconds, (int, float)) or not math.isfinite(seconds) or seconds < 0:
         raise HTTPException(422, '模型就绪证据无效')
+    if w.get('timing_version') == 1:
+        validate_runtime(body.get('inference_runtime'), w)
+        validate_startup(body.get('startup_timing'), seconds)
     with db.connect() as c:
         c.execute('BEGIN IMMEDIATE')
         s = get_session(sid, c)
         task = c.execute('SELECT * FROM tasks WHERE id=?', (s['task_id'],)).fetchone()
-        session_valid(s, task, request.headers.get('x-pod-uid'))
+        w = session_valid(s, task, request.headers.get('x-pod-uid'))
+        if s['ready_at'] and w.get('timing_version') == 1:
+            if w.get('inference_runtime') != body.get('inference_runtime') or w.get('startup_timing') != body.get('startup_timing'):
+                raise HTTPException(409, '会话就绪证据已冻结')
         if not s['ready_at']:
+            if w.get('timing_version') == 1:
+                w.update(inference_runtime=body['inference_runtime'], startup_timing=body['startup_timing'])
+                c.execute('UPDATE execution_sessions SET workload=? WHERE id=?', (db.dumps(w),sid))
             now = time.time()
             c.execute("UPDATE execution_sessions SET status='READY',ready_at=?,model_load_count=1,model_load_seconds=?,heartbeat_at=?,updated=? WHERE id=?", (now, seconds, now, now, sid))
             db.event(s['task_id'], 'session_ready', {'stage': 'execute', 'state': 'READY', 'session_id': sid, 'pod_uid': w['pod_uid'], 'model_load_seconds': seconds, 'model_load_count': 1}, conn=c)
@@ -369,6 +406,8 @@ async def next_assignment(sid: str, request: Request):
         if a['status'] in TERMINAL or seg['active_attempt'] != a['id']:
             raise HTTPException(409, '分片已失效')
         aw = db.loads(a['workload']) | {key: w[key] for key in ('pod_uid', 'pod_name', 'node_name', 'job_uid')}
+        if w.get('timing_version') == 1:
+            aw['inference_runtime'] = w['inference_runtime']
         if not a['execution_id']:
             now = time.time()
             c.execute("UPDATE attempts SET execution_id=?,actual_node=?,status='ACCEPTED',workload=?,started=?,updated=? WHERE id=?", (w['pod_uid'], s['node_id'], db.dumps(aw), now, now, a['id']))
@@ -391,6 +430,8 @@ def validate_result(a, w, result):
         raise HTTPException(422, '结果来源不一致')
     if result.get('sampled_frames', 0) <= 0 or len(result.get('frames', [])) != result['sampled_frames'] or not isinstance(result.get('counts'), dict):
         raise HTTPException(422, '采样结果不完整')
+    if w.get('timing_version') == 1:
+        validate_segment(result, w.get('inference_runtime'))
     names = result.get('previews', [])
     manifest = result.get('artifacts', [])
     if not names or len(set(names)) != len(names) or len(manifest) != len(names) or set(names) != {m.get('name') for m in manifest}:

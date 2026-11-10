@@ -29,7 +29,7 @@ class Kube:
             budget=min(memory,int(labels.get('changan.io/memory-mib',memory)))
             output.append({'id':labels[LABEL],'name':n.metadata.name,'uid':n.metadata.uid,'healthy':ready,
                 'architecture':labels.get('kubernetes.io/arch'),'memory':budget,'active':active,
-                'capacity':int(labels.get('changan.io/slots','1')),'kind':labels.get('changan.io/kind','k3s_node'),
+                'gpu_slots':int(n.status.allocatable.get('nvidia.com/gpu','0')),'capacity':int(labels.get('changan.io/slots','1')),'kind':labels.get('changan.io/kind','k3s_node'),
                 'runtime':n.status.node_info.container_runtime_version,'kubelet':n.status.node_info.kubelet_version,
                 'physical_host':labels.get('changan.io/physical-host',n.metadata.name)})
         return output
@@ -40,6 +40,8 @@ class Kube:
             raise
     async def pods(self,name):
         return (await self.call(self.core.list_namespaced_pod,self.namespace,label_selector='job-name='+name)).items
+    async def pod_events(self,uid):
+        return (await self.call(self.core.list_namespaced_event,self.namespace,field_selector='involvedObject.uid='+uid)).items
     async def submit(self,manifest,payload):
         name=manifest['metadata']['name']
         secret={'apiVersion':'v1','kind':'Secret','metadata':{'name':name,'labels':{'app':APP}},'stringData':{'payload.json':__import__('json').dumps(payload)}}
@@ -79,8 +81,8 @@ def job_manifest(a, workload, params):
           'env':[{'name':'POD_UID','valueFrom':{'fieldRef':{'fieldPath':'metadata.uid'}}},
                  {'name':'POD_NAME','valueFrom':{'fieldRef':{'fieldPath':'metadata.name'}}},
                  {'name':'KUBE_NODE_NAME','valueFrom':{'fieldRef':{'fieldPath':'spec.nodeName'}}}],
-          'resources':{'requests':{'cpu':'1','memory':str(max(512,params['min_memory_mb']))+'Mi'},
-                       'limits':{'cpu':'2','memory':str(max(1024,params['min_memory_mb']))+'Mi'}},
+          'resources':{'requests':{'cpu':'1','memory':str(max(512,workload.get('container_memory_floor_mb',0),params['min_memory_mb']))+'Mi'},
+                       'limits':{'cpu':'2','memory':str(max(1024,workload.get('container_memory_floor_mb',0),params['min_memory_mb']))+'Mi'}},
           'securityContext':{'allowPrivilegeEscalation':False,'readOnlyRootFilesystem':True,'capabilities':{'drop':['ALL']}},
           'volumeMounts':[{'name':'payload','mountPath':'/run/task','readOnly':True},{'name':'work','mountPath':'/work'},{'name':'tmp','mountPath':'/tmp'}]}],
          'volumes':[{'name':'payload','secret':{'secretName':name,'defaultMode':288}},
@@ -94,4 +96,10 @@ def session_manifest(session, workload, params, remaining_seconds):
     manifest['metadata']['labels']=labels
     manifest['spec']['template']['metadata']['labels']=dict(labels)
     manifest['spec']['activeDeadlineSeconds']=max(30,int(remaining_seconds)+30)
+    if workload.get('gpu_access'):
+        spec=manifest['spec']['template']['spec']
+        spec['runtimeClassName']='nvidia'
+        resources=spec['containers'][0]['resources']
+        resources['requests']['nvidia.com/gpu']='1'
+        resources['limits']['nvidia.com/gpu']='1'
     return manifest

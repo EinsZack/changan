@@ -121,7 +121,11 @@ class Engine:
     async def dispatch(self,task,segment):
         params=db.loads(task['params']); frozen=db.loads(task['metadata'],{}).get('algorithm_snapshot')
         algorithm={'body':db.dumps(frozen)} if frozen else db.query("SELECT body FROM configs WHERE id=? AND category='algorithm'",(params['algorithm'],),one=True)
-        decision=choose(self.nodes(task['id']),params,segment['end']-segment['start'],Path(segment['path']).stat().st_size,db.loads(algorithm['body']),self.cursor)
+        scheduling_params=dict(params)
+        if self.containers:
+            floor=db.loads(task['metadata'],{}).get('application',{}).get('container_memory_floor_mb',0)
+            scheduling_params['min_memory_mb']=max(params['min_memory_mb'],floor)
+        decision=choose(self.nodes(task['id']),scheduling_params,segment['end']-segment['start'],Path(segment['path']).stat().st_size,db.loads(algorithm['body']),self.cursor)
         if not decision['target_node']:
             last=db.query("SELECT at FROM events WHERE task_id=? AND type='no_candidate' ORDER BY id DESC LIMIT 1",(task['id'],),one=True)
             if not last or time.time()-last['at']>5:

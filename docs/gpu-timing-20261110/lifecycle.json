@@ -1,0 +1,34 @@
+[
+  {
+    "case": "fallback",
+    "task_id": "task_911b3d9091654739",
+    "status": "SUCCEEDED",
+    "sessions": 1,
+    "attempts": 24,
+    "completed": 24,
+    "all_cleaned": true,
+    "actual_backend": "cpu",
+    "fallback_reason": "RuntimeError: GPU index 99 unavailable; visible count 1"
+  },
+  {
+    "case": "cancel_during_startup",
+    "task_id": "task_50c3b27850be4cb1",
+    "status": "CANCELED",
+    "sessions": 1,
+    "attempts": 1,
+    "completed": 0,
+    "all_cleaned": true
+  },
+  {
+    "case": "coordinator_gateway_restart",
+    "task_id": "task_dd21389670d04b1b",
+    "status": "SUCCEEDED",
+    "sessions": 1,
+    "attempts": 24,
+    "completed": 24,
+    "all_cleaned": true,
+    "same_pod": true,
+    "same_runtime": true,
+    "model_loads": 1
+  }
+]
