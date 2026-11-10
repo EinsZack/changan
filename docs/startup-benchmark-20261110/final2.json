@@ -1,0 +1,162 @@
+{
+ "label": "final",
+ "runs": [
+  {
+   "task_id": "task_a9ef1d8120704df7",
+   "status": "SUCCEEDED",
+   "end_to_end_s": 47.7,
+   "segments": "24/24",
+   "frames": 240,
+   "retries": 0,
+   "reassigned": 0,
+   "faults": 0,
+   "nodes": [
+    {
+     "node": "lab-1",
+     "created": 7.42,
+     "claimed": 16.25,
+     "ready": 17.33,
+     "warmup_s": 0.47,
+     "backend": "cuda",
+     "segments": 7,
+     "last_done": 47.27
+    },
+    {
+     "node": "lab-2",
+     "created": 7.13,
+     "claimed": 23.61,
+     "ready": 29.82,
+     "warmup_s": 0.7,
+     "backend": "cuda",
+     "segments": 5,
+     "last_done": 46.74
+    },
+    {
+     "node": "lab-3",
+     "created": 3.32,
+     "claimed": 19.25,
+     "ready": 22.96,
+     "warmup_s": 0.44,
+     "backend": "cuda",
+     "segments": 7,
+     "last_done": 47.48
+    },
+    {
+     "node": "lab-4",
+     "created": 6.64,
+     "claimed": 22.76,
+     "ready": 29.81,
+     "warmup_s": 1.15,
+     "backend": "cuda",
+     "segments": 5,
+     "last_done": 46.77
+    }
+   ]
+  },
+  {
+   "task_id": "task_3b8e2c2bf8c64690",
+   "status": "SUCCEEDED",
+   "end_to_end_s": 26.09,
+   "segments": "24/24",
+   "frames": 240,
+   "retries": 0,
+   "reassigned": 0,
+   "faults": 0,
+   "nodes": [
+    {
+     "node": "lab-1",
+     "created": 3.13,
+     "claimed": 5.9,
+     "ready": 7.42,
+     "warmup_s": 1.15,
+     "backend": "cuda",
+     "segments": 6,
+     "last_done": 25.54
+    },
+    {
+     "node": "lab-2",
+     "created": 3.07,
+     "claimed": 6.35,
+     "ready": 7.42,
+     "warmup_s": 0.65,
+     "backend": "cuda",
+     "segments": 6,
+     "last_done": 25.35
+    },
+    {
+     "node": "lab-3",
+     "created": 3.28,
+     "claimed": 6.36,
+     "ready": 7.35,
+     "warmup_s": 0.4,
+     "backend": "cuda",
+     "segments": 6,
+     "last_done": 24.73
+    },
+    {
+     "node": "lab-4",
+     "created": 3.2,
+     "claimed": 9.48,
+     "ready": 10.73,
+     "warmup_s": 0.65,
+     "backend": "cuda",
+     "segments": 6,
+     "last_done": 25.98
+    }
+   ]
+  },
+  {
+   "task_id": "task_9ab33db989ef48f5",
+   "status": "SUCCEEDED",
+   "end_to_end_s": 25.72,
+   "segments": "24/24",
+   "frames": 240,
+   "retries": 0,
+   "reassigned": 0,
+   "faults": 0,
+   "nodes": [
+    {
+     "node": "lab-1",
+     "created": 2.92,
+     "claimed": 8.27,
+     "ready": 9.51,
+     "warmup_s": 0.67,
+     "backend": "cuda",
+     "segments": 6,
+     "last_done": 24.51
+    },
+    {
+     "node": "lab-2",
+     "created": 2.85,
+     "claimed": 8.27,
+     "ready": 9.69,
+     "warmup_s": 0.7,
+     "backend": "cuda",
+     "segments": 7,
+     "last_done": 25.08
+    },
+    {
+     "node": "lab-3",
+     "created": 2.97,
+     "claimed": 6.42,
+     "ready": 9.51,
+     "warmup_s": 0.67,
+     "backend": "cuda",
+     "segments": 6,
+     "last_done": 25.5
+    },
+    {
+     "node": "lab-4",
+     "created": 2.79,
+     "claimed": 9.08,
+     "ready": 10.28,
+     "warmup_s": 0.66,
+     "backend": "cuda",
+     "segments": 5,
+     "last_done": 24.59
+    }
+   ]
+  }
+ ],
+ "median_end_to_end_s": 26.09
+}

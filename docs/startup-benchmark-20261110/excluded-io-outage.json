@@ -1,0 +1,58 @@
+{
+ "label": "run",
+ "runs": [
+  {
+   "task_id": "task_ff8340805654432c",
+   "status": "TIMED_OUT",
+   "end_to_end_s": 601.27,
+   "segments": "11/24",
+   "frames": 110,
+   "retries": 4,
+   "reassigned": 0,
+   "faults": 4,
+   "nodes": [
+    {
+     "node": "lab-1",
+     "created": 4.03,
+     "claimed": 9.75,
+     "ready": 10.78,
+     "warmup_s": 0.48,
+     "backend": "cuda",
+     "segments": 3,
+     "last_done": 44.62
+    },
+    {
+     "node": "lab-2",
+     "created": 4.07,
+     "claimed": 11.01,
+     "ready": 11.92,
+     "warmup_s": 0.45,
+     "backend": "cuda",
+     "segments": 2,
+     "last_done": 42.54
+    },
+    {
+     "node": "lab-3",
+     "created": 3.96,
+     "claimed": 9.3,
+     "ready": 10.45,
+     "warmup_s": 0.68,
+     "backend": "cuda",
+     "segments": 3,
+     "last_done": 32.88
+    },
+    {
+     "node": "lab-4",
+     "created": 3.99,
+     "claimed": 9.04,
+     "ready": 10.12,
+     "warmup_s": 0.67,
+     "backend": "cuda",
+     "segments": 3,
+     "last_done": 33.72
+    }
+   ]
+  }
+ ],
+ "median_end_to_end_s": 601.27
+}

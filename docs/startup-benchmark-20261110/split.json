@@ -1,0 +1,110 @@
+{
+ "label": "split-loops",
+ "runs": [
+  {
+   "task_id": "task_e0834492d022422e",
+   "status": "SUCCEEDED",
+   "end_to_end_s": 41.88,
+   "segments": "24/24",
+   "frames": 240,
+   "retries": 0,
+   "reassigned": 2,
+   "faults": 0,
+   "nodes": [
+    {
+     "node": "lab-1",
+     "created": 6.25,
+     "claimed": 13.16,
+     "ready": 25.91,
+     "warmup_s": 11.92,
+     "backend": "cuda",
+     "segments": 10,
+     "last_done": 40.93
+    },
+    {
+     "node": "lab-2",
+     "created": 5.18,
+     "claimed": 9.1,
+     "ready": 20.56,
+     "warmup_s": 10.78,
+     "backend": "cuda",
+     "segments": 14,
+     "last_done": 41.71
+    },
+    {
+     "node": "lab-3",
+     "created": 6.74,
+     "claimed": 13.0,
+     "ready": null,
+     "warmup_s": null,
+     "backend": null,
+     "segments": 0,
+     "last_done": null
+    },
+    {
+     "node": "lab-4",
+     "created": 5.58,
+     "claimed": 9.85,
+     "ready": null,
+     "warmup_s": null,
+     "backend": null,
+     "segments": 0,
+     "last_done": null
+    }
+   ]
+  },
+  {
+   "task_id": "task_b2336c82bf42402a",
+   "status": "SUCCEEDED",
+   "end_to_end_s": 38.09,
+   "segments": "24/24",
+   "frames": 240,
+   "retries": 0,
+   "reassigned": 1,
+   "faults": 0,
+   "nodes": [
+    {
+     "node": "lab-1",
+     "created": 4.02,
+     "claimed": 9.87,
+     "ready": 21.0,
+     "warmup_s": 10.6,
+     "backend": "cuda",
+     "segments": 9,
+     "last_done": 37.77
+    },
+    {
+     "node": "lab-2",
+     "created": 4.06,
+     "claimed": 9.81,
+     "ready": 20.98,
+     "warmup_s": 10.61,
+     "backend": "cuda",
+     "segments": 8,
+     "last_done": 37.56
+    },
+    {
+     "node": "lab-3",
+     "created": 6.01,
+     "claimed": 11.26,
+     "ready": 22.69,
+     "warmup_s": 11.03,
+     "backend": "cuda",
+     "segments": 7,
+     "last_done": 37.24
+    },
+    {
+     "node": "lab-4",
+     "created": 10.23,
+     "claimed": 12.6,
+     "ready": null,
+     "warmup_s": null,
+     "backend": null,
+     "segments": 0,
+     "last_done": null
+    }
+   ]
+  }
+ ],
+ "median_end_to_end_s": 39.985
+}

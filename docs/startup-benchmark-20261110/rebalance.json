@@ -1,0 +1,110 @@
+{
+ "label": "rebalance-only",
+ "runs": [
+  {
+   "task_id": "task_752e52dc4b50434a",
+   "status": "SUCCEEDED",
+   "end_to_end_s": 54.29,
+   "segments": "24/24",
+   "frames": 240,
+   "retries": 0,
+   "reassigned": 2,
+   "faults": 0,
+   "nodes": [
+    {
+     "node": "lab-1",
+     "created": 5.24,
+     "claimed": 12.73,
+     "ready": 24.89,
+     "warmup_s": 11.21,
+     "backend": "cuda",
+     "segments": 12,
+     "last_done": 53.19
+    },
+    {
+     "node": "lab-2",
+     "created": 7.81,
+     "claimed": 13.45,
+     "ready": null,
+     "warmup_s": null,
+     "backend": null,
+     "segments": 0,
+     "last_done": null
+    },
+    {
+     "node": "lab-3",
+     "created": 4.81,
+     "claimed": 12.53,
+     "ready": null,
+     "warmup_s": null,
+     "backend": null,
+     "segments": 0,
+     "last_done": null
+    },
+    {
+     "node": "lab-4",
+     "created": 4.44,
+     "claimed": 12.16,
+     "ready": 24.11,
+     "warmup_s": 10.74,
+     "backend": "cuda",
+     "segments": 12,
+     "last_done": 52.77
+    }
+   ]
+  },
+  {
+   "task_id": "task_9e0ca10f5e674b22",
+   "status": "SUCCEEDED",
+   "end_to_end_s": 74.24,
+   "segments": "24/24",
+   "frames": 240,
+   "retries": 0,
+   "reassigned": 1,
+   "faults": 0,
+   "nodes": [
+    {
+     "node": "lab-1",
+     "created": 5.83,
+     "claimed": 8.68,
+     "ready": 66.24,
+     "warmup_s": 57.16,
+     "backend": "cuda",
+     "segments": 2,
+     "last_done": 73.28
+    },
+    {
+     "node": "lab-2",
+     "created": 13.71,
+     "claimed": 19.9,
+     "ready": null,
+     "warmup_s": null,
+     "backend": null,
+     "segments": 0,
+     "last_done": null
+    },
+    {
+     "node": "lab-3",
+     "created": 13.29,
+     "claimed": 18.85,
+     "ready": 30.57,
+     "warmup_s": 10.54,
+     "backend": "cuda",
+     "segments": 20,
+     "last_done": 73.85
+    },
+    {
+     "node": "lab-4",
+     "created": 5.75,
+     "claimed": 9.25,
+     "ready": 67.43,
+     "warmup_s": 57.77,
+     "backend": "cuda",
+     "segments": 2,
+     "last_done": 73.21
+    }
+   ]
+  }
+ ],
+ "median_end_to_end_s": 64.265
+}
