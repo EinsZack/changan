@@ -8,8 +8,16 @@ def uid(prefix): return prefix + '_' + uuid.uuid4().hex[:16]
 def dumps(value): return json.dumps(value, ensure_ascii=False, separators=(',', ':'))
 def loads(value, default=None):
     return json.loads(value) if value else default
+_KEEPER = None
+def _keep_open():
+    # In WAL mode the last closing connection checkpoints and deletes the WAL (with fsync). Every
+    # query opens/closes its own connection, so keep one idle connection for the process lifetime.
+    global _KEEPER
+    if _KEEPER is None:
+        _KEEPER = sqlite3.connect(DB, timeout=30, check_same_thread=False)
 @contextmanager
 def connect():
+    _keep_open()
     conn = sqlite3.connect(DB, timeout=30)
     conn.row_factory = sqlite3.Row
     conn.execute('PRAGMA foreign_keys=ON')

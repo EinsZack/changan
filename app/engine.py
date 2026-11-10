@@ -270,10 +270,9 @@ class Engine:
             try: self.create(TaskInput(**db.loads(s['params'])),'periodic',s['id'],key)
             except Exception as e: log.exception('Schedule failed: %s',e)
             db.execute('UPDATE strategies SET last_run=?,next_run=? WHERE id=?',(now,now+s['interval_seconds'],s['id']))
-    async def tick(self):
+    async def maintain(self,force=False):
+        """Slow control work: reservation release, K3s/pool refresh, reconciliation, periodic triggers."""
         began=time.monotonic(); phases={}
-        def mark(name,since):phases[name]=round((time.monotonic()-since)*1000,1);return time.monotonic()
-        t=began
         if self.resource_provider.enabled:
             for a in db.query("SELECT id,decision FROM attempts WHERE status IN ('SUCCEEDED','FAILED','CANCELED','TIMED_OUT') AND (backend='process' OR cleanup_state='DONE') AND json_extract(decision,'$.reservation_id') IS NOT NULL AND json_extract(decision,'$.reservation_released') IS NULL"):
                 decision=db.loads(a['decision'])
@@ -282,14 +281,18 @@ class Engine:
                     decision['reservation_released']=True
                     db.execute('UPDATE attempts SET decision=? WHERE id=?',(db.dumps(decision),a['id']))
                 except Exception: pass
-        if time.monotonic()-self.last_refresh>=2:
+        if force or time.monotonic()-self.last_refresh>=2:
             t=time.monotonic()
             try:await self.refresh()
             except Exception:log.exception('Resource refresh unavailable')
-            t=mark('refresh',t)
-            await self.reconcile(); t=mark('reconcile',t)
+            phases['refresh']=round((time.monotonic()-t)*1000,1); t=time.monotonic()
+            await self.reconcile(); phases['reconcile']=round((time.monotonic()-t)*1000,1)
             await self.schedules(); self.last_refresh=time.monotonic()
-        t=time.monotonic()
+        total=(time.monotonic()-began)*1000
+        if total>1500:log.warning('Slow coordinator maintenance %.0f ms: %s',total,phases)
+    async def dispatch_pass(self):
+        """Fast path: progress task state and assign PENDING segments to eligible nodes."""
+        began=time.monotonic(); phases={}
         for id,t in list(self.preparing.items()):
             if t.done(): self.preparing.pop(id,None)
         tasks=db.query("SELECT * FROM tasks WHERE status NOT IN ('SUCCEEDED','FAILED','CANCELED','TIMED_OUT') ORDER BY created")
@@ -304,26 +307,38 @@ class Engine:
             if db.query("SELECT id FROM segments WHERE task_id=? AND status='FAILED'",(task['id'],),one=True):
                 self.fail_task(task['id'],'必要片段达到重试上限，聚合失败'); continue
             count=db.query("SELECT count(*) n FROM segments WHERE task_id=? AND status='SUCCEEDED'",(task['id'],),one=True)['n']
-            db.execute('UPDATE tasks SET completed=? WHERE id=?',(count,task['id']))
+            if count!=task['completed']:db.execute('UPDATE tasks SET completed=? WHERE id=?',(count,task['id']))
             if count==task['total']: self.aggregate(task); continue
             batch_started=time.monotonic()
             if self.containers and db.loads(task['metadata'],{}).get('application',{}).get('execution_mode')=='task_session':
                 # Ready-but-idle containers take segments still parked on cold sessions (no retry counted).
                 self.containers.sessions.rebalance(task['id'])
             pending=db.query("SELECT * FROM segments WHERE task_id=? AND status='PENDING' ORDER BY ordinal",(task['id'],))
+            if not pending:continue
             before=db.query('SELECT count(*) n FROM attempts WHERE task_id=?',(task['id'],),one=True)['n']
             for s in pending:
                 if await self.dispatch(task,s) is False:break
             after=db.query('SELECT count(*) n FROM attempts WHERE task_id=?',(task['id'],),one=True)['n']
             phases['task:'+task['id'][-6:]]=round((time.monotonic()-batch_started)*1000,1)
             if after>before:
-                db.event(task['id'],'dispatch_batch',{'stage':'schedule','state':'SUCCEEDED','assigned':after-before,'pending_at_start':len(pending),'duration_ms':(time.monotonic()-batch_started)*1000,'boundary':'本轮待分片读取、候选查询和执行后端提交确认；不含之前排队及周期资源刷新','complete_global_assignment':after-before==len(pending)})
+                db.event(task['id'],'dispatch_batch',{'stage':'schedule','state':'SUCCEEDED','assigned':after-before,'pending_at_start':len(pending),'duration_ms':(time.monotonic()-batch_started)*1000,'boundary':'本轮待分片读取、候选查询和执行后端提交确认；不含周期资源刷新与核对（独立循环）','complete_global_assignment':after-before==len(pending)})
         total=(time.monotonic()-began)*1000
-        if total>500:log.warning('Slow coordinator tick %.0f ms: %s',total,phases)
-    async def loop(self):
+        if total>1000:log.warning('Slow dispatch pass %.0f ms: %s',total,phases)
+    async def tick(self):
+        # Single-step form kept for tests/tools; the service runs both halves in separate loops.
+        await self.maintain(); await self.dispatch_pass()
+    async def _repeat(self,step,lock,interval,name):
         while self.running:
             try:
-                async with self.lock: await self.tick()
+                async with lock: await step()
             except asyncio.CancelledError: raise
-            except Exception: log.exception('Coordinator tick failed')
-            await asyncio.sleep(.4)
+            except Exception: log.exception('Coordinator %s failed',name)
+            await asyncio.sleep(interval)
+    async def loop(self):
+        # Before 2026-11-10 one 0.4 s loop ran refresh/reconcile (0.6-4 s on the shared disk and
+        # ~15 sequential K3s calls) ahead of dispatch, so an idle container waited 1-3 s for its next
+        # segment. Dispatch now has its own short loop; every state change is still guarded by
+        # BEGIN IMMEDIATE re-checks, as already required for the separate gateway process.
+        self.maintenance_lock=asyncio.Lock()
+        await asyncio.gather(self._repeat(self.maintain,self.maintenance_lock,.5,'maintenance'),
+                             self._repeat(self.dispatch_pass,self.lock,.15,'dispatch'))
