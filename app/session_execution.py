@@ -104,6 +104,48 @@ class SessionExecution:
             n['snapshot'] = snap
         return nodes
 
+    def rebalance(self, task_id):
+        """Return undelivered segments held by not-yet-ready sessions when a ready session sits idle.
+
+        Session creation binds its first segment immediately. A cold session (CUDA JIT, slow pull)
+        can then hold that segment for a minute while ready containers finish everything else and
+        wait. Only assignments that no container has fetched (execution_id IS NULL, session not
+        ready) are revoked, inside one write transaction that re-checks the same conditions
+        /next uses, so the slow container can never also start the segment. Not a failure: retries
+        are unchanged and the slow session stays alive to take later work when it becomes ready.
+        """
+        idle = db.query("SELECT count(*) n FROM execution_sessions WHERE task_id=? AND status='READY' AND active_attempt IS NULL AND cleanup_state!='DONE'", (task_id,), one=True)['n']
+        if not idle:
+            return 0
+        pending = db.query("SELECT count(*) n FROM segments WHERE task_id=? AND status='PENDING'", (task_id,), one=True)['n']
+        wanted = idle - pending
+        if wanted <= 0:
+            return 0
+        moved = 0
+        candidates = db.query("""SELECT a.id FROM attempts a JOIN execution_sessions s ON s.active_attempt=a.id JOIN segments g ON g.id=a.segment_id
+                                 WHERE a.task_id=? AND a.status='WAITING_SESSION' AND a.execution_id IS NULL AND s.ready_at IS NULL
+                                 AND s.status='STARTING' ORDER BY g.ordinal""", (task_id,))
+        for row in candidates[:wanted]:
+            with db.connect() as c:
+                c.execute('BEGIN IMMEDIATE')
+                a = c.execute('SELECT * FROM attempts WHERE id=?', (row['id'],)).fetchone()
+                s = get_session(a['session_id'], c) if a and a['session_id'] else None
+                seg = c.execute('SELECT * FROM segments WHERE id=?', (a['segment_id'],)).fetchone() if a else None
+                task = c.execute('SELECT status FROM tasks WHERE id=?', (task_id,)).fetchone()
+                if (not a or not s or not seg or task['status'] in TERMINAL or a['status'] != 'WAITING_SESSION' or a['execution_id']
+                        or s['ready_at'] or s['status'] != 'STARTING' or s['active_attempt'] != a['id'] or seg['active_attempt'] != a['id']):
+                    continue
+                now = time.time()
+                c.execute("UPDATE attempts SET status='CANCELED',error=?,finished=?,updated=? WHERE id=?",
+                          ('会话尚在准备，未下发分片改派给已就绪容器', now, now, a['id']))
+                c.execute("UPDATE segments SET status='PENDING' WHERE id=?", (seg['id'],))
+                c.execute('UPDATE execution_sessions SET active_attempt=NULL,updated=? WHERE id=?', (now, s['id']))
+                db.event(task_id, 'segment_reassigned', {'stage': 'schedule', 'state': 'PENDING', 'segment_id': seg['id'],
+                         'from_node': s['node_id'], 'from_session': s['id'], 'waited_seconds': round(now - a['created'], 3),
+                         'retry_counted': False, 'message': s['node_id'] + ' 容器/模型尚未就绪，片段改由已就绪空闲容器处理'}, a['id'], c)
+                moved += 1
+        return moved
+
     async def submit(self, task, segment, aid, payload):
         app = db.loads(task['metadata'])['application']
         params = db.loads(task['params'])

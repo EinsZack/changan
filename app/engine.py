@@ -300,6 +300,9 @@ class Engine:
             db.execute('UPDATE tasks SET completed=? WHERE id=?',(count,task['id']))
             if count==task['total']: self.aggregate(task); continue
             batch_started=time.monotonic()
+            if self.containers and db.loads(task['metadata'],{}).get('application',{}).get('execution_mode')=='task_session':
+                # Ready-but-idle containers take segments still parked on cold sessions (no retry counted).
+                self.containers.sessions.rebalance(task['id'])
             pending=db.query("SELECT * FROM segments WHERE task_id=? AND status='PENDING' ORDER BY ordinal",(task['id'],))
             before=db.query('SELECT count(*) n FROM attempts WHERE task_id=?',(task['id'],),one=True)['n']
             for s in pending:

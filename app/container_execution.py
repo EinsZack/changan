@@ -34,6 +34,14 @@ def stage(a,state,message=None):
         c.execute('UPDATE segments SET status=? WHERE active_attempt=?',(state,a['id']))
         db.event(a['task_id'],'container_stage',{'stage':'execute','state':state,'message':message or state},a['id'],c)
 
+def cuda_cache_settings():
+    # Node-local directory prepared by scripts/prepare_cuda_cache.py (owner 10001); empty = per-Pod cache only.
+    path=os.getenv('CHANGAN_CUDA_CACHE_HOSTPATH','').strip()
+    if path and not path.startswith('/'):raise ValueError('CHANGAN_CUDA_CACHE_HOSTPATH 必须为节点上的绝对路径')
+    size=int(os.getenv('CHANGAN_CUDA_CACHE_MAX_BYTES',str(1024**3)))
+    if not 0<size<=4*1024**3:raise ValueError('CHANGAN_CUDA_CACHE_MAX_BYTES 须在 1 字节到 4GiB 之间')
+    return {'host_path':path or None,'max_bytes':size}
+
 class ContainerExecution:
     def __init__(self,engine):
         global controller
@@ -50,7 +58,8 @@ class ContainerExecution:
         if policy not in ('auto','cpu','cuda'):raise ValueError('CHANGAN_MODEL_DEVICE 无效')
         return {'id':'video-analysis','version':'3','timing_version':1,'container_memory_floor_mb':2048,'model_policy':policy,'model_device_id':int(os.getenv('CHANGAN_MODEL_GPU_DEVICE_ID','0')),'execution_mode':'task_session','image':image,'architecture':os.getenv('CHANGAN_IMAGE_ARCH','amd64'),
                 'model_id':MODEL_ID,'model_sha256':hashlib.sha256(MODEL.read_bytes()).hexdigest(),
-                'runtime':'ONNX Runtime CPU / CUDA（模型自动选择）','image_pull_secret':os.getenv('CHANGAN_IMAGE_PULL_SECRET')}
+                'runtime':'ONNX Runtime CPU / CUDA（模型自动选择）','image_pull_secret':os.getenv('CHANGAN_IMAGE_PULL_SECRET'),
+                'cuda_cache':cuda_cache_settings()}
     async def refresh(self):
         old={n['id']:n for n in db.query('SELECT * FROM nodes')}
         try:

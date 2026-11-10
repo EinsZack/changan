@@ -102,4 +102,25 @@ def session_manifest(session, workload, params, remaining_seconds):
         resources=spec['containers'][0]['resources']
         resources['requests']['nvidia.com/gpu']='1'
         resources['limits']['nvidia.com/gpu']='1'
+        apply_cuda_cache(spec,workload.get('cuda_cache') or {})
     return manifest
+
+
+CUDA_CACHE_MOUNT='/cache/cuda'
+
+
+def apply_cuda_cache(spec,cache):
+    """Give CUDA a writable JIT cache. HOME=/ is read-only, so the driver default never persists.
+
+    The prebuilt CUDA kernels lack native SASS for some GPUs (RTX 5090/sm_120 here), so the
+    driver JIT-compiles PTX on first use. Without a writable cache every new Pod repeats that
+    work (measured 55-78 s). A node-local hostPath keeps the result across task-scoped Pods;
+    without one, an emptyDir still makes the cache valid for the Pod lifetime.
+    """
+    container=spec['containers'][0]
+    host_path=cache.get('host_path')
+    volume={'name':'cuda-cache','hostPath':{'path':host_path,'type':'Directory'}} if host_path else {'name':'cuda-cache','emptyDir':{'sizeLimit':'1Gi'}}
+    spec['volumes'].append(volume)
+    container['volumeMounts'].append({'name':'cuda-cache','mountPath':CUDA_CACHE_MOUNT})
+    container['env']+= [{'name':'CUDA_CACHE_PATH','value':CUDA_CACHE_MOUNT},
+                        {'name':'CUDA_CACHE_MAXSIZE','value':str(int(cache.get('max_bytes',1024**3)))}]
