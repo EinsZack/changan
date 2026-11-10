@@ -2,6 +2,8 @@ import sqlite3, json, time, uuid, os
 from contextlib import contextmanager
 from .config import DATA
 DB = DATA / 'control.sqlite'
+SYNCHRONOUS = os.getenv('CHANGAN_SQLITE_SYNCHRONOUS', 'NORMAL').upper()
+if SYNCHRONOUS not in ('NORMAL', 'FULL'): raise ValueError('CHANGAN_SQLITE_SYNCHRONOUS 只能为 NORMAL 或 FULL')
 def uid(prefix): return prefix + '_' + uuid.uuid4().hex[:16]
 def dumps(value): return json.dumps(value, ensure_ascii=False, separators=(',', ':'))
 def loads(value, default=None):
@@ -12,6 +14,10 @@ def connect():
     conn.row_factory = sqlite3.Row
     conn.execute('PRAGMA foreign_keys=ON')
     conn.execute('PRAGMA busy_timeout=30000')
+    # WAL+NORMAL: no fsync per commit (measured 5-115 ms each on the shared server disk, which
+    # stretched coordinator ticks to 1-4 s). Still atomic and consistent; a process crash loses
+    # nothing, only an OS crash/power loss may roll back the latest commits (reconciled as unknown).
+    conn.execute('PRAGMA synchronous=' + SYNCHRONOUS)
     try:
         yield conn
         conn.commit()

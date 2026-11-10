@@ -34,6 +34,13 @@ def stage(a,state,message=None):
         c.execute('UPDATE segments SET status=? WHERE active_attempt=?',(state,a['id']))
         db.event(a['task_id'],'container_stage',{'stage':'execute','state':state,'message':message or state},a['id'],c)
 
+_MODEL_DIGEST={}
+def model_sha256():
+    # refresh() calls application() every 2 s; hashing 20 MB each time blocked the event loop ~50 ms.
+    st=MODEL.stat();key=(st.st_mtime_ns,st.st_size)
+    if _MODEL_DIGEST.get('key')!=key:_MODEL_DIGEST.update(key=key,sha=hashlib.sha256(MODEL.read_bytes()).hexdigest())
+    return _MODEL_DIGEST['sha']
+
 def cuda_cache_settings():
     # Node-local directory prepared by scripts/prepare_cuda_cache.py (owner 10001); empty = per-Pod cache only.
     path=os.getenv('CHANGAN_CUDA_CACHE_HOSTPATH','').strip()
@@ -57,7 +64,7 @@ class ContainerExecution:
         policy=os.getenv('CHANGAN_MODEL_DEVICE','auto')
         if policy not in ('auto','cpu','cuda'):raise ValueError('CHANGAN_MODEL_DEVICE 无效')
         return {'id':'video-analysis','version':'3','timing_version':1,'container_memory_floor_mb':2048,'model_policy':policy,'model_device_id':int(os.getenv('CHANGAN_MODEL_GPU_DEVICE_ID','0')),'execution_mode':'task_session','image':image,'architecture':os.getenv('CHANGAN_IMAGE_ARCH','amd64'),
-                'model_id':MODEL_ID,'model_sha256':hashlib.sha256(MODEL.read_bytes()).hexdigest(),
+                'model_id':MODEL_ID,'model_sha256':model_sha256(),
                 'runtime':'ONNX Runtime CPU / CUDA（模型自动选择）','image_pull_secret':os.getenv('CHANGAN_IMAGE_PULL_SECRET'),
                 'cuda_cache':cuda_cache_settings()}
     async def refresh(self):
