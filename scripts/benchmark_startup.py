@@ -49,7 +49,10 @@ def run(params, timeout):
     r.raise_for_status(); tid = r.json()['id']
     end = time.time() + timeout
     while time.time() < end:
-        status = httpx.get('http://127.0.0.1:8310/api/tasks/' + tid, timeout=10, trust_env=False).json()['status']
+        try:
+            status = httpx.get('http://127.0.0.1:8310/api/tasks/' + tid, timeout=10, trust_env=False).json()['status']
+        except httpx.TimeoutException:
+            continue  # API stalled on shared-disk I/O; the task itself keeps running
         if status in TERMINAL:
             break
         time.sleep(1)
