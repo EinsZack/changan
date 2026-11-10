@@ -271,6 +271,9 @@ class Engine:
             except Exception as e: log.exception('Schedule failed: %s',e)
             db.execute('UPDATE strategies SET last_run=?,next_run=? WHERE id=?',(now,now+s['interval_seconds'],s['id']))
     async def tick(self):
+        began=time.monotonic(); phases={}
+        def mark(name,since):phases[name]=round((time.monotonic()-since)*1000,1);return time.monotonic()
+        t=began
         if self.resource_provider.enabled:
             for a in db.query("SELECT id,decision FROM attempts WHERE status IN ('SUCCEEDED','FAILED','CANCELED','TIMED_OUT') AND (backend='process' OR cleanup_state='DONE') AND json_extract(decision,'$.reservation_id') IS NOT NULL AND json_extract(decision,'$.reservation_released') IS NULL"):
                 decision=db.loads(a['decision'])
@@ -280,9 +283,13 @@ class Engine:
                     db.execute('UPDATE attempts SET decision=? WHERE id=?',(db.dumps(decision),a['id']))
                 except Exception: pass
         if time.monotonic()-self.last_refresh>=2:
+            t=time.monotonic()
             try:await self.refresh()
             except Exception:log.exception('Resource refresh unavailable')
-            await self.reconcile(); await self.schedules(); self.last_refresh=time.monotonic()
+            t=mark('refresh',t)
+            await self.reconcile(); t=mark('reconcile',t)
+            await self.schedules(); self.last_refresh=time.monotonic()
+        t=time.monotonic()
         for id,t in list(self.preparing.items()):
             if t.done(): self.preparing.pop(id,None)
         tasks=db.query("SELECT * FROM tasks WHERE status NOT IN ('SUCCEEDED','FAILED','CANCELED','TIMED_OUT') ORDER BY created")
@@ -308,8 +315,11 @@ class Engine:
             for s in pending:
                 if await self.dispatch(task,s) is False:break
             after=db.query('SELECT count(*) n FROM attempts WHERE task_id=?',(task['id'],),one=True)['n']
+            phases['task:'+task['id'][-6:]]=round((time.monotonic()-batch_started)*1000,1)
             if after>before:
                 db.event(task['id'],'dispatch_batch',{'stage':'schedule','state':'SUCCEEDED','assigned':after-before,'pending_at_start':len(pending),'duration_ms':(time.monotonic()-batch_started)*1000,'boundary':'本轮待分片读取、候选查询和执行后端提交确认；不含之前排队及周期资源刷新','complete_global_assignment':after-before==len(pending)})
+        total=(time.monotonic()-began)*1000
+        if total>500:log.warning('Slow coordinator tick %.0f ms: %s',total,phases)
     async def loop(self):
         while self.running:
             try:
