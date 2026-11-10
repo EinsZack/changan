@@ -9,6 +9,14 @@ default ~/.nv/ComputeCache is never written and every task-scoped Pod repeated 5
   warm     run one short Job per node with the business image; it fills the cache and reports
            first-forward seconds (repeat to see the cached value)
   status   show cache file count/bytes per node
+  seed     copy a complete cache from --from <lab> to the other nodes (identical GPU model and driver)
+
+Measured 2026-11-10 (RTX 5090, driver 590.48.01): the first CUDA forward of a new process JIT-compiles
+either a small (~15 MB, ~11 s) or a large (~75 MB more, ~50 s, inside Add_59) set of kernels and
+which one happens is nondeterministic. One warm run may therefore cache only the small set. Once a
+node holds both (~91 MB) the slow path no longer appeared. Use `seed` to copy such a cache instead
+of waiting for every node to hit both paths. CUDA_MODULE_LOADING=EAGER compiles everything but ran
+for over 10 minutes and grew past 200 MB, so it is not used.
 
 The cache is GPU/driver specific; the driver invalidates entries itself after a driver change.
 This only touches infrastructure; scheduling and the B-mode session lifecycle are unchanged.
@@ -110,14 +118,28 @@ def status(path, labs):
         print(json.dumps({'lab':lab,'path':path,'files':int(files),'bytes':int(size)}),flush=True)
 
 
+def seed(path, source, labs):
+    for lab in labs:
+        if lab==source:continue
+        src=subprocess.Popen([DOCKER,'exec',NODES[source],'tar','-C',path,'-cf','-','.'],env=ENV,stdout=subprocess.PIPE)
+        subprocess.run([DOCKER,'exec','-i',NODES[lab],'sh','-c',f'mkdir -p "{path}" && tar -C "{path}" -xf - && chown -R {UID}:{UID} "{path}" && chmod 0700 "{path}"'],
+                       env=ENV,stdin=src.stdout,check=True)
+        src.stdout.close()
+        if src.wait():raise RuntimeError('读取源节点缓存失败: '+source)
+    status(path,labs)
+
+
 def main():
     p=argparse.ArgumentParser(description=__doc__,formatter_class=argparse.RawDescriptionHelpFormatter)
-    p.add_argument('action',choices=['prepare','warm','status'])
+    p.add_argument('action',choices=['prepare','warm','status','seed'])
+    p.add_argument('--from',dest='source',choices=list(NODES),help='seed 的源节点')
     p.add_argument('--path',default=DEFAULT_PATH)
     p.add_argument('--node',choices=list(NODES),action='append',help='默认全部lab节点')
     p.add_argument('--namespace',default='changan')
     a=p.parse_args(); path=validate_path(a.path); labs=a.node or list(NODES)
-    {'prepare':lambda:prepare(path,labs),'warm':lambda:warm(path,labs,a.namespace),'status':lambda:status(path,labs)}[a.action]()
+    if a.action=='seed' and not a.source:p.error('seed 需要 --from')
+    {'prepare':lambda:prepare(path,labs),'warm':lambda:warm(path,labs,a.namespace),'status':lambda:status(path,labs),
+     'seed':lambda:seed(path,a.source,labs)}[a.action]()
     if a.action=='prepare':print('在 .env 中设置 CHANGAN_CUDA_CACHE_HOSTPATH='+path+' 后重启API；之后提交的任务生效。')
 
 
