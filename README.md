@@ -16,6 +16,8 @@
 
 2026年11月10日新增0.5.2：正式视频模型在原通用会话容器内尝试CUDA，记录实际执行证据及CPU回退原因；补齐启动、模型加载/预热、分片与逐帧前向计时，网页提供时间轴及CPU/GPU分段对比。B模式保持。CUDA初始化超过原1 GiB主机内存限制的实测问题已通过统一2 GiB预算修复。性能实测分别报告稳定前向和端到端，当前短视频尚未获得端到端加速。见[交付说明](docs/gpu-timing-20261110/交付说明.md)与[使用说明](docs/gpu-timing-20261110/使用说明.md)。
 
+2026年11月11日已SSH核查首张真实Jetson AGX Thor：L4T 39.2.1、CUDA 13.2.2、TensorRT 10.16.2，CUDA设备内存与TensorRT合成小网络GPU执行通过。Docker已装、K3s未装；YOLOX与平台视频任务尚未验证。双向网络、ARM64制品及应用多架构支持为下一步重点。见[环境评估与后续计划](docs/thor-baseline-20261111/环境评估与后续开发计划.md)及[检查复现说明](docs/thor-baseline-20261111/检查复现与资料说明.md)。
+
 ## 快速进入
 
 代码主目录：`/root/projects/changan-orchestrator`，SSH：`ssh -p 22031 root@10.13.0.9`。

@@ -1,0 +1,100 @@
+{
+  "inspection_date": "2026-11-11",
+  "timezone": "Asia/Shanghai",
+  "scope": "single real Thor board; environment diagnostics only",
+  "board": {
+    "ssh_host": "192.168.50.151",
+    "ssh_port": 22,
+    "user": "thor1",
+    "product": "NVIDIA Jetson AGX Thor Developer Kit",
+    "soc": "tegra264",
+    "architecture": "aarch64",
+    "cpu_online": 14,
+    "mem_total_kib": 128828744,
+    "storage": "953.9 GiB NVMe; root free approximately 861 GiB",
+    "os": "Ubuntu 24.04.4 LTS",
+    "kernel": "6.8.12-1021-tegra",
+    "l4t": "39.2.1",
+    "jetpack_corresponding_official_release": "7.2.1; matched components, meta-package not installed",
+    "driver": "595.78",
+    "compute_capability": "11.0",
+    "cuda_toolkit": "13.2.2",
+    "nvcc": "13.2.86",
+    "cudnn": "9.20.0.46",
+    "tensorrt": "10.16.2.10",
+    "python": "3.12.3",
+    "opencv": "4.8.0",
+    "numpy": "1.26.4",
+    "docker": "29.9.3",
+    "containerd": "2.4.2",
+    "nvidia_container_toolkit": "1.19.1",
+    "docker_registered_nvidia_runtime": true,
+    "docker_default_runtime": "runc",
+    "docker_images": 0,
+    "docker_containers": 0,
+    "k3s_installed": false,
+    "cgroup": "v2",
+    "swap_mib": 2048,
+    "nvpmodel": "MAXN",
+    "ntp_synchronized": true,
+    "network_interface": "Wi-Fi wlP1p1s0"
+  },
+  "validation": {
+    "ssh_login": true,
+    "sudo": true,
+    "cuda_driver_init": true,
+    "cuda_device_memory_4096_byte_write_read": true,
+    "tensorrt_synthetic_fp32_add_1": {
+      "shape": [
+        1,
+        16
+      ],
+      "output_matches": true,
+      "max_abs_error": 0,
+      "whole_probe_seconds": 0.8307260970000243,
+      "business_benchmark": false
+    },
+    "yolox_on_board": false,
+    "docker_gpu_execution": false,
+    "k3s_gpu_pod": false,
+    "platform_video_task": false,
+    "multi_board": false,
+    "nvidia_container_cli_info": "exit 0, emitted NvRm/nvmap Permission denied warnings; actual container impact unknown"
+  },
+  "network": {
+    "mac_to_board_ssh": "success",
+    "board_to_server_22031": "TCP success",
+    "board_to_server_6443": "connection refused",
+    "board_to_server_8311": "connection refused",
+    "board_to_server_5500": "connection refused",
+    "server_to_board_22": "3 second timeout",
+    "github_443": "TCP only success",
+    "nvcr_443": "TCP only success",
+    "mac_to_board_ping_4": {
+      "loss_percent": 0,
+      "min_ms": 6.998,
+      "mean_ms": 61.241,
+      "max_ms": 211.767
+    }
+  },
+  "code": {
+    "baseline_commit": "3fb247e5bb0391ac6b8376c46943f25da3c60295",
+    "service_version": "0.5.2",
+    "backend": "k3s",
+    "execution_mode": "task_session",
+    "configured_image_arch": "amd64",
+    "configured_callback_base": "http://172.29.1.1:8311",
+    "configured_registry": "changan-registry:5000",
+    "single_kubeconfig": true,
+    "single_global_application_image": true
+  },
+  "changes_performed": {
+    "installed_packages": false,
+    "pulled_images": false,
+    "changed_network": false,
+    "joined_cluster": false,
+    "restarted_services": false,
+    "modified_business_code": false,
+    "generated_assessment_documents": true
+  }
+}

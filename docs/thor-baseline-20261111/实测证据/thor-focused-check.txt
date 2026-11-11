@@ -1,0 +1,26 @@
+> > > > > > > > === focused network/package/runtime check ===
+10.13.0.9 via 192.168.50.1 dev wlP1p1s0 src 192.168.50.151 uid 2001
+    cache
+	signal: -33 dBm
+	rx bitrate: 1200.9 MBit/s 80MHz HE-MCS 11 HE-NSS 2 HE-GI 0 HE-DCM 0
+	tx bitrate: 960.7 MBit/s 80MHz HE-MCS 9 HE-NSS 2 HE-GI 0 HE-DCM 0
+
+exit_code=0
+=== focused network/package/runtime check ===
+NvRmMemInitNvmap failed: error Permission denied
+NvRmMemMgrInit failed: Memory Manager Not supported, line 340
+NvRmMemMgrInit failed: error type 196626
+libnvrm_gpu.so: NvRmGpuLibOpen failed, error=196625
+NVRM version:   595.78
+CUDA version:   13.2
+
+Device Index:   0
+Device Minor:   0
+Model:          NVIDIA Thor
+Brand:          GeForce
+GPU UUID:       GPU-a7c66ad2-6dbb-0ab8-c1a2-37ba6dba3600
+Bus Location:   00000000:01:00.0
+Architecture:   11.0
+
+exit_code=0
+END_FOCUSED_CHECK

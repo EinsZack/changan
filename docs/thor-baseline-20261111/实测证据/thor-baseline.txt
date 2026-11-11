@@ -1,0 +1,397 @@
+THOR_READONLY_BASELINE 2026-11-11T21:42:09.334508+08:00
+
+=== identity ===
+uid=2001(thor1) gid=2001(thor1) groups=2001(thor1),4(adm),24(cdrom),27(sudo),29(audio),30(dip),44(video),46(plugdev),100(users),108(i2c),111(lpadmin),122(gdm),983(gpio),984(weston-launch),993(render)
+localhost.localdomain
+Linux localhost.localdomain 6.8.12-1021-tegra #1 SMP PREEMPT Thu Aug  6 21:56:04 PDT 2026 aarch64 aarch64 aarch64 GNU/Linux
+PRETTY_NAME="Ubuntu 24.04.4 LTS"
+NAME="Ubuntu"
+VERSION_ID="24.04"
+VERSION="24.04.4 LTS (Noble Numbat)"
+VERSION_CODENAME=noble
+ID=ubuntu
+ID_LIKE=debian
+HOME_URL="https://www.ubuntu.com/"
+SUPPORT_URL="https://help.ubuntu.com/"
+BUG_REPORT_URL="https://bugs.launchpad.net/ubuntu/"
+PRIVACY_POLICY_URL="https://www.ubuntu.com/legal/terms-and-policies/privacy-policy"
+UBUNTU_CODENAME=noble
+LOGO=ubuntu-logo
+# R39 (release), REVISION: 2.1, GCID: 46758480, BOARD: generic, EABI: aarch64, DATE: Fri Aug  7 05:54:22 AM UTC 2026
+# KERNEL_VARIANT: oot
+TARGET_USERSPACE_LIB_DIR=nvidia
+TARGET_USERSPACE_LIB_DIR_PATH=usr/lib/aarch64-linux-gnu/nvidia
+NVIDIA Jetson AGX Thor Developer Kit
+nvidia,p4071-0000+p3834-0008
+nvidia,p3834-0008
+nvidia,tegra264
+exit_code=0
+
+=== cpu_memory ===
+Architecture:                            aarch64
+CPU op-mode(s):                          64-bit
+Byte Order:                              Little Endian
+CPU(s):                                  14
+On-line CPU(s) list:                     0-13
+Vendor ID:                               ARM
+Model name:                              -
+Model:                                   0
+Thread(s) per core:                      1
+Core(s) per cluster:                     14
+Socket(s):                               -
+Cluster(s):                              1
+Stepping:                                r0p0
+CPU(s) scaling MHz:                      55%
+CPU max MHz:                             2601.0000
+CPU min MHz:                             54.0000
+BogoMIPS:                                2000.00
+Flags:                                   fp asimd evtstrm aes pmull sha1 sha2 crc32 atomics fphp asimdhp cpuid asimdrdm jscvt fcma lrcpc dcpop sha3 sm3 sm4 asimddp sha512 sve asimdfhm dit uscat ilrcpc flagm ssbs sb paca pacg dcpodp sve2 sveaes svepmull svebitperm svesha3 svesm4 flagm2 frint svei8mm svebf16 i8mm bf16 dgh bti ecv afp wfxt
+L1d cache:                               896 KiB (14 instances)
+L1i cache:                               896 KiB (14 instances)
+L2 cache:                                14 MiB (14 instances)
+NUMA node(s):                            1
+NUMA node0 CPU(s):                       0-13
+Vulnerability Gather data sampling:      Not affected
+Vulnerability Indirect target selection: Not affected
+Vulnerability Itlb multihit:             Not affected
+Vulnerability L1tf:                      Not affected
+Vulnerability Mds:                       Not affected
+Vulnerability Meltdown:                  Not affected
+Vulnerability Mmio stale data:           Not affected
+Vulnerability Reg file data sampling:    Not affected
+Vulnerability Retbleed:                  Not affected
+Vulnerability Spec rstack overflow:      Not affected
+Vulnerability Spec store bypass:         Mitigation; Speculative Store Bypass disabled via prctl
+Vulnerability Spectre v1:                Mitigation; __user pointer sanitization
+Vulnerability Spectre v2:                Mitigation; CSV2, BHB
+Vulnerability Srbds:                     Not affected
+Vulnerability Tsa:                       Not affected
+Vulnerability Tsx async abort:           Not affected
+Vulnerability Vmscape:                   Not affected
+               total        used        free      shared  buff/cache   available
+Mem:           122Gi       4.2Gi        98Gi        36Mi        21Gi       118Gi
+Swap:          2.0Gi          0B       2.0Gi
+MemTotal:       128828744 kB
+MemFree:        102927252 kB
+MemAvailable:   124404140 kB
+Buffers:          145020 kB
+Cached:         21506180 kB
+SwapCached:            0 kB
+Active:           927264 kB
+Inactive:       21931484 kB
+ 21:42:09 up 45 min,  2 users,  load average: 3.82, 3.69, 3.69
+exit_code=0
+
+=== storage ===
+NAME         MODEL                        SIZE FSTYPE MOUNTPOINTS
+loop0                                      16M vfat
+nvme0n1      WD PC SN5000S SDEPNSJ-1T00 953.9G
+├─nvme0n1p1                             951.2G ext4   /
+├─nvme0n1p2                               100M
+├─nvme0n1p3                               768K
+├─nvme0n1p4                               512M vfat   /boot/efi
+├─nvme0n1p5                             384.8M
+├─nvme0n1p6                               100M
+├─nvme0n1p7                               768K
+├─nvme0n1p8                               512M
+├─nvme0n1p9                             384.8M
+├─nvme0n1p10                              400M
+└─nvme0n1p11                              335M
+Filesystem     Type  Size  Used Avail Use% Mounted on
+/dev/nvme0n1p1 ext4  936G   28G  861G   4% /
+/dev/nvme0n1p1 ext4  936G   28G  861G   4% /
+/dev/nvme0n1p1 ext4  936G   28G  861G   4% /
+TARGET SOURCE         FSTYPE OPTIONS
+/      /dev/nvme0n1p1 ext4   rw,relatime
+exit_code=0
+
+=== jetpack_packages ===
+cuda-cccl-13-2 13.2.86-1
+cuda-command-line-tools-13-2 13.2.2-1
+cuda-compiler-13-2 13.2.2-1
+cuda-crt-13-2 13.2.86-1
+cuda-cub-13-2
+cuda-cudart-11-2
+cuda-cudart-13-2 13.2.86-1
+cuda-cudart-dev-13-2 13.2.86-1
+cuda-culibos-dev-13-2 13.2.86-1
+cuda-cuobjdump-13-2 13.2.86-1
+cuda-cupti-13-2 13.2.86-1
+cuda-cupti-dev-13-2 13.2.86-1
+cuda-cuxxfilt-13-2 13.2.86-1
+cuda-documentation-13-2 13.2.86-1
+cuda-driver-dev-13-2 13.2.86-1
+cuda-gdb-13-2 13.2.86-1
+cuda-libraries-13-2 13.2.2-1
+cuda-libraries-dev-13-2 13.2.2-1
+cuda-nsight-compute-13-2 13.2.2-1
+cuda-nsight-systems-13-2 13.2.2-1
+cuda-nvcc-13
+cuda-nvcc-13-2 13.2.86-1
+cuda-nvdisasm-13-2 13.2.86-1
+cuda-nvml-dev-13-2 13.2.86-1
+cuda-nvprof-13-2
+cuda-nvprune-13-2 13.2.86-1
+cuda-nvrtc-13-2 13.2.86-1
+cuda-nvrtc-dev-13-2 13.2.86-1
+cuda-nvtx-13-2 13.2.86-1
+cuda-profiler-api-13-2 13.2.86-1
+cuda-sanitizer-13-2 13.2.87-1
+cuda-thrust-13-2
+cuda-tileiras-13-2 13.2.86-1
+cuda-toolkit-13-2 13.2.2-1
+cuda-toolkit-13-2-config-common 13.2.86-1
+cuda-toolkit-13-config-common 13.2.86-1
+cuda-toolkit-config-common 13.2.86-1
+cuda-tools-13-2 13.2.2-1
+cuda-visual-tools-13-2 13.2.2-1
+libcudnn8-dev
+libcudnn9
+libcudnn9-cuda-13 9.20.0.46-1
+libcudnn9-dev
+libcudnn9-dev-cuda-12
+libcudnn9-dev-cuda-13 9.20.0.46-1
+libcudnn9-headers
+libcudnn9-headers-cuda-13 9.20.0.46-1
+libcudnn9-jit
+libcudnn9-jit-dev
+libcudnn9-jit-static
+libcudnn9-samples 9.20.0.46-1
+libnvidia-container-tools 1.19.1-1
+libnvidia-container1 1.19.1-1
+libnvinfer-bin 10.16.2.10-1+cuda13.2
+libnvinfer-bin-cuda-13.2
+libnvinfer-dev 10.16.2.10-1+cuda13.2
+libnvinfer-dev-cuda-13.2
+libnvinfer-dispatch-dev 10.16.2.10-1+cuda13.2
+libnvinfer-dispatch-dev-cuda-13.2
+libnvinfer-dispatch10 10.16.2.10-1+cuda13.2
+libnvinfer-dispatch10-cuda-13.2
+libnvinfer-headers-dev 10.16.2.10-1+cuda13.2
+libnvinfer-headers-dev-cuda-13.2
+libnvinfer-headers-plugin-dev 10.16.2.10-1+cuda13.2
+libnvinfer-headers-plugin-dev-cuda-13.2
+libnvinfer-headers-python-plugin-dev 10.16.2.10-1+cuda13.2
+libnvinfer-headers-python-plugin-dev-cuda-13.2
+libnvinfer-lean-dev 10.16.2.10-1+cuda13.2
+libnvinfer-lean-dev-cuda-13.2
+libnvinfer-lean10 10.16.2.10-1+cuda13.2
+libnvinfer-lean10-cuda-13.2
+libnvinfer-plugin-dev 10.16.2.10-1+cuda13.2
+libnvinfer-plugin-dev-cuda-13.2
+libnvinfer-plugin10 10.16.2.10-1+cuda13.2
+libnvinfer-plugin10-cuda-13.2
+libnvinfer-safe-headers-dev 10.16.2.10-1+cuda13.2
+libnvinfer-safe-headers-dev-cuda-13.2
+libnvinfer-vc-plugin-dev 10.16.2.10-1+cuda13.2
+libnvinfer-vc-plugin-dev-cuda-13.2
+libnvinfer-vc-plugin10 10.16.2.10-1+cuda13.2
+libnvinfer-vc-plugin10-cuda-13.2
+libnvinfer10 10.16.2.10-1+cuda13.2
+libnvinfer10-cuda-13.2
+nvidia-container-runtime
+nvidia-container-runtime-hook
+nvidia-container-toolkit 1.19.1-1
+nvidia-container-toolkit-base 1.19.1-1
+nvidia-l4t-3d-core 39.2.1-20260806224157
+nvidia-l4t-adaruntime 39.2.1-20260806224157
+nvidia-l4t-apt-source 39.2.1-20260806224157
+nvidia-l4t-bootloader 39.2.1-20260806224157
+nvidia-l4t-bootloader-utils 39.2.1-20260806224157
+nvidia-l4t-bsp 39.2.1-20260806224157
+nvidia-l4t-bsp-nvgpu
+nvidia-l4t-bsp-openrm
+nvidia-l4t-camera 39.2.1-20260806224157
+nvidia-l4t-ccp-generic
+nvidia-l4t-configs 39.2.1-20260806224157
+nvidia-l4t-core 39.2.1-20260806224157
+nvidia-l4t-cuda 39.2.1-20260806224157
+nvidia-l4t-cuda-nvgpu 39.2.1-20260806224157
+nvidia-l4t-cuda-openrm 39.2.1-20260806224157
+nvidia-l4t-cuda-utils 39.2.1-20260806224157
+nvidia-l4t-cudadebuggingsupport 13.2-37290934.0
+nvidia-l4t-display-kernel 6.8.12-tegra-39.2.1-20260806224157
+nvidia-l4t-extlinux 39.2.1-20260806224157
+nvidia-l4t-firmware 39.2.1-20260806224157
+nvidia-l4t-firmware-nvgpu 39.2.1-20260806224157
+nvidia-l4t-firmware-openrm 39.2.1-20260806224157
+nvidia-l4t-firstboot 39.2.1-20260806224157
+nvidia-l4t-gbm 39.2.1-20260806224157
+nvidia-l4t-graphics-demos 39.2.1-20260806224157
+nvidia-l4t-gstreamer 39.2.1-20260806224157
+nvidia-l4t-init 39.2.1-20260806224157
+nvidia-l4t-init-nvgpu 39.2.1-20260806224157
+nvidia-l4t-init-openrm 39.2.1-20260806224157
+nvidia-l4t-initrd 39.2.1-20260806224157
+nvidia-l4t-jetson-io 39.2.1-20260806224157
+nvidia-l4t-jetson-multimedia-api 39.2.1-20260806224157
+nvidia-l4t-jetsonpower-gui-tools 39.2.1-20260806224157
+nvidia-l4t-kernel 6.8.12-tegra-39.2.1-20260806224157
+nvidia-l4t-kernel-dtbs 6.8.12-tegra-39.2.1-20260806224157
+nvidia-l4t-kernel-headers 6.8.12-tegra-39.2.1-20260806224157
+nvidia-l4t-kernel-module-configs 6.8.12-tegra-39.2.1-20260806224157
+nvidia-l4t-kernel-nvgpu 6.8.12-tegra-39.2.1-20260806224157
+nvidia-l4t-kernel-oot-headers 6.8.12-tegra-39.2.1-20260806224157
+nvidia-l4t-kernel-oot-modules 6.8.12-tegra-39.2.1-20260806224157
+nvidia-l4t-kernel-openrm 6.8.12-tegra-39.2.1-20260806224157
+nvidia-l4t-kernel-partitions 6.8.12-tegra-39.2.1-20260806224157
+nvidia-l4t-libvulkan 39.2.1-20260806224157
+nvidia-l4t-multimedia 39.2.1-20260806224157
+nvidia-l4t-multimedia-nvgpu 39.2.1-20260806224157
+nvidia-l4t-multimedia-openrm 39.2.1-20260806224157
+nvidia-l4t-multimedia-utils 39.2.1-20260806224157
+nvidia-l4t-nvfancontrol 39.2.1-20260806224157
+nvidia-l4t-nvml 39.2.1-20260806224157
+nvidia-l4t-nvpmodel 39.2.1-20260806224157
+nvidia-l4t-nvpmodel-gui-tools 39.2.1-20260806224157
+nvidia-l4t-nvsci 39.2.1-20260806224157
+nvidia-l4t-oobe 39.2.1-20260806224157
+nvidia-l4t-openwfd 39.2.1-20260806224157
+nvidia-l4t-optee 39.2.1-20260806224157
+nvidia-l4t-power-adapter-check 39.2.1-20260806224157
+nvidia-l4t-pva 39.2.1-20260806224157
+nvidia-l4t-tools 39.2.1-20260806224157
+nvidia-l4t-usb-service 39.2.1-20260806224157
+nvidia-l4t-video-codec-openrm 39.2.1-20260806224157
+nvidia-l4t-vulkan-sc-dev 39.2.1-20260806224157
+nvidia-l4t-vulkan-sc-nvgpu 39.2.1-20260806224157
+nvidia-l4t-vulkan-sc-openrm 39.2.1-20260806224157
+nvidia-l4t-vulkan-sc-samples 39.2.1-20260806224157
+nvidia-l4t-vulkan-sc-sdk 39.2.1-20260806224157
+nvidia-l4t-wayland 39.2.1-20260806224157
+nvidia-l4t-weston 39.2.1-20260806224157
+nvidia-l4t-wpasupplicant 39.2.1-20260806224157
+nvidia-l4t-x11 39.2.1-20260806224157
+nvidia-l4t-xwayland 39.2.1-20260806224157
+tensorrt 10.16.2.10-1+cuda13.2
+tensorrt-cuda-13.2
+tensorrt-libs 10.16.2.10-1+cuda13.2
+tensorrt-libs-cuda-13.2
+exit_code=1
+
+=== gpu ===
+/usr/sbin/nvidia-smi
+Wed Nov 11 21:42:09 2026
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 595.78                 Driver Version: 595.78         CUDA Version: 13.2     |
++-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA Thor                    Off |   00000000:01:00.0 Off |                  N/A |
+| N/A   33C  N/A               2W /  N/A  | Not Supported          |     12%      Default |
+|                                         |                        |             Disabled |
++-----------------------------------------+------------------------+----------------------+
+
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|    0   N/A  N/A           49129      G   /usr/lib/xorg/Xorg                      145MiB |
+|    0   N/A  N/A           49457      G   /usr/bin/gnome-shell                    132MiB |
+|    0   N/A  N/A           56479      G   /usr/bin/gnome-control-center            19MiB |
++-----------------------------------------------------------------------------------------+
+/usr/local/cuda-13.2/bin/nvcc
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2026 NVIDIA Corporation
+Built on Fri_May_08_10:52:52_AM_PDT_2026
+Cuda compilation tools, release 13.2, V13.2.86
+Build cuda_13.2.r13.2/compiler.37953736_0
+lrwxrwxrwx  1 root root   22 Nov 11 21:03 /usr/local/cuda -> /etc/alternatives/cuda
+lrwxrwxrwx  1 root root   25 Nov 11 21:03 /usr/local/cuda-13 -> /etc/alternatives/cuda-13
+drwxr-xr-x 12 root root 4096 Nov 11 21:17 /usr/local/cuda-13.2
+/dev/nvhost-ctrl-isp
+/dev/nvhost-ctrl-isp1
+/dev/nvhost-ctrl-pva0
+/dev/nvidia-modeset
+/dev/nvidia-uvm
+/dev/nvidia-uvm-tools
+/dev/nvidia0
+/dev/nvidia1
+/dev/nvidiactl
+
+/dev/nvidia-caps:
+nvidia-cap1
+nvidia-cap2
+exit_code=0
+
+=== runtime_tools ===
+/usr/bin/docker
+/usr/bin/containerd
+/usr/bin/ctr
+/usr/bin/nvidia-ctk
+/usr/bin/nvidia-container-cli
+/usr/bin/tegrastats
+/usr/sbin/nvpmodel
+/usr/bin/jetson_clocks
+/usr/bin/python3
+/usr/bin/pip3
+/usr/bin/git
+active
+active
+inactive
+inactive
+active
+Docker version 29.9.3, build 5457199
+containerd containerd v2.4.2 b7a25261e029d68978bbf290df0a62fc819b3c51
+NVIDIA Container Toolkit CLI version 1.19.1
+commit: 598a9cbb6239c7d05df9c881bad36df7eff34d78
+Python 3.12.3
+systemd
+cgroup2fs
+exit_code=0
+
+=== network ===
+lo               UNKNOWN        127.0.0.1/8 ::1/128
+mgbe0_0          DOWN
+mgbe1_0          DOWN
+mgbe2_0          DOWN
+can0             DOWN
+mgbe3_0          DOWN
+can1             DOWN
+can2             DOWN
+can3             DOWN
+enP2p1s0         DOWN
+wlP1p1s0         UP             192.168.50.151/24 <IPv6已省略> <IPv6已省略> fe80::9b23:113a:b1e8:98d6/64
+l4tbr0           UP             192.168.55.1/24 fe80::1/64 fe80::7406:7cff:fedd:469c/64
+usb0             UP             fe80::940d:91ff:febb:f545/64
+usb1             DOWN
+docker0          DOWN           172.17.0.1/16
+default via 192.168.50.1 dev wlP1p1s0 proto dhcp src 192.168.50.151 metric 600
+default via 192.168.55.100 dev l4tbr0 metric 32766
+172.17.0.0/16 dev docker0 proto kernel scope link src 172.17.0.1 linkdown
+192.168.50.0/24 dev wlP1p1s0 proto kernel scope link src 192.168.50.151 metric 600
+192.168.55.0/24 dev l4tbr0 proto kernel scope link src 192.168.55.1
+192.168.50.151 192.168.55.1 172.17.0.1 <IPv6已省略> <IPv6已省略>
+Timezone=Asia/Shanghai
+NTPSynchronized=yes
+TimeUSec=Wed 2026-11-11 21:42:09 CST
+State  Recv-Q Send-Q Local Address:Port Peer Address:PortProcess
+LISTEN 0      4096   127.0.0.53%lo:53        0.0.0.0:*
+LISTEN 0      4096      127.0.0.54:53        0.0.0.0:*
+LISTEN 0      4096         0.0.0.0:22        0.0.0.0:*
+LISTEN 0      4096            [::]:22           [::]:*
+LISTEN 0      4096               *:5201            *:*
+LISTEN 0      4096               *:6566            *:*
+exit_code=0
+
+=== python_modules ===
+{
+  "onnxruntime": false,
+  "torch": false,
+  "tensorrt": true,
+  "cv2": true,
+  "numpy": true,
+  "fastapi": false,
+  "psutil": false
+}
+exit_code=0
+TCP 10.13.0.9 22031 OK
+TCP 10.13.0.9 6443 ConnectionRefusedError [Errno 111] Connection refused
+TCP 10.13.0.9 8311 ConnectionRefusedError [Errno 111] Connection refused
+TCP 10.13.0.9 5500 ConnectionRefusedError [Errno 111] Connection refused
+TCP github.com 443 OK
+TCP nvcr.io 443 OK
+END_THOR_READONLY_BASELINE

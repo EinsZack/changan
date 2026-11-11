@@ -1,0 +1,32 @@
+{
+  "probe": "synthetic TensorRT FP32 elementwise input+1, not YOLOX",
+  "tensorrt": "10.16.2.10",
+  "shape": [
+    1,
+    16
+  ],
+  "result_matches": true,
+  "max_abs_error": 0.0,
+  "total_probe_seconds": 0.8307260970000243,
+  "output": [
+    [
+      1.0,
+      2.0,
+      3.0,
+      4.0,
+      5.0,
+      6.0,
+      7.0,
+      8.0,
+      9.0,
+      10.0,
+      11.0,
+      12.0,
+      13.0,
+      14.0,
+      15.0,
+      16.0
+    ]
+  ]
+}
+END_TENSORRT_SYNTHETIC_PROBE

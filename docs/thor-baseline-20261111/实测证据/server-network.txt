@@ -1,0 +1,50 @@
+=== cat /proc/1/comm ===
+sshd
+
+=== ip -br -4 addr ===
+FileNotFoundError [Errno 2] No such file or directory: 'ip'
+=== ip route ===
+FileNotFoundError [Errno 2] No such file or directory: 'ip'
+=== ss -lnt ===
+FileNotFoundError [Errno 2] No such file or directory: 'ss'
+=== /root/miniforge3/envs/changan-orchestrator/bin/python scripts/manage.py status ===
+{
+  "redis": {
+    "pid": 1858410,
+    "alive": true
+  },
+  "container-gateway": {
+    "pid": 1858414,
+    "alive": true
+  },
+  "api": {
+    "pid": 1858415,
+    "alive": true
+  }
+}
+
+=== /root/miniforge3/envs/changan-orchestrator/bin/python scripts/cluster.py status ===
+NAME          SERVERS   AGENTS   LOADBALANCER
+changan-dev   1/1       4/4      true
+NAMES                      STATUS
+k3d-changan-dev-agent-3    Up 3 days
+k3d-changan-dev-agent-2    Up 3 days
+k3d-changan-dev-agent-0    Up 3 days
+k3d-changan-dev-agent-1    Up 3 days
+k3d-changan-dev-tools      Up 4 days
+k3d-changan-dev-serverlb   Up 4 days
+k3d-changan-dev-server-0   Up 4 days
+changan-registry           Up 4 days
+
+TCP 192.168.50.151 22 TimeoutError timed out
+=== allowlisted_configuration ===
+CHANGAN_BACKEND=k3s
+CHANGAN_NAMESPACE=changan
+CHANGAN_CLUSTER_ID=changan-dev
+CHANGAN_IMAGE_ARCH=amd64
+CHANGAN_CONTAINER_HOST=172.29.1.1
+CHANGAN_CONTAINER_BASE=http://172.29.1.1:8311
+CHANGAN_VIDEO_IMAGE=changan-registry:5000/changan/video-unified@sha256:19f97fb50e56d5cc8ebf744983f4eecf985cf43e3ef74a8b9919d9a3600507a1
+CHANGAN_MODEL_DEVICE=auto
+CHANGAN_CUDA_CACHE_HOSTPATH=/var/lib/rancher/k3s/changan-cache/cuda
+health {"status":"ok","service":"changan-orchestrator","version":"0.5.2","time":1794404701.9842176}
