@@ -1,0 +1,23 @@
+{
+  "task_id": "task_f5e5e78ff7544c39",
+  "status": "SUCCEEDED",
+  "actual_backend": "cpu",
+  "segments": 6,
+  "sampled_frames": 240,
+  "model_load_count": 1,
+  "sessions": 1,
+  "actual_nodes": [
+    "thor1"
+  ],
+  "cleanup": "DONE",
+  "elapsed_seconds": 120.13252401351929,
+  "note": "First native task includes a management process launch correction; not a performance benchmark",
+  "counts": {
+    "person": 1515,
+    "bicycle": 0,
+    "car": 241,
+    "motorcycle": 0,
+    "bus": 0,
+    "truck": 240
+  }
+}

@@ -49,6 +49,15 @@ def cuda_cache_settings():
     if not 0<size<=4*1024**3:raise ValueError('CHANGAN_CUDA_CACHE_MAX_BYTES 须在 1 字节到 4GiB 之间')
     return {'host_path':path or None,'max_bytes':size}
 
+def gpu_supplemental_groups():
+    raw=os.getenv('CHANGAN_GPU_SUPPLEMENTAL_GROUPS','')
+    if not raw.strip():return []
+    try:groups=sorted({int(item.strip()) for item in raw.split(',')})
+    except ValueError:raise ValueError('CHANGAN_GPU_SUPPLEMENTAL_GROUPS 必须为逗号分隔的数字组ID') from None
+    if any(group<=0 or group>=2**31 for group in groups):
+        raise ValueError('CHANGAN_GPU_SUPPLEMENTAL_GROUPS 必须为正整数的非root组ID')
+    return groups
+
 class ContainerExecution:
     def __init__(self,engine):
         global controller
@@ -66,7 +75,7 @@ class ContainerExecution:
         return {'id':'video-analysis','version':'3','timing_version':1,'container_memory_floor_mb':2048,'model_policy':policy,'model_device_id':int(os.getenv('CHANGAN_MODEL_GPU_DEVICE_ID','0')),'execution_mode':'task_session','image':image,'architecture':os.getenv('CHANGAN_IMAGE_ARCH','amd64'),
                 'model_id':MODEL_ID,'model_sha256':model_sha256(),
                 'runtime':'ONNX Runtime CPU / CUDA（模型自动选择）','image_pull_secret':os.getenv('CHANGAN_IMAGE_PULL_SECRET'),
-                'cuda_cache':cuda_cache_settings()}
+                'cuda_cache':cuda_cache_settings(),'gpu_supplemental_groups':gpu_supplemental_groups()}
     async def refresh(self):
         old={n['id']:n for n in db.query('SELECT * FROM nodes')}
         try:

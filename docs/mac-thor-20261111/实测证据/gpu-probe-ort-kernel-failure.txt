@@ -1,0 +1,18 @@
+2026-11-11 14:53:45.526270401 [W:onnxruntime:Default, telemetry_1ds.cc:600 operator()] Failed to persist telemetry device ID; using an in-memory identifier
+2026-11-11 14:53:45.869609490 [W:onnxruntime:Default, onnxruntime_pybind_state.cc:856 operator()] No registered plugin EP device found for 'CUDAExecutionProvider' with device_id=0
+2026-11-11 14:53:46.051686916 [E:onnxruntime:, sequential_executor.cc:677 ExecuteKernel] Non-zero status code returned while running Slice node. Name:'Slice_34' Status Message: CUDA error cudaErrorNoKernelImageForDevice:no kernel image is available for execution on the device
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "<frozen runpy>", line 291, in run_path
+  File "<frozen runpy>", line 98, in _run_module_code
+  File "<frozen runpy>", line 88, in _run_code
+  File "/opt/diagnostics/cpu_gpu_probe.py", line 54, in <module>
+    if __name__=='__main__':main()
+                            ^^^^^^
+  File "/opt/diagnostics/cpu_gpu_probe.py", line 42, in main
+    ort.preload_dlls();gpu=create_session(model,'CUDAExecutionProvider',device_id);began=time.perf_counter();b=gpu.run(None,{gpu.get_inputs()[0].name:x})[0]
+                                                                                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 395, in run
+    return self._sess.run(output_names, input_feed, run_options)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+onnxruntime.capi.onnxruntime_pybind11_state.Fail: [ONNXRuntimeError] : 1 : FAIL : Non-zero status code returned while running Slice node. Name:'Slice_34' Status Message: CUDA error cudaErrorNoKernelImageForDevice:no kernel image is available for execution on the device

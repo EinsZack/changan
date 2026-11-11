@@ -1,0 +1,14 @@
+{
+  "task_id": "task_b7fc20fc34644970",
+  "submission": "native Mac browser UI",
+  "status": "SUCCEEDED",
+  "actual_nodes": [
+    "thor1"
+  ],
+  "actual_backend": "cuda",
+  "segments": 6,
+  "sampled_frames": 48,
+  "model_load_count": 1,
+  "cleanup": "DONE",
+  "elapsed_seconds": 10.990235090255737
+}

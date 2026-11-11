@@ -1,0 +1,19 @@
+{
+  "tables_verified": [
+    "tasks",
+    "segments",
+    "attempts",
+    "events",
+    "sqlite_sequence",
+    "nodes",
+    "strategies",
+    "configs",
+    "alerts",
+    "node_incidents",
+    "execution_sessions"
+  ],
+  "historical_task_count": 104,
+  "segment_paths_verified": 1319,
+  "history_rows_equal_except_rebased_segment_paths": true,
+  "foreign_keys": "ok"
+}

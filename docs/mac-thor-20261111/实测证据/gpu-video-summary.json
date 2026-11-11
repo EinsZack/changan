@@ -1,0 +1,68 @@
+{
+  "task_id": "task_b6affa60acfa4375",
+  "status": "SUCCEEDED",
+  "elapsed_seconds": 13.645303010940552,
+  "segments": 6,
+  "sampled_frames": 240,
+  "counts": {
+    "person": 1515,
+    "bicycle": 0,
+    "car": 241,
+    "motorcycle": 0,
+    "bus": 0,
+    "truck": 240
+  },
+  "actual_nodes": [
+    "thor1"
+  ],
+  "model_load_count": 1,
+  "sessions": 1,
+  "previews_readable": 18,
+  "cleanup": "DONE",
+  "image": "192.168.50.231:5500/changan/video-thor@sha256:7e82d8c1d4f5fe1ccd515fd0adf8d4bd2f7d10ee9a13f8b43b886c4fddf1b7dc",
+  "inference_runtime": {
+    "policy": "auto",
+    "actual_backend": "cuda",
+    "ort_version": "1.24.0",
+    "gpu": {
+      "device_id": 0,
+      "uuid": "GPU-a7c66ad2-6dbb-0ab8-c1a2-37ba6dba3600",
+      "name": "NVIDIA Thor",
+      "visible_devices": 1
+    },
+    "fallback_reason": null,
+    "cuda_compute_events": 203,
+    "provider_events": {
+      "CUDAExecutionProvider": 203
+    },
+    "timings": {
+      "session_seconds": 0.16678949000015564,
+      "warmup_seconds": 0.3965375289990334,
+      "verification_seconds": 0.0024293450005643535,
+      "initialization_seconds": 0.6610774729997502
+    },
+    "initialization_stages": [
+      {
+        "name": "device",
+        "started_at": 1794412147.2532866,
+        "seconds": 0.0727052910006023
+      },
+      {
+        "name": "model_load",
+        "started_at": 1794412147.326835,
+        "seconds": 0.16678949000015564,
+        "backend": "cuda"
+      },
+      {
+        "name": "warmup",
+        "started_at": 1794412147.493695,
+        "seconds": 0.3965375289990334,
+        "backend": "cuda"
+      }
+    ],
+    "providers": [
+      "CUDAExecutionProvider",
+      "CPUExecutionProvider"
+    ]
+  }
+}

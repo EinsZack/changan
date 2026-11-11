@@ -1,0 +1,16 @@
+{
+  "environment": "changan-platform",
+  "python": "3.11.18",
+  "prefix": "/opt/homebrew/Caskroom/miniforge/base/envs/changan-platform",
+  "processes": {
+    "container-gateway": {
+      "exe": "/opt/homebrew/Caskroom/miniforge/base/envs/changan-platform/bin/python3.11",
+      "alive": true
+    },
+    "api": {
+      "exe": "/opt/homebrew/Caskroom/miniforge/base/envs/changan-platform/bin/python3.11",
+      "alive": true
+    }
+  },
+  "zot_sha256": "e352d2a6f3a9cf35bbc473f9fd3ded9431d09eb0367a1d1cedef221080d5e3c2"
+}

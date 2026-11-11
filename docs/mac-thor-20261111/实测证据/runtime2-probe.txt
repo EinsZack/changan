@@ -1,0 +1,27 @@
+2026-11-11 15:42:22.340355657 [W:onnxruntime:Default, device_discovery.cc:211 DiscoverDevicesForPlatform] GPU device discovery failed: device_discovery.cc:91 ReadFileContents Failed to open file: "/sys/class/drm/card1/device/vendor"
+VERSIONS={'python': '3.12.16 (main, Nov  5 2026, 08:06:14) [GCC 14.2.0]', 'machine': 'aarch64', 'cv2': '4.11.0', 'numpy': '2.2.5', 'ort': '1.24.0'}
+Failed to load libcublasLt.so.13: libcublasLt.so.13: cannot open shared object file: No such file or directory
+Failed to load libcublas.so.13: libcublas.so.13: cannot open shared object file: No such file or directory
+Failed to load libnvrtc.so.13: libnvrtc.so.13: cannot open shared object file: No such file or directory
+Failed to load libcurand.so.10: libcurand.so.10: cannot open shared object file: No such file or directory
+Failed to load libcufft.so.12: libcufft.so.12: cannot open shared object file: No such file or directory
+Failed to load libcudart.so.13: libcudart.so.13: cannot open shared object file: No such file or directory
+Please follow https://onnxruntime.ai/docs/install/#cuda-and-cudnn to install CUDA and CuDNN.
+2026-11-11 15:42:22.662213328 [E:onnxruntime:Default, provider_bridge_ort.cc:2364 TryGetProviderInfo_CUDA] /opt/onnxruntime/onnxruntime/core/session/provider_bridge_ort.cc:1957 onnxruntime::Provider& onnxruntime::ProviderLibrary::Get() [ONNXRuntimeError] : 1 : FAIL : Failed to load library /usr/local/lib/python3.12/site-packages/onnxruntime/capi/libonnxruntime_providers_cuda.so with error: libcublasLt.so.13: cannot open shared object file: No such file or directory
+
+2026-11-11 15:42:22.662234652 [W:onnxruntime:Default, onnxruntime_pybind_state.cc:992 CreateExecutionProviderFactoryInstance] Failed to create CUDAExecutionProvider. Require cuDNN 9.* and CUDA 13.*. Please install all dependencies as mentioned in the GPU requirements page (https://onnxruntime.ai/docs/execution-providers/CUDA-ExecutionProvider.html#requirements), make sure they're in the PATH, and that your GPU is supported.
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "<frozen runpy>", line 287, in run_path
+  File "<frozen runpy>", line 98, in _run_module_code
+  File "<frozen runpy>", line 88, in _run_code
+  File "/opt/diagnostics/cpu_gpu_probe.py", line 54, in <module>
+    if __name__=='__main__':main()
+                            ^^^^^^
+  File "/opt/diagnostics/cpu_gpu_probe.py", line 42, in main
+    ort.preload_dlls();gpu=create_session(model,'CUDAExecutionProvider',device_id);began=time.perf_counter();b=gpu.run(None,{gpu.get_inputs()[0].name:x})[0]
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/diagnostics/cpu_gpu_probe.py", line 29, in create_session
+    if session.get_providers()[0]!=provider:raise RuntimeError('Requested provider not active')
+                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: Requested provider not active

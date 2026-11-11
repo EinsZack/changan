@@ -1,0 +1,18 @@
+{
+  "zot": {
+    "version": "2.1.23",
+    "platform": "darwin/arm64",
+    "artifact": "zot-darwin-arm64-minimal",
+    "url": "https://github.com/project-zot/zot/releases/download/v2.1.23/zot-darwin-arm64-minimal",
+    "sha256": "e352d2a6f3a9cf35bbc473f9fd3ded9431d09eb0367a1d1cedef221080d5e3c2"
+  },
+  "k3s": {
+    "version": "v1.35.5+k3s1",
+    "platform": "linux/arm64"
+  },
+  "nvidia_device_plugin": {
+    "version": "v0.20.1",
+    "device_id_strategy": "index",
+    "image": "192.168.50.231:5500/infra/nvidia-device-plugin@sha256:8f3b91b97fc105057cd1ea6b85c2fbbba5cae7f09e3a18385ebab20db19d34c1"
+  }
+}

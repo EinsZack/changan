@@ -2,6 +2,8 @@
 
 面向中期展示的可运行视频任务原型。管理服务接收视频、切分任务、读取资源快照并调度，独立执行器完成真实ONNX目标检测，回传事件并聚合结果。网页可查看工作流、调度依据、执行时间轴、识别结果、触发策略和历史对比。
 
+2026年11月11—12日已切换Mac原生管理平台与首张真实Thor：Mac使用Miniforge专用环境`changan-platform`承载网页/API、网关、SQLite、Redis、FFmpeg及Zot仓库，Thor1原生K3s执行Linux ARM64视频容器。真实上传任务6片240帧全部CUDA、单容器模型加载1次并回收，网页创建及运行中取消验证通过；原服务器四lab已停用。部署、手动启动要求及后续四板计划见[交付说明](docs/mac-thor-20261111/交付说明.md)与[部署使用说明](docs/mac-thor-20261111/部署与使用说明.md)。以下日期条目保留历史演进。
+
 0.2.0增加站内任务告警：超时或最终失败时提示，可查看未读数量、告警原因并标记已读或确认。详见[站内告警使用说明](docs/站内告警使用说明.md)和[本次交付说明](docs/站内告警交付说明_20261031.md)。
 
 0.5.0 已改为 K3s 任务内会话复用（B模式）：每个参与节点启动一个容器并加载一次模型，连续处理多个视频分片，任务结束后回收。Docker构建镜像，K3s/containerd运行容器。当前为同一开发服务器上的 4 个 K3s 逻辑节点；真实 THOR 板卡尚未验证；服务器GPU环境验证见下方2026年11月8日说明。部署基线见 [K3s部署与使用说明](docs/K3s部署与使用说明.md)，当前执行方式见 [任务会话使用说明](docs/K3s任务会话使用说明_20261108.md)。
@@ -20,23 +22,18 @@
 
 ## 快速进入
 
-代码主目录：`/root/projects/changan-orchestrator`，SSH：`ssh -p 22031 root@10.13.0.9`。
+当前正式管理服务原生运行于Mac，入口为 <http://127.0.0.1:8310/?release=20261111-thor>，API文档 <http://127.0.0.1:8310/docs>。Mac重启后在登录用户会话启动：
 
 ```bash
-cd /root/projects/changan-orchestrator
-source /root/miniforge3/etc/profile.d/conda.sh
-conda activate changan-orchestrator
-python scripts/cluster.py start
-python scripts/manage.py start
+source /opt/homebrew/Caskroom/miniforge/base/etc/profile.d/conda.sh
+conda activate changan-platform
+python "/Users/eins/Library/Application Support/ChanganPlatform/current/scripts/install_native_services.py" \
+  --root "/Users/eins/Library/Application Support/ChanganPlatform" \
+  --env-prefix "/opt/homebrew/Caskroom/miniforge/base/envs/changan-platform" \
+  --gateway-host 192.168.50.231
 ```
 
-电脑端建立隧道：
-
-```bash
-ssh -N -L 127.0.0.1:8310:127.0.0.1:8310 -p 22031 root@10.13.0.9
-```
-
-访问 <http://127.0.0.1:8310>。API文档：<http://127.0.0.1:8310/docs>。
+不再通过启动服务器四lab或SSH端口转发进入当前平台。源码工作区仍为服务器`/root/projects/changan-orchestrator`，SSH使用`ssh -p 22031 root@10.13.0.9`；源码修改、测试及镜像构建继续在该处的`changan-orchestrator`环境进行。
 
 ## 文档
 

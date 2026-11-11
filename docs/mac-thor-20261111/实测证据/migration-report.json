@@ -1,0 +1,9 @@
+{
+  "at": 1794407812.475399,
+  "old_data": "/root/projects/changan-orchestrator/data",
+  "new_data": "/Users/eins/Library/Application Support/ChanganPlatform/data",
+  "segment_paths_rebased": 1319,
+  "backup": "/Users/eins/Library/Application Support/ChanganPlatform/data/backups/before-mac-migration-1794407812348872000.sqlite",
+  "tasks": 104,
+  "integrity": "ok"
+}

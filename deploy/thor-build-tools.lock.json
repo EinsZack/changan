@@ -1,0 +1,7 @@
+{
+  "package": "qemu-user-static",
+  "version": "1:8.2.2+ds-0ubuntu1.18",
+  "build_host": "linux/amd64",
+  "qemu_binary_sha256": "e4f8d99e9ff69c3cefffab71cee358ce2af1ecba1282d04c3eeb44ef76f5a71e",
+  "note": "Explicit user-mode emulator; final image contains no emulator. Extract the matching Ubuntu noble-updates package."
+}

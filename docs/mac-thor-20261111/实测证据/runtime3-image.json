@@ -1,0 +1,13 @@
+{
+  "tag": "0.5.2-runtime3",
+  "reference": "192.168.50.231:5500/changan/video-thor@sha256:7e82d8c1d4f5fe1ccd515fd0adf8d4bd2f7d10ee9a13f8b43b886c4fddf1b7dc",
+  "manifest_digest": "sha256:7e82d8c1d4f5fe1ccd515fd0adf8d4bd2f7d10ee9a13f8b43b886c4fddf1b7dc",
+  "config_digest": "sha256:e952a600d2fda09bd7a9e70cef7dd8e973555577e0508806132e4afe0f657883",
+  "architecture": "arm64",
+  "os": "linux",
+  "archive_bytes": 2525440000,
+  "archive_sha256": "0a5e0e4f3edf2ea07f235a9e1b4a08ce9dd679c7c056e00e87f999d2c7d67907",
+  "registry_bundle_sha256": "335ec02178f12243003d903c465d3682f274ebac25710dd4e6bffd532e4687e0",
+  "reused_layer_count": 9,
+  "registry_bundle_note": "Registry update bundle contains manifest/config only; verified identical layers already uploaded from the complete runtime2 archive. Complete runtime3 archive remains on the development server."
+}

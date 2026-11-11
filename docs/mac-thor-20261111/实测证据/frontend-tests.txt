@@ -1,0 +1,20 @@
+✔ legacy timing is absent rather than zero or inferred (1.611224ms)
+✔ cache hit does not become a pull interval (0.216058ms)
+✔ effective results only and frame-weighted forward; parallel sums stay separate (0.299557ms)
+✔ invalid durations cannot produce Infinity, NaN or negative intervals (0.159474ms)
+✔ weights rates by elapsed time and counts each valid segment once (1.367251ms)
+✔ excludes stale results and unfinished segments even when a result object exists (0.208807ms)
+✔ missing, zero-duration and invalid values never create fake zero rates (1.025197ms)
+✔ partial results use only paired measures and respect the worker timing floor (0.255463ms)
+✔ uses the selected node historical snapshot without falling back to another candidate (0.224949ms)
+✔ formats bytes, units and missing data consistently (0.204714ms)
+✔ accepts the container download protocol used by existing A/B tasks (0.216042ms)
+✔ download compatibility still rejects zero/invalid durations and unpaired rates (0.179422ms)
+ℹ tests 12
+ℹ suites 0
+ℹ pass 12
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 80.93987

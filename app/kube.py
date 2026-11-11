@@ -99,6 +99,8 @@ def session_manifest(session, workload, params, remaining_seconds):
     if workload.get('gpu_access'):
         spec=manifest['spec']['template']['spec']
         spec['runtimeClassName']='nvidia'
+        if workload.get('gpu_supplemental_groups'):
+            spec['securityContext']['supplementalGroups']=list(workload['gpu_supplemental_groups'])
         resources=spec['containers'][0]['resources']
         resources['requests']['nvidia.com/gpu']='1'
         resources['limits']['nvidia.com/gpu']='1'

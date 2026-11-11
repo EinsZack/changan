@@ -1,0 +1,18 @@
+{
+  "environment": "Thor1 host isolated Python path, not yet a container validation",
+  "ort_version": "1.24.0",
+  "wheel_sha256": "012c10bef23a39f074730d158b72f797a7314f2695c65835a0669b57282422f6",
+  "uid": 2001,
+  "gpu": {
+    "uuid": "GPU-a7c66ad2-6dbb-0ab8-c1a2-37ba6dba3600",
+    "name": "NVIDIA Thor",
+    "visible_devices": 1
+  },
+  "cuda_compute_events": 203,
+  "cpu_gpu_max_abs_difference": 1.9371509552001953e-05,
+  "cpu_gpu_allclose": true,
+  "cpu_seconds": 0.20259630700002162,
+  "cuda_first_seconds": 0.3795375809995676,
+  "cpu_after_cuda_output_unchanged": true,
+  "source": "captured SSH probe output from 2026-11-11 23:06"
+}

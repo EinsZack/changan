@@ -42,7 +42,10 @@ async def access(request:Request,call_next):
     if request.method not in ['GET','HEAD','OPTIONS']:
         origin=request.headers.get('origin')
         if origin and origin.split('://')[-1]!=request.headers.get('host'): return JSONResponse({'detail':'拒绝跨站修改请求'},403)
-    return await call_next(request)
+    response=await call_next(request)
+    if response.headers.get('content-type','').startswith('text/html'):
+        response.headers['Cache-Control']='no-cache'
+    return response
 def internal(x_internal_token:str=Header(default='')):
     if not secrets.compare_digest(x_internal_token,TOKEN): raise HTTPException(401,'内部认证失败')
 @app.get('/health')
@@ -251,7 +254,7 @@ def capability_history():
 @app.get('/api/models')
 def models():
     from .config import MODEL,MODEL_ID
-    return [{'id':MODEL_ID,'name':'YOLOX Tiny · COCO','runtime':'ONNX Runtime CPU','input_size':416,'sha256':hashlib.sha256(MODEL.read_bytes()).hexdigest() if MODEL.exists() else None,'source':'https://github.com/Megvii-BaseDetection/YOLOX','license':'Apache-2.0','labels':['person','bicycle','car','motorcycle','bus','truck']}]
+    return [{'id':MODEL_ID,'name':'YOLOX Tiny · COCO','runtime':'ONNX Runtime CPU / CUDA（以任务记录为准）','input_size':416,'sha256':hashlib.sha256(MODEL.read_bytes()).hexdigest() if MODEL.exists() else None,'source':'https://github.com/Megvii-BaseDetection/YOLOX','license':'Apache-2.0','labels':['person','bicycle','car','motorcycle','bus','truck']}]
 @app.get('/api/delivery/{name}')
 def delivery(name:str):
     allowed={'changan-orchestrator-midterm-0.1.0.tar.gz','SHA256SUMS','交付物说明.md','使用说明.md'}
