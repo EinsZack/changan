@@ -1,0 +1,83 @@
+{
+  "pod": "thor3-runtime3-probe-20261113",
+  "node": "thor3",
+  "pid": 1,
+  "uid": 10001,
+  "ort_version": "1.24.0",
+  "model_sha256": "427cc366d34e27ff7a03e2899b5e3671425c262ea2291f88bb942bc1cc70b0f7",
+  "mode": "cpu-gpu-cpu",
+  "stages": [
+    {
+      "backend": "cpu",
+      "pid": 1,
+      "seconds": 0.20266107899999497,
+      "shape": [
+        1,
+        3549,
+        85
+      ]
+    },
+    {
+      "backend": "cuda",
+      "pid": 1,
+      "seconds": 0.3829526200000828,
+      "shape": [
+        1,
+        3549,
+        85
+      ],
+      "cuda_compute_events": 203,
+      "provider_events": {
+        "CUDAExecutionProvider": 203
+      }
+    },
+    {
+      "backend": "cpu",
+      "pid": 1,
+      "same_cached_session": true,
+      "output_unchanged": true
+    }
+  ],
+  "gpu": {
+    "device_id": 0,
+    "uuid": "GPU-a7c66ad2-6dbb-0ab8-c1a2-37ba6dba3600",
+    "name": "NVIDIA Thor",
+    "visible_devices": 1,
+    "devices": [
+      {
+        "device_id": 0,
+        "uuid": "GPU-a7c66ad2-6dbb-0ab8-c1a2-37ba6dba3600",
+        "name": "NVIDIA Thor"
+      }
+    ]
+  },
+  "cpu_gpu_comparison": {
+    "max_abs_difference": 1.9371509552001953e-05,
+    "rtol": 0.002,
+    "atol": 0.0002,
+    "allclose": true
+  },
+  "memory_peak_bytes": 998813696,
+  "events": [
+    {
+      "reason": "Scheduled",
+      "message": "Successfully assigned changan/thor3-runtime3-probe-20261113 to thor3"
+    },
+    {
+      "reason": "Pulling",
+      "message": "Pulling image \"192.168.50.231:5500/changan/video-thor@sha256:7e82d8c1d4f5fe1ccd515fd0adf8d4bd2f7d10ee9a13f8b43b886c4fddf1b7dc\""
+    },
+    {
+      "reason": "Pulled",
+      "message": "Successfully pulled image \"192.168.50.231:5500/changan/video-thor@sha256:7e82d8c1d4f5fe1ccd515fd0adf8d4bd2f7d10ee9a13f8b43b886c4fddf1b7dc\" in 1m11.852s (1m11.852s including waiting). Image size: 2525413970 bytes."
+    },
+    {
+      "reason": "Created",
+      "message": "Container created"
+    },
+    {
+      "reason": "Started",
+      "message": "Container started"
+    }
+  ]
+}

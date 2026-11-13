@@ -1,0 +1,61 @@
+{
+  "task_id": "task_30bf18e788954e7f",
+  "status": "SUCCEEDED",
+  "segments": 24,
+  "sampled_frames": 240,
+  "algorithm": "resource_aware",
+  "elapsed_seconds": 12.823740005493164,
+  "counts": {
+    "person": 1518,
+    "bicycle": 0,
+    "car": 246,
+    "motorcycle": 0,
+    "bus": 0,
+    "truck": 240
+  },
+  "per_node": [
+    {
+      "node": "thor2",
+      "kube_node": "thor2",
+      "pod_uid": "0854bf94-74f5-432d-a157-a84278e5ab77",
+      "segments": 8,
+      "model_load_count": 1,
+      "actual_backend": "cuda",
+      "cuda_compute_events": 203,
+      "gpu_uuid": "GPU-a7c66ad2-6dbb-0ab8-c1a2-37ba6dba3600",
+      "cleanup": "DONE"
+    },
+    {
+      "node": "thor1",
+      "kube_node": "thor1",
+      "pod_uid": "d2302431-ec22-47a2-a275-79af6b008555",
+      "segments": 8,
+      "model_load_count": 1,
+      "actual_backend": "cuda",
+      "cuda_compute_events": 203,
+      "gpu_uuid": "GPU-a7c66ad2-6dbb-0ab8-c1a2-37ba6dba3600",
+      "cleanup": "DONE"
+    },
+    {
+      "node": "thor3",
+      "kube_node": "thor3",
+      "pod_uid": "37c346af-41e7-4622-8cfc-8fec2b0d84f1",
+      "segments": 8,
+      "model_load_count": 1,
+      "actual_backend": "cuda",
+      "cuda_compute_events": 203,
+      "gpu_uuid": "GPU-a7c66ad2-6dbb-0ab8-c1a2-37ba6dba3600",
+      "cleanup": "DONE"
+    }
+  ],
+  "overlapping_attempt_pairs": 28,
+  "overlapping_nodes": [
+    "thor1",
+    "thor2",
+    "thor3"
+  ],
+  "largest_attempt_overlap_seconds": 0.7851531505584717,
+  "cleanup": "DONE",
+  "submission": "native Mac browser UI",
+  "previews_readable": 72
+}

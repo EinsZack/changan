@@ -1,0 +1,95 @@
+{"created_task": "task_35d898266eec4da7", "nodes": ["thor3"], "algorithm": "round_robin"}
+{"task": "task_35d898266eec4da7", "status": "QUEUED", "completed": 0, "total": 0, "sessions": []}
+{"task": "task_35d898266eec4da7", "status": "PREPARING", "completed": 0, "total": 0, "sessions": []}
+{"task": "task_35d898266eec4da7", "status": "RUNNING", "completed": 0, "total": 6, "sessions": []}
+{"task": "task_35d898266eec4da7", "status": "RUNNING", "completed": 0, "total": 6, "sessions": [["thor3", "STARTING", "PENDING"]]}
+{"task": "task_35d898266eec4da7", "status": "RUNNING", "completed": 0, "total": 6, "sessions": [["thor3", "READY", "PENDING"]]}
+{"task": "task_35d898266eec4da7", "status": "RUNNING", "completed": 1, "total": 6, "sessions": [["thor3", "READY", "PENDING"]]}
+{"task": "task_35d898266eec4da7", "status": "RUNNING", "completed": 2, "total": 6, "sessions": [["thor3", "READY", "PENDING"]]}
+{"task": "task_35d898266eec4da7", "status": "RUNNING", "completed": 3, "total": 6, "sessions": [["thor3", "READY", "PENDING"]]}
+{"task": "task_35d898266eec4da7", "status": "RUNNING", "completed": 4, "total": 6, "sessions": [["thor3", "READY", "PENDING"]]}
+{"task": "task_35d898266eec4da7", "status": "RUNNING", "completed": 5, "total": 6, "sessions": [["thor3", "READY", "PENDING"]]}
+{"task": "task_35d898266eec4da7", "status": "SUCCEEDED", "completed": 6, "total": 6, "sessions": [["thor3", "READY", "PENDING"]]}
+{"task": "task_35d898266eec4da7", "status": "SUCCEEDED", "completed": 6, "total": 6, "sessions": [["thor3", "STOPPING", "PENDING"]]}
+{"task": "task_35d898266eec4da7", "status": "SUCCEEDED", "completed": 6, "total": 6, "sessions": [["thor3", "CLOSED", "DONE"]]}
+{"task_id": "task_35d898266eec4da7", "status": "SUCCEEDED", "segments": 6, "sampled_frames": 240, "algorithm": "round_robin", "elapsed_seconds": 12.260097026824951, "counts": {"person": 1515, "bicycle": 0, "car": 241, "motorcycle": 0, "bus": 0, "truck": 240}, "per_node": [{"node": "thor3", "kube_node": "thor3", "pod_uid": "8e33653c-ceb8-4d73-b12d-2f5786cd8bd8", "segments": 6, "model_load_count": 1, "actual_backend": "cuda", "cuda_compute_events": 203, "gpu_uuid": "GPU-a7c66ad2-6dbb-0ab8-c1a2-37ba6dba3600", "cleanup": "DONE"}], "overlapping_attempt_pairs": 0, "overlapping_nodes": [], "largest_attempt_overlap_seconds": 0, "cleanup": "DONE", "case": "single-thor3", "previews_readable": 18}
+{"created_task": "task_5ab0ae5946a1402b", "nodes": ["thor1", "thor2", "thor3"], "algorithm": "round_robin"}
+{"task": "task_5ab0ae5946a1402b", "status": "QUEUED", "completed": 0, "total": 0, "sessions": []}
+{"task": "task_5ab0ae5946a1402b", "status": "PREPARING", "completed": 0, "total": 0, "sessions": []}
+{"task": "task_5ab0ae5946a1402b", "status": "RUNNING", "completed": 0, "total": 24, "sessions": [["thor1", "STARTING", "PENDING"], ["thor3", "STARTING", "PENDING"], ["thor2", "STARTING", "PENDING"]]}
+{"task": "task_5ab0ae5946a1402b", "status": "RUNNING", "completed": 0, "total": 24, "sessions": [["thor1", "READY", "PENDING"], ["thor3", "STARTING", "PENDING"], ["thor2", "STARTING", "PENDING"]]}
+{"task": "task_5ab0ae5946a1402b", "status": "RUNNING", "completed": 0, "total": 24, "sessions": [["thor1", "READY", "PENDING"], ["thor3", "STARTING", "PENDING"], ["thor2", "READY", "PENDING"]]}
+{"task": "task_5ab0ae5946a1402b", "status": "RUNNING", "completed": 0, "total": 24, "sessions": [["thor1", "READY", "PENDING"], ["thor3", "READY", "PENDING"], ["thor2", "READY", "PENDING"]]}
+{"task": "task_5ab0ae5946a1402b", "status": "RUNNING", "completed": 1, "total": 24, "sessions": [["thor1", "READY", "PENDING"], ["thor3", "READY", "PENDING"], ["thor2", "READY", "PENDING"]]}
+{"task": "task_5ab0ae5946a1402b", "status": "RUNNING", "completed": 2, "total": 24, "sessions": [["thor1", "READY", "PENDING"], ["thor3", "READY", "PENDING"], ["thor2", "READY", "PENDING"]]}
+{"task": "task_5ab0ae5946a1402b", "status": "RUNNING", "completed": 3, "total": 24, "sessions": [["thor1", "READY", "PENDING"], ["thor3", "READY", "PENDING"], ["thor2", "READY", "PENDING"]]}
+{"task": "task_5ab0ae5946a1402b", "status": "RUNNING", "completed": 4, "total": 24, "sessions": [["thor1", "READY", "PENDING"], ["thor3", "READY", "PENDING"], ["thor2", "READY", "PENDING"]]}
+{"task": "task_5ab0ae5946a1402b", "status": "RUNNING", "completed": 5, "total": 24, "sessions": [["thor1", "READY", "PENDING"], ["thor3", "READY", "PENDING"], ["thor2", "READY", "PENDING"]]}
+{"task": "task_5ab0ae5946a1402b", "status": "RUNNING", "completed": 6, "total": 24, "sessions": [["thor1", "READY", "PENDING"], ["thor3", "READY", "PENDING"], ["thor2", "READY", "PENDING"]]}
+{"task": "task_5ab0ae5946a1402b", "status": "RUNNING", "completed": 7, "total": 24, "sessions": [["thor1", "READY", "PENDING"], ["thor3", "READY", "PENDING"], ["thor2", "READY", "PENDING"]]}
+{"task": "task_5ab0ae5946a1402b", "status": "RUNNING", "completed": 8, "total": 24, "sessions": [["thor1", "READY", "PENDING"], ["thor3", "READY", "PENDING"], ["thor2", "READY", "PENDING"]]}
+{"task": "task_5ab0ae5946a1402b", "status": "RUNNING", "completed": 9, "total": 24, "sessions": [["thor1", "READY", "PENDING"], ["thor3", "READY", "PENDING"], ["thor2", "READY", "PENDING"]]}
+{"task": "task_5ab0ae5946a1402b", "status": "RUNNING", "completed": 10, "total": 24, "sessions": [["thor1", "READY", "PENDING"], ["thor3", "READY", "PENDING"], ["thor2", "READY", "PENDING"]]}
+{"task": "task_5ab0ae5946a1402b", "status": "RUNNING", "completed": 11, "total": 24, "sessions": [["thor1", "READY", "PENDING"], ["thor3", "READY", "PENDING"], ["thor2", "READY", "PENDING"]]}
+{"task": "task_5ab0ae5946a1402b", "status": "RUNNING", "completed": 13, "total": 24, "sessions": [["thor1", "READY", "PENDING"], ["thor3", "READY", "PENDING"], ["thor2", "READY", "PENDING"]]}
+{"task": "task_5ab0ae5946a1402b", "status": "RUNNING", "completed": 15, "total": 24, "sessions": [["thor1", "READY", "PENDING"], ["thor3", "READY", "PENDING"], ["thor2", "READY", "PENDING"]]}
+{"task": "task_5ab0ae5946a1402b", "status": "RUNNING", "completed": 16, "total": 24, "sessions": [["thor1", "READY", "PENDING"], ["thor3", "READY", "PENDING"], ["thor2", "READY", "PENDING"]]}
+{"task": "task_5ab0ae5946a1402b", "status": "RUNNING", "completed": 19, "total": 24, "sessions": [["thor1", "READY", "PENDING"], ["thor3", "READY", "PENDING"], ["thor2", "READY", "PENDING"]]}
+{"task": "task_5ab0ae5946a1402b", "status": "RUNNING", "completed": 20, "total": 24, "sessions": [["thor1", "READY", "PENDING"], ["thor3", "READY", "PENDING"], ["thor2", "READY", "PENDING"]]}
+{"task": "task_5ab0ae5946a1402b", "status": "RUNNING", "completed": 22, "total": 24, "sessions": [["thor1", "READY", "PENDING"], ["thor3", "READY", "PENDING"], ["thor2", "READY", "PENDING"]]}
+{"task": "task_5ab0ae5946a1402b", "status": "RUNNING", "completed": 23, "total": 24, "sessions": [["thor1", "READY", "PENDING"], ["thor3", "READY", "PENDING"], ["thor2", "READY", "PENDING"]]}
+{"task": "task_5ab0ae5946a1402b", "status": "SUCCEEDED", "completed": 24, "total": 24, "sessions": [["thor1", "READY", "PENDING"], ["thor3", "READY", "PENDING"], ["thor2", "READY", "PENDING"]]}
+{"task": "task_5ab0ae5946a1402b", "status": "SUCCEEDED", "completed": 24, "total": 24, "sessions": [["thor1", "STOPPING", "PENDING"], ["thor3", "STOPPING", "PENDING"], ["thor2", "STOPPING", "PENDING"]]}
+{"task": "task_5ab0ae5946a1402b", "status": "SUCCEEDED", "completed": 24, "total": 24, "sessions": [["thor1", "CLOSED", "DONE"], ["thor3", "STOPPING", "PENDING"], ["thor2", "STOPPING", "PENDING"]]}
+{"task": "task_5ab0ae5946a1402b", "status": "SUCCEEDED", "completed": 24, "total": 24, "sessions": [["thor1", "CLOSED", "DONE"], ["thor3", "CLOSED", "DONE"], ["thor2", "CLOSED", "DONE"]]}
+{"task_id": "task_5ab0ae5946a1402b", "status": "SUCCEEDED", "segments": 24, "sampled_frames": 240, "algorithm": "round_robin", "elapsed_seconds": 11.88929796218872, "counts": {"person": 1518, "bicycle": 0, "car": 246, "motorcycle": 0, "bus": 0, "truck": 240}, "per_node": [{"node": "thor1", "kube_node": "thor1", "pod_uid": "3c2ac5fe-bdb8-40e9-8518-6cb0525d6d1d", "segments": 9, "model_load_count": 1, "actual_backend": "cuda", "cuda_compute_events": 203, "gpu_uuid": "GPU-a7c66ad2-6dbb-0ab8-c1a2-37ba6dba3600", "cleanup": "DONE"}, {"node": "thor3", "kube_node": "thor3", "pod_uid": "ca930ce8-1708-425c-8ca6-31a901067b96", "segments": 8, "model_load_count": 1, "actual_backend": "cuda", "cuda_compute_events": 203, "gpu_uuid": "GPU-a7c66ad2-6dbb-0ab8-c1a2-37ba6dba3600", "cleanup": "DONE"}, {"node": "thor2", "kube_node": "thor2", "pod_uid": "6b0b625c-4c3b-4d43-929d-d310f732ab77", "segments": 7, "model_load_count": 1, "actual_backend": "cuda", "cuda_compute_events": 203, "gpu_uuid": "GPU-a7c66ad2-6dbb-0ab8-c1a2-37ba6dba3600", "cleanup": "DONE"}], "overlapping_attempt_pairs": 33, "overlapping_nodes": ["thor1", "thor2", "thor3"], "largest_attempt_overlap_seconds": 0.6725471019744873, "cleanup": "DONE", "case": "round_robin", "previews_readable": 72}
+{"created_task": "task_fa9b28c070084b05", "nodes": ["thor1", "thor2", "thor3"], "algorithm": "resource_aware"}
+{"task": "task_fa9b28c070084b05", "status": "QUEUED", "completed": 0, "total": 0, "sessions": []}
+{"task": "task_fa9b28c070084b05", "status": "PREPARING", "completed": 0, "total": 0, "sessions": []}
+{"task": "task_fa9b28c070084b05", "status": "RUNNING", "completed": 0, "total": 24, "sessions": []}
+{"task": "task_fa9b28c070084b05", "status": "RUNNING", "completed": 0, "total": 24, "sessions": [["thor3", "STARTING", "PENDING"], ["thor1", "STARTING", "PENDING"]]}
+{"task": "task_fa9b28c070084b05", "status": "RUNNING", "completed": 0, "total": 24, "sessions": [["thor3", "STARTING", "PENDING"], ["thor1", "STARTING", "PENDING"], ["thor2", "STARTING", "PENDING"]]}
+{"task": "task_fa9b28c070084b05", "status": "RUNNING", "completed": 0, "total": 24, "sessions": [["thor3", "STARTING", "PENDING"], ["thor1", "READY", "PENDING"], ["thor2", "STARTING", "PENDING"]]}
+{"task": "task_fa9b28c070084b05", "status": "RUNNING", "completed": 0, "total": 24, "sessions": [["thor3", "STARTING", "PENDING"], ["thor1", "READY", "PENDING"], ["thor2", "READY", "PENDING"]]}
+{"task": "task_fa9b28c070084b05", "status": "RUNNING", "completed": 0, "total": 24, "sessions": [["thor3", "READY", "PENDING"], ["thor1", "READY", "PENDING"], ["thor2", "READY", "PENDING"]]}
+{"task": "task_fa9b28c070084b05", "status": "RUNNING", "completed": 1, "total": 24, "sessions": [["thor3", "READY", "PENDING"], ["thor1", "READY", "PENDING"], ["thor2", "READY", "PENDING"]]}
+{"task": "task_fa9b28c070084b05", "status": "RUNNING", "completed": 2, "total": 24, "sessions": [["thor3", "READY", "PENDING"], ["thor1", "READY", "PENDING"], ["thor2", "READY", "PENDING"]]}
+{"task": "task_fa9b28c070084b05", "status": "RUNNING", "completed": 3, "total": 24, "sessions": [["thor3", "READY", "PENDING"], ["thor1", "READY", "PENDING"], ["thor2", "READY", "PENDING"]]}
+{"task": "task_fa9b28c070084b05", "status": "RUNNING", "completed": 5, "total": 24, "sessions": [["thor3", "READY", "PENDING"], ["thor1", "READY", "PENDING"], ["thor2", "READY", "PENDING"]]}
+{"task": "task_fa9b28c070084b05", "status": "RUNNING", "completed": 6, "total": 24, "sessions": [["thor3", "READY", "PENDING"], ["thor1", "READY", "PENDING"], ["thor2", "READY", "PENDING"]]}
+{"task": "task_fa9b28c070084b05", "status": "RUNNING", "completed": 7, "total": 24, "sessions": [["thor3", "READY", "PENDING"], ["thor1", "READY", "PENDING"], ["thor2", "READY", "PENDING"]]}
+{"task": "task_fa9b28c070084b05", "status": "RUNNING", "completed": 8, "total": 24, "sessions": [["thor3", "READY", "PENDING"], ["thor1", "READY", "PENDING"], ["thor2", "READY", "PENDING"]]}
+{"task": "task_fa9b28c070084b05", "status": "RUNNING", "completed": 10, "total": 24, "sessions": [["thor3", "READY", "PENDING"], ["thor1", "READY", "PENDING"], ["thor2", "READY", "PENDING"]]}
+{"task": "task_fa9b28c070084b05", "status": "RUNNING", "completed": 11, "total": 24, "sessions": [["thor3", "READY", "PENDING"], ["thor1", "READY", "PENDING"], ["thor2", "READY", "PENDING"]]}
+{"task": "task_fa9b28c070084b05", "status": "RUNNING", "completed": 12, "total": 24, "sessions": [["thor3", "READY", "PENDING"], ["thor1", "READY", "PENDING"], ["thor2", "READY", "PENDING"]]}
+{"task": "task_fa9b28c070084b05", "status": "RUNNING", "completed": 13, "total": 24, "sessions": [["thor3", "READY", "PENDING"], ["thor1", "READY", "PENDING"], ["thor2", "READY", "PENDING"]]}
+{"task": "task_fa9b28c070084b05", "status": "RUNNING", "completed": 15, "total": 24, "sessions": [["thor3", "READY", "PENDING"], ["thor1", "READY", "PENDING"], ["thor2", "READY", "PENDING"]]}
+{"task": "task_fa9b28c070084b05", "status": "RUNNING", "completed": 18, "total": 24, "sessions": [["thor3", "READY", "PENDING"], ["thor1", "READY", "PENDING"], ["thor2", "READY", "PENDING"]]}
+{"task": "task_fa9b28c070084b05", "status": "RUNNING", "completed": 20, "total": 24, "sessions": [["thor3", "READY", "PENDING"], ["thor1", "READY", "PENDING"], ["thor2", "READY", "PENDING"]]}
+{"task": "task_fa9b28c070084b05", "status": "RUNNING", "completed": 21, "total": 24, "sessions": [["thor3", "READY", "PENDING"], ["thor1", "READY", "PENDING"], ["thor2", "READY", "PENDING"]]}
+{"task": "task_fa9b28c070084b05", "status": "RUNNING", "completed": 23, "total": 24, "sessions": [["thor3", "READY", "PENDING"], ["thor1", "READY", "PENDING"], ["thor2", "READY", "PENDING"]]}
+{"task": "task_fa9b28c070084b05", "status": "SUCCEEDED", "completed": 24, "total": 24, "sessions": [["thor3", "READY", "PENDING"], ["thor1", "READY", "PENDING"], ["thor2", "READY", "PENDING"]]}
+{"task": "task_fa9b28c070084b05", "status": "SUCCEEDED", "completed": 24, "total": 24, "sessions": [["thor3", "STOPPING", "PENDING"], ["thor1", "STOPPING", "PENDING"], ["thor2", "STOPPING", "PENDING"]]}
+{"task": "task_fa9b28c070084b05", "status": "SUCCEEDED", "completed": 24, "total": 24, "sessions": [["thor3", "CLOSED", "DONE"], ["thor1", "STOPPING", "PENDING"], ["thor2", "STOPPING", "PENDING"]]}
+{"task": "task_fa9b28c070084b05", "status": "SUCCEEDED", "completed": 24, "total": 24, "sessions": [["thor3", "CLOSED", "DONE"], ["thor1", "CLOSED", "DONE"], ["thor2", "STOPPING", "PENDING"]]}
+{"task": "task_fa9b28c070084b05", "status": "SUCCEEDED", "completed": 24, "total": 24, "sessions": [["thor3", "CLOSED", "DONE"], ["thor1", "CLOSED", "DONE"], ["thor2", "CLOSED", "DONE"]]}
+{"task_id": "task_fa9b28c070084b05", "status": "SUCCEEDED", "segments": 24, "sampled_frames": 240, "algorithm": "resource_aware", "elapsed_seconds": 11.753170251846313, "counts": {"person": 1518, "bicycle": 0, "car": 246, "motorcycle": 0, "bus": 0, "truck": 240}, "per_node": [{"node": "thor3", "kube_node": "thor3", "pod_uid": "87de182c-3765-4695-be15-baeca3320c02", "segments": 8, "model_load_count": 1, "actual_backend": "cuda", "cuda_compute_events": 203, "gpu_uuid": "GPU-a7c66ad2-6dbb-0ab8-c1a2-37ba6dba3600", "cleanup": "DONE"}, {"node": "thor1", "kube_node": "thor1", "pod_uid": "de7a0082-68b9-4108-9f51-5bebf64d5f62", "segments": 8, "model_load_count": 1, "actual_backend": "cuda", "cuda_compute_events": 203, "gpu_uuid": "GPU-a7c66ad2-6dbb-0ab8-c1a2-37ba6dba3600", "cleanup": "DONE"}, {"node": "thor2", "kube_node": "thor2", "pod_uid": "000473bb-d6e7-48d9-bff7-24d30aea764d", "segments": 8, "model_load_count": 1, "actual_backend": "cuda", "cuda_compute_events": 203, "gpu_uuid": "GPU-a7c66ad2-6dbb-0ab8-c1a2-37ba6dba3600", "cleanup": "DONE"}], "overlapping_attempt_pairs": 37, "overlapping_nodes": ["thor1", "thor2", "thor3"], "largest_attempt_overlap_seconds": 0.6846389770507812, "cleanup": "DONE", "case": "resource_aware", "previews_readable": 72}
+{"created_task": "task_09e7520b1eff41fd", "nodes": ["thor1", "thor2", "thor3"], "algorithm": "round_robin"}
+{"task": "task_09e7520b1eff41fd", "status": "QUEUED", "completed": 0, "total": 0, "sessions": []}
+{"task": "task_09e7520b1eff41fd", "status": "PREPARING", "completed": 0, "total": 0, "sessions": []}
+{"task": "task_09e7520b1eff41fd", "status": "RUNNING", "completed": 0, "total": 24, "sessions": [["thor1", "STARTING", "PENDING"]]}
+{"task": "task_09e7520b1eff41fd", "status": "RUNNING", "completed": 0, "total": 24, "sessions": [["thor1", "STARTING", "PENDING"], ["thor3", "STARTING", "PENDING"], ["thor2", "STARTING", "PENDING"]]}
+{"task": "task_09e7520b1eff41fd", "status": "RUNNING", "completed": 0, "total": 24, "sessions": [["thor1", "READY", "PENDING"], ["thor3", "STARTING", "PENDING"], ["thor2", "READY", "PENDING"]]}
+{"task": "task_09e7520b1eff41fd", "status": "RUNNING", "completed": 0, "total": 24, "sessions": [["thor1", "READY", "PENDING"], ["thor3", "READY", "PENDING"], ["thor2", "READY", "PENDING"]]}
+{"task": "task_09e7520b1eff41fd", "status": "RUNNING", "completed": 2, "total": 24, "sessions": [["thor1", "READY", "PENDING"], ["thor3", "READY", "PENDING"], ["thor2", "READY", "PENDING"]]}
+{"task": "task_09e7520b1eff41fd", "status": "RUNNING", "completed": 3, "total": 24, "sessions": [["thor1", "READY", "PENDING"], ["thor3", "READY", "PENDING"], ["thor2", "READY", "PENDING"]]}
+{"task": "task_09e7520b1eff41fd", "status": "RUNNING", "completed": 5, "total": 24, "sessions": [["thor1", "READY", "PENDING"], ["thor3", "READY", "PENDING"], ["thor2", "READY", "PENDING"]]}
+{"task": "task_09e7520b1eff41fd", "status": "RUNNING", "completed": 6, "total": 24, "sessions": [["thor1", "READY", "PENDING"], ["thor3", "READY", "PENDING"], ["thor2", "READY", "PENDING"]]}
+{"task": "task_09e7520b1eff41fd", "status": "RUNNING", "completed": 7, "total": 24, "sessions": [["thor1", "READY", "PENDING"], ["thor3", "READY", "PENDING"], ["thor2", "READY", "PENDING"]]}
+{"task": "task_09e7520b1eff41fd", "status": "RUNNING", "completed": 8, "total": 24, "sessions": [["thor1", "READY", "PENDING"], ["thor3", "READY", "PENDING"], ["thor2", "READY", "PENDING"]]}
+{"task": "task_09e7520b1eff41fd", "status": "RUNNING", "completed": 9, "total": 24, "sessions": [["thor1", "READY", "PENDING"], ["thor3", "READY", "PENDING"], ["thor2", "READY", "PENDING"]]}
+{"task": "task_09e7520b1eff41fd", "status": "CANCELED", "completed": 9, "total": 24, "sessions": [["thor1", "STOPPING", "PENDING"], ["thor3", "STOPPING", "PENDING"], ["thor2", "STOPPING", "PENDING"]]}
+{"task": "task_09e7520b1eff41fd", "status": "CANCELED", "completed": 9, "total": 24, "sessions": [["thor1", "CLOSED", "DONE"], ["thor3", "STOPPING", "PENDING"], ["thor2", "STOPPING", "PENDING"]]}
+{"task": "task_09e7520b1eff41fd", "status": "CANCELED", "completed": 9, "total": 24, "sessions": [["thor1", "CLOSED", "DONE"], ["thor3", "CLOSED", "DONE"], ["thor2", "STOPPING", "PENDING"]]}
+{"task": "task_09e7520b1eff41fd", "status": "CANCELED", "completed": 9, "total": 24, "sessions": [["thor1", "CLOSED", "DONE"], ["thor3", "CLOSED", "DONE"], ["thor2", "CLOSED", "DONE"]]}
+{"task_id": "task_09e7520b1eff41fd", "status": "CANCELED", "cleanup": "DONE", "per_node": [{"node": "thor1", "model_load_count": 1, "cleanup": "DONE"}, {"node": "thor3", "model_load_count": 1, "cleanup": "DONE"}, {"node": "thor2", "model_load_count": 1, "cleanup": "DONE"}], "case": "cancel-all", "previews_readable": 0}

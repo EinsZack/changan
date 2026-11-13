@@ -1,0 +1,253 @@
+{
+  "checked_at": "2026-11-13T07:46:48.832403+00:00",
+  "environment": "native Mac control plane; real ARM64 Jetson AGX Thor boards",
+  "nodes": [
+    "thor1",
+    "thor2",
+    "thor3"
+  ],
+  "cases": [
+    {
+      "task_id": "task_35d898266eec4da7",
+      "status": "SUCCEEDED",
+      "segments": 6,
+      "sampled_frames": 240,
+      "algorithm": "round_robin",
+      "elapsed_seconds": 12.260097026824951,
+      "counts": {
+        "person": 1515,
+        "bicycle": 0,
+        "car": 241,
+        "motorcycle": 0,
+        "bus": 0,
+        "truck": 240
+      },
+      "per_node": [
+        {
+          "node": "thor3",
+          "kube_node": "thor3",
+          "pod_uid": "8e33653c-ceb8-4d73-b12d-2f5786cd8bd8",
+          "segments": 6,
+          "model_load_count": 1,
+          "actual_backend": "cuda",
+          "cuda_compute_events": 203,
+          "gpu_uuid": "GPU-a7c66ad2-6dbb-0ab8-c1a2-37ba6dba3600",
+          "cleanup": "DONE"
+        }
+      ],
+      "overlapping_attempt_pairs": 0,
+      "overlapping_nodes": [],
+      "largest_attempt_overlap_seconds": 0,
+      "cleanup": "DONE",
+      "case": "single-thor3",
+      "previews_readable": 18
+    },
+    {
+      "task_id": "task_5ab0ae5946a1402b",
+      "status": "SUCCEEDED",
+      "segments": 24,
+      "sampled_frames": 240,
+      "algorithm": "round_robin",
+      "elapsed_seconds": 11.88929796218872,
+      "counts": {
+        "person": 1518,
+        "bicycle": 0,
+        "car": 246,
+        "motorcycle": 0,
+        "bus": 0,
+        "truck": 240
+      },
+      "per_node": [
+        {
+          "node": "thor1",
+          "kube_node": "thor1",
+          "pod_uid": "3c2ac5fe-bdb8-40e9-8518-6cb0525d6d1d",
+          "segments": 9,
+          "model_load_count": 1,
+          "actual_backend": "cuda",
+          "cuda_compute_events": 203,
+          "gpu_uuid": "GPU-a7c66ad2-6dbb-0ab8-c1a2-37ba6dba3600",
+          "cleanup": "DONE"
+        },
+        {
+          "node": "thor3",
+          "kube_node": "thor3",
+          "pod_uid": "ca930ce8-1708-425c-8ca6-31a901067b96",
+          "segments": 8,
+          "model_load_count": 1,
+          "actual_backend": "cuda",
+          "cuda_compute_events": 203,
+          "gpu_uuid": "GPU-a7c66ad2-6dbb-0ab8-c1a2-37ba6dba3600",
+          "cleanup": "DONE"
+        },
+        {
+          "node": "thor2",
+          "kube_node": "thor2",
+          "pod_uid": "6b0b625c-4c3b-4d43-929d-d310f732ab77",
+          "segments": 7,
+          "model_load_count": 1,
+          "actual_backend": "cuda",
+          "cuda_compute_events": 203,
+          "gpu_uuid": "GPU-a7c66ad2-6dbb-0ab8-c1a2-37ba6dba3600",
+          "cleanup": "DONE"
+        }
+      ],
+      "overlapping_attempt_pairs": 33,
+      "overlapping_nodes": [
+        "thor1",
+        "thor2",
+        "thor3"
+      ],
+      "largest_attempt_overlap_seconds": 0.6725471019744873,
+      "cleanup": "DONE",
+      "case": "round_robin",
+      "previews_readable": 72
+    },
+    {
+      "task_id": "task_fa9b28c070084b05",
+      "status": "SUCCEEDED",
+      "segments": 24,
+      "sampled_frames": 240,
+      "algorithm": "resource_aware",
+      "elapsed_seconds": 11.753170251846313,
+      "counts": {
+        "person": 1518,
+        "bicycle": 0,
+        "car": 246,
+        "motorcycle": 0,
+        "bus": 0,
+        "truck": 240
+      },
+      "per_node": [
+        {
+          "node": "thor3",
+          "kube_node": "thor3",
+          "pod_uid": "87de182c-3765-4695-be15-baeca3320c02",
+          "segments": 8,
+          "model_load_count": 1,
+          "actual_backend": "cuda",
+          "cuda_compute_events": 203,
+          "gpu_uuid": "GPU-a7c66ad2-6dbb-0ab8-c1a2-37ba6dba3600",
+          "cleanup": "DONE"
+        },
+        {
+          "node": "thor1",
+          "kube_node": "thor1",
+          "pod_uid": "de7a0082-68b9-4108-9f51-5bebf64d5f62",
+          "segments": 8,
+          "model_load_count": 1,
+          "actual_backend": "cuda",
+          "cuda_compute_events": 203,
+          "gpu_uuid": "GPU-a7c66ad2-6dbb-0ab8-c1a2-37ba6dba3600",
+          "cleanup": "DONE"
+        },
+        {
+          "node": "thor2",
+          "kube_node": "thor2",
+          "pod_uid": "000473bb-d6e7-48d9-bff7-24d30aea764d",
+          "segments": 8,
+          "model_load_count": 1,
+          "actual_backend": "cuda",
+          "cuda_compute_events": 203,
+          "gpu_uuid": "GPU-a7c66ad2-6dbb-0ab8-c1a2-37ba6dba3600",
+          "cleanup": "DONE"
+        }
+      ],
+      "overlapping_attempt_pairs": 37,
+      "overlapping_nodes": [
+        "thor1",
+        "thor2",
+        "thor3"
+      ],
+      "largest_attempt_overlap_seconds": 0.6846389770507812,
+      "cleanup": "DONE",
+      "case": "resource_aware",
+      "previews_readable": 72
+    },
+    {
+      "task_id": "task_09e7520b1eff41fd",
+      "status": "CANCELED",
+      "cleanup": "DONE",
+      "per_node": [
+        {
+          "node": "thor1",
+          "model_load_count": 1,
+          "cleanup": "DONE"
+        },
+        {
+          "node": "thor3",
+          "model_load_count": 1,
+          "cleanup": "DONE"
+        },
+        {
+          "node": "thor2",
+          "model_load_count": 1,
+          "cleanup": "DONE"
+        }
+      ],
+      "case": "cancel-all",
+      "previews_readable": 0
+    }
+  ],
+  "cluster_before": {
+    "nodes": [
+      {
+        "name": "thor1",
+        "uid": "92061adf-e671-473e-b6bb-9588e5980615",
+        "physical_host": "thor1",
+        "board_serial_sha256": "4196c8f4f1f8055566105cdc228b5f6869f58ea77169f66cbfa251a4fe6490e3",
+        "ready": true,
+        "gpu_slots": 1
+      },
+      {
+        "name": "thor2",
+        "uid": "a7d72c5b-12af-408b-b5d4-de9385bf6c08",
+        "physical_host": "thor2",
+        "board_serial_sha256": "3ad22ab6df21ca8f89496065c80be43fc578f3552c5fa41c191f3d2eb35ff2da",
+        "ready": true,
+        "gpu_slots": 1
+      },
+      {
+        "name": "thor3",
+        "uid": "5b053936-26b5-42d5-a3de-010a0c2a1349",
+        "physical_host": "thor3",
+        "board_serial_sha256": "8fbb34dcbd81e855ddf8fea591d4908d0acec0d7dce2b3054b4b2451dd85c009",
+        "ready": true,
+        "gpu_slots": 1
+      }
+    ],
+    "pods": [],
+    "jobs": []
+  },
+  "cluster_after": {
+    "nodes": [
+      {
+        "name": "thor1",
+        "uid": "92061adf-e671-473e-b6bb-9588e5980615",
+        "physical_host": "thor1",
+        "board_serial_sha256": "4196c8f4f1f8055566105cdc228b5f6869f58ea77169f66cbfa251a4fe6490e3",
+        "ready": true,
+        "gpu_slots": 1
+      },
+      {
+        "name": "thor2",
+        "uid": "a7d72c5b-12af-408b-b5d4-de9385bf6c08",
+        "physical_host": "thor2",
+        "board_serial_sha256": "3ad22ab6df21ca8f89496065c80be43fc578f3552c5fa41c191f3d2eb35ff2da",
+        "ready": true,
+        "gpu_slots": 1
+      },
+      {
+        "name": "thor3",
+        "uid": "5b053936-26b5-42d5-a3de-010a0c2a1349",
+        "physical_host": "thor3",
+        "board_serial_sha256": "8fbb34dcbd81e855ddf8fea591d4908d0acec0d7dce2b3054b4b2451dd85c009",
+        "ready": true,
+        "gpu_slots": 1
+      }
+    ],
+    "pods": [],
+    "jobs": []
+  },
+  "passed": true
+}

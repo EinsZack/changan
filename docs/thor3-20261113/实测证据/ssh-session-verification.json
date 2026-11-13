@@ -1,0 +1,7 @@
+{
+  "checked_at": "2026-11-13T07:53:01.608691+00:00",
+  "initial_interactive_ssh_closed": true,
+  "fresh_key_based_connection_succeeded": true,
+  "k3s_agent_active_after_close": true,
+  "k3s_agent_enabled": true
+}

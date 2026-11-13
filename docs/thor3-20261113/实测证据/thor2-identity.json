@@ -1,0 +1,9 @@
+{
+  "checked_at": "2026-11-13T07:44:44.978148+00:00",
+  "board_serial_sha256": "3ad22ab6df21ca8f89496065c80be43fc578f3552c5fa41c191f3d2eb35ff2da",
+  "machine_id_sha256": "a3e76729b25335548ecc595d8cab15f29f6e82967ebf6b2394e88393d22e2160",
+  "gpu": "NVIDIA Thor, 595.78, GPU-a7c66ad2-6dbb-0ab8-c1a2-37ba6dba3600",
+  "ntp": "NTPSynchronized=yes",
+  "node": "thor2",
+  "ip": "192.168.50.152"
+}

@@ -10,8 +10,8 @@ module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(module)
 
 
-def complete_task():
-    nodes = ['thor1', 'thor2']
+def complete_task(nodes=None):
+    nodes = nodes or ['thor1', 'thor2']
     sessions = []
     attempts = []
     for i, node in enumerate(nodes):
@@ -28,8 +28,8 @@ def complete_task():
                              'started': 10+part*2+i*.2, 'finished': 11+part*2+i*.2,
                              'workload': {'pod_uid': pod}})
     return {'id': 'task-proof', 'status': 'SUCCEEDED', 'created': 1, 'finished': 15,
-            'completed': 4, 'total': 4, 'params': {'algorithm': 'round_robin'},
-            'result': {'coverage': 1, 'sampled_frames': 40, 'counts': {}},
+            'completed': len(nodes)*2, 'total': len(nodes)*2, 'params': {'algorithm': 'round_robin'},
+            'result': {'coverage': 1, 'sampled_frames': len(nodes)*20, 'counts': {}},
             'sessions': sessions, 'attempts': attempts}
 
 
@@ -63,3 +63,32 @@ def test_evidence_removes_nested_credentials():
                           'items': [{'api_key': 'private'}]}) == {
         'event': {'session_token': '[REDACTED]', 'node': 'thor2'},
         'items': [{'api_key': '[REDACTED]'}]}
+
+
+def test_three_real_nodes_each_execute_with_distinct_containers():
+    nodes = ['thor1', 'thor2', 'thor3']
+    summary = module.check_success(complete_task(nodes), nodes, 6, 60)
+    assert {row['node'] for row in summary['per_node']} == set(nodes)
+    assert summary['overlapping_nodes'] == nodes
+    assert len({row['pod_uid'] for row in summary['per_node']}) == 3
+
+
+def test_third_node_must_really_execute():
+    nodes = ['thor1', 'thor2', 'thor3']
+    task = complete_task(nodes)
+    for attempt in task['attempts']:
+        if attempt['actual_node'] == 'thor3':
+            attempt['actual_node'] = 'thor2'
+    with pytest.raises(AssertionError):
+        module.check_success(task, nodes, 6, 60)
+
+
+def test_third_node_must_overlap_another_real_node():
+    nodes = ['thor1', 'thor2', 'thor3']
+    task = complete_task(nodes)
+    for attempt in task['attempts']:
+        if attempt['actual_node'] == 'thor3':
+            attempt['started'] += 20
+            attempt['finished'] += 20
+    with pytest.raises(AssertionError, match='Some selected nodes never overlapped'):
+        module.check_success(task, nodes, 6, 60)

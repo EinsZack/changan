@@ -72,6 +72,7 @@ def check_success(task, nodes, expected_segments, expected_frames):
                          'gpu_uuid': runtime['gpu']['uuid'], 'cleanup': 'DONE'})
     # This is a control-plane observation of overlapping attempt lifetimes, not kernel profiling.
     overlaps = []
+    overlapping_nodes = set()
     for index, left in enumerate(task['attempts']):
         for right in task['attempts'][index+1:]:
             if left['actual_node'] == right['actual_node']:
@@ -80,13 +81,16 @@ def check_success(task, nodes, expected_segments, expected_frames):
                 seconds = min(left['finished'], right['finished']) - max(left['started'], right['started'])
                 if seconds > 0:
                     overlaps.append(seconds)
+                    overlapping_nodes.update((left['actual_node'], right['actual_node']))
     if len(nodes) > 1:
         assert overlaps, 'No recorded overlap across actual nodes'
+        assert overlapping_nodes == set(nodes), 'Some selected nodes never overlapped another node'
     return {'task_id': task['id'], 'status': task['status'], 'segments': expected_segments,
             'sampled_frames': expected_frames, 'algorithm': task['params']['algorithm'],
             'elapsed_seconds': task['finished'] - task['created'],
             'counts': task['result']['counts'], 'per_node': per_node,
             'overlapping_attempt_pairs': len(overlaps),
+            'overlapping_nodes': sorted(overlapping_nodes),
             'largest_attempt_overlap_seconds': max(overlaps, default=0), 'cleanup': 'DONE'}
 
 
@@ -184,10 +188,10 @@ def run(root, nodes, output, cancel=False):
         record('single-'+nodes[-1], single, check_success(single, [nodes[-1]], 6, 240))
         if len(nodes) > 1:
             for algorithm in ('round_robin', 'resource_aware'):
-                task = wait(create('双Thor · '+algorithm+' · 真实视频分片协同', nodes, algorithm, 1), settled)
+                task = wait(create(f'{len(nodes)}节点Thor · '+algorithm+' · 真实视频分片协同', nodes, algorithm, 1), settled)
                 record(algorithm, task, check_success(task, nodes, 24, 240))
             if cancel:
-                tid = create('双Thor · 运行中取消与容器回收', nodes, 'round_robin', 1)
+                tid = create(f'{len(nodes)}节点Thor · 运行中取消与容器回收', nodes, 'round_robin', 1)
                 try:
                     wait(tid, lambda t: {a['actual_node'] for a in t['attempts']
                          if a['status'] == 'RUNNING'} == set(nodes), timeout=120)
@@ -198,7 +202,7 @@ def run(root, nodes, output, cancel=False):
                 task = wait(tid, settled)
                 assert task['status'] == 'CANCELED' and task['result'] is None
                 assert {s['node_id'] for s in task['sessions']} == set(nodes)
-                record('cancel-both', task, {'task_id': tid, 'status': 'CANCELED', 'cleanup': 'DONE',
+                record('cancel-all' if len(nodes) > 2 else 'cancel-both', task, {'task_id': tid, 'status': 'CANCELED', 'cleanup': 'DONE',
                        'per_node': [{'node': s['node_id'], 'model_load_count': s['model_load_count'],
                                     'cleanup': s['cleanup_state']} for s in task['sessions']]})
         until = time.monotonic()+30

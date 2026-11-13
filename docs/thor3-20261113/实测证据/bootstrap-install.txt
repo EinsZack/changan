@@ -1,0 +1,13 @@
+[INFO]  Skipping k3s download and verify
+[INFO]  Skipping installation of SELinux RPM
+[INFO]  Creating /usr/local/bin/kubectl symlink to k3s
+[INFO]  Creating /usr/local/bin/crictl symlink to k3s
+[INFO]  Skipping /usr/local/bin/ctr symlink to k3s, command exists in PATH at /usr/bin/ctr
+[INFO]  Creating killall script /usr/local/bin/k3s-killall.sh
+[INFO]  Creating uninstall script /usr/local/bin/k3s-agent-uninstall.sh
+[INFO]  env: Creating environment file /etc/systemd/system/k3s-agent.service.env
+[INFO]  systemd: Creating service file /etc/systemd/system/k3s-agent.service
+[INFO]  systemd: Enabling k3s-agent unit
+[INFO]  systemd: Starting k3s-agent
+Created symlink /etc/systemd/system/multi-user.target.wants/k3s-agent.service → /etc/systemd/system/k3s-agent.service.
+{"node": "thor3", "server": "https://192.168.50.151:6443", "checksums_verified": {"k3s-arm64": "aced90bea6a4e025abef4cf6db7d8cc316a7d20a2b963f809852a37f2b9dbc03", "k3s-airgap-images-arm64.tar.zst": "0bf33db3b0595166f1c36a6780ebd789343f50f23a4d61157519ada4d002919d", "install-k3s.sh": "c2a2643dd7c259121a876d16538844c60928de3d38ae98f22f7b95a7ffcfab9d"}, "role": "agent", "registry_ca_configured": true, "cuda_cache_uid": 10001, "business_registration": "held until GPU probe passes"}

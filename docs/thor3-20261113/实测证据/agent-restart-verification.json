@@ -1,0 +1,13 @@
+{
+  "checked_at": "2026-11-13T07:46:16.488531+00:00",
+  "node": "thor3",
+  "service": "k3s-agent",
+  "restart_requested_at": "2026-11-13T07:46:01.249481+00:00",
+  "lease_renewed_at": "2026-11-13T07:46:15.194331+00:00",
+  "ready": true,
+  "allocatable_gpu": 1,
+  "service_enabled": true,
+  "service_active": true,
+  "physical_reboot_tested": false,
+  "business_tasks_active_during_restart": 0
+}

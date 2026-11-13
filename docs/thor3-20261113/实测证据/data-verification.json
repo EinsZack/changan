@@ -1,0 +1,16 @@
+{
+  "checked_at": "2026-11-13T07:50:53.542113+00:00",
+  "historical_tasks_unchanged": 119,
+  "total_tasks": 124,
+  "segment_files_readable": 1655,
+  "integrity": "ok",
+  "foreign_key_errors": 0,
+  "active_tasks": 0,
+  "unclean_attempts": 0,
+  "unclean_sessions": 0,
+  "acceptance_passed": true,
+  "thor_nodes_ready": 3,
+  "gpu_slots_each": 1,
+  "namespace_pods": 0,
+  "namespace_jobs": 0
+}
