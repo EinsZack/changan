@@ -8,7 +8,7 @@ def package(output):
     files = []
     for directory in ['app', 'workers', 'web/dist']:
         files.extend(p for p in (ROOT/directory).rglob('*') if p.is_file() and '__pycache__' not in p.parts and p.suffix != '.pyc')
-    files += [ROOT/p for p in ['scripts/manage.py', 'scripts/kubeconfig.py', 'scripts/migrate_platform_data.py', 'scripts/install_native_services.py', 'scripts/publish_oci_archive.py', 'scripts/validate_thor_native.py',
+    files += [ROOT/p for p in ['scripts/manage.py', 'scripts/kubeconfig.py', 'scripts/migrate_platform_data.py', 'scripts/install_native_services.py', 'scripts/publish_oci_archive.py', 'scripts/validate_thor_native.py', 'scripts/validate_thor_cluster.py',
                               'requirements.txt', 'assets/models/yolox_tiny.onnx', 'assets/samples/demo.mp4']]
     blobs = {str(p.relative_to(ROOT)): p.read_bytes() for p in sorted(files)}
     checks = {name: hashlib.sha256(value).hexdigest() for name, value in blobs.items()}

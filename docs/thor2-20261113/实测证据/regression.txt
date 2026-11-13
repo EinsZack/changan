@@ -1,0 +1,7 @@
+2026-11-13, server /root/projects/changan-orchestrator, changan-orchestrator environment
+python -m pytest -q
+138 passed, 1 warning in 302.17s (0:05:02)
+Existing warning: starlette TestClient anyio.abc.BlockingPortal deprecated alias.
+Targeted acceptance proof tests: 7 passed in 7.09s.
+python -m py_compile scripts/validate_thor_cluster.py scripts/package_native_platform.py: passed
+git diff --check: passed

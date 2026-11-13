@@ -14,7 +14,7 @@ def run(root,node,expected='cuda'):
     c=httpx.Client(base_url='http://127.0.0.1:8310',headers={'X-API-Key':settings.get('CHANGAN_API_KEY','')},trust_env=False,timeout=60)
     with (root/'current/assets/samples/demo.mp4').open('rb') as video:
         uploaded=c.post('/api/uploads',files={'file':('thor-demo.mp4',video,'video/mp4')}).raise_for_status().json()
-    p={'name':'Thor1真实'+expected.upper()+' · 上传视频单节点全流程','source':uploaded['source'],'algorithm':'round_robin',
+    p={'name':node+'真实'+expected.upper()+' · 上传视频单节点全流程','source':uploaded['source'],'algorithm':'round_robin',
        'segment_seconds':4,'sample_fps':10,'attempt_timeout':300,'deadline_seconds':600,
        'max_retries':0,'node_ids':[node],'architecture':'arm64'}
     task=c.post('/api/tasks',json=p).raise_for_status().json()['id']

@@ -1,0 +1,51 @@
+{
+  "hostname": "localhost.localdomain",
+  "architecture": "aarch64",
+  "kernel": "6.8.12-1021-tegra",
+  "cpu_count": 14,
+  "os_release": "PRETTY_NAME=\"Ubuntu 24.04.4 LTS\"\nNAME=\"Ubuntu\"\nVERSION_ID=\"24.04\"\nVERSION=\"24.04.4 LTS (Noble Numbat)\"\nVERSION_CODENAME=noble\nID=ubuntu\nID_LIKE=debian\nHOME_URL=\"https://www.ubuntu.com/\"\nSUPPORT_URL=\"https://help.ubuntu.com/\"\nBUG_REPORT_URL=\"https://bugs.launchpad.net/ubuntu/\"\nPRIVACY_POLICY_URL=\"https://www.ubuntu.com/legal/terms-and-policies/privacy-policy\"\nUBUNTU_CODENAME=noble\nLOGO=ubuntu-logo\n",
+  "tegra_release": "# R39 (release), REVISION: 2.1, GCID: 46758480, BOARD: generic, EABI: aarch64, DATE: Fri Aug  7 05:54:22 AM UTC 2026\n# KERNEL_VARIANT: oot\nTARGET_USERSPACE_LIB_DIR=nvidia\nTARGET_USERSPACE_LIB_DIR_PATH=usr/lib/aarch64-linux-gnu/nvidia\n",
+  "board_serial_sha256": "4196c8f4f1f8055566105cdc228b5f6869f58ea77169f66cbfa251a4fe6490e3",
+  "machine_id_sha256": "32ac7d262842c4d3b8b76bcbbb439f97981d533cab2cecf33777f92017a86185",
+  "uptime": {
+    "returncode": 0,
+    "stdout": "14:47:08 up 1 day, 43 min,  4 users,  load average: 3.45, 3.23, 3.26",
+    "stderr": ""
+  },
+  "memory": {
+    "returncode": 0,
+    "stdout": "total        used        free      shared  buff/cache   available\nMem:           122Gi       3.6Gi       117Gi        69Mi       2.5Gi       119Gi\nSwap:          2.0Gi          0B       2.0Gi",
+    "stderr": ""
+  },
+  "disk": {
+    "returncode": 0,
+    "stdout": "Filesystem      Size  Used Avail Use% Mounted on\n/dev/nvme0n1p1  936G   40G  849G   5% /",
+    "stderr": ""
+  },
+  "ip": {
+    "returncode": 0,
+    "stdout": "lo               UNKNOWN        127.0.0.1/8 ::1/128 \ncan0             DOWN           \ncan1             DOWN           \ncan2             DOWN           \ncan3             DOWN           \nmgbe0_0          DOWN           \nmgbe1_0          DOWN           \nmgbe2_0          DOWN           \nenP2p1s0         DOWN           \nmgbe3_0          DOWN           \nwlP1p1s0         UP             192.168.50.151/24 240c:c283:4006:bc3a:53de:23ac:a716:9877/64 240c:c283:4006:bc3a:3fa9:4f3a:e005:da81/64 fe80::9b23:113a:b1e8:98d6/64 \nl4tbr0           DOWN           192.168.55.1/24 fe80::1/64 \nusb0             DOWN           \nusb1             DOWN           \ndocker0          DOWN           172.17.0.1/16 \nflannel.1        UNKNOWN        10.42.0.0/32 fe80::b0f5:7fff:fe79:680/64 \ncni0             UP             10.42.0.1/24 fe80::50cb:94ff:fe11:2f6c/64 \nvethfa0b1eba@if2 UP             fe80::74dd:76ff:fe09:70b/64 \nvethc8887901@if2 UP             fe80::7441:ff:fee5:1747/64 \nvethf6ac6042@if2 UP             fe80::e0bf:2eff:fe7c:cc88/64 \nvethc5c7bed2@if2 UP             fe80::fcf5:23ff:fe66:8cad/64",
+    "stderr": ""
+  },
+  "identity": {
+    "returncode": 0,
+    "stdout": "uid=2001(thor1) gid=2001(thor1) groups=2001(thor1),4(adm),24(cdrom),27(sudo),29(audio),30(dip),44(video),46(plugdev),100(users),108(i2c),111(lpadmin),122(gdm),983(gpio),984(weston-launch),993(render)",
+    "stderr": ""
+  },
+  "groups": {
+    "returncode": 0,
+    "stdout": "video:x:44:gdm,gnome-initial-setup,thor1\nrender:x:993:thor1",
+    "stderr": ""
+  },
+  "nvidia_smi": {
+    "returncode": 0,
+    "stdout": "NVIDIA Thor, GPU-a7c66ad2-6dbb-0ab8-c1a2-37ba6dba3600, 595.78",
+    "stderr": ""
+  },
+  "packages": {
+    "returncode": 0,
+    "stdout": "libcudnn9-cuda-13\t9.20.0.46-1\nlibnvinfer10\t10.16.2.10-1+cuda13.2\nnvidia-container-toolkit\t1.19.1-1\nnvidia-l4t-core\t39.2.1-20260806224157",
+    "stderr": ""
+  },
+  "checked_at": "2026-11-13T06:47:08.526384+00:00"
+}

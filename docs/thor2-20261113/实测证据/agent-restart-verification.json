@@ -1,0 +1,10 @@
+{
+  "checked_at": "2026-11-13T07:01:40.331398+00:00",
+  "action": "restart k3s-agent while idle",
+  "service_enabled": true,
+  "node_ready": true,
+  "allocatable_gpu": 1,
+  "platform_online": true,
+  "original_interactive_ssh_closed": true,
+  "physical_reboot_tested": false
+}

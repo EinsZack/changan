@@ -8,7 +8,10 @@
   },
   "k3s": {
     "version": "v1.35.5+k3s1",
-    "platform": "linux/arm64"
+    "platform": "linux/arm64",
+    "binary_sha256": "aced90bea6a4e025abef4cf6db7d8cc316a7d20a2b963f809852a37f2b9dbc03",
+    "airgap_images_sha256": "0bf33db3b0595166f1c36a6780ebd789343f50f23a4d61157519ada4d002919d",
+    "installer_sha256": "c2a2643dd7c259121a876d16538844c60928de3d38ae98f22f7b95a7ffcfab9d"
   },
   "nvidia_device_plugin": {
     "version": "v0.20.1",

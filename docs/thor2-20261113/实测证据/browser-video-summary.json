@@ -1,0 +1,45 @@
+{
+  "task_id": "task_a4b906e258c04201",
+  "status": "SUCCEEDED",
+  "segments": 24,
+  "sampled_frames": 240,
+  "algorithm": "resource_aware",
+  "elapsed_seconds": 18.04308795928955,
+  "counts": {
+    "person": 1518,
+    "bicycle": 0,
+    "car": 246,
+    "motorcycle": 0,
+    "bus": 0,
+    "truck": 240
+  },
+  "per_node": [
+    {
+      "node": "thor2",
+      "kube_node": "thor2",
+      "pod_uid": "f6a168af-daf3-4139-aa5c-e3ecd8ac263d",
+      "segments": 13,
+      "model_load_count": 1,
+      "actual_backend": "cuda",
+      "cuda_compute_events": 203,
+      "gpu_uuid": "GPU-a7c66ad2-6dbb-0ab8-c1a2-37ba6dba3600",
+      "cleanup": "DONE"
+    },
+    {
+      "node": "thor1",
+      "kube_node": "thor1",
+      "pod_uid": "260cb516-8864-4390-b69a-422e78f73de6",
+      "segments": 11,
+      "model_load_count": 1,
+      "actual_backend": "cuda",
+      "cuda_compute_events": 203,
+      "gpu_uuid": "GPU-a7c66ad2-6dbb-0ab8-c1a2-37ba6dba3600",
+      "cleanup": "DONE"
+    }
+  ],
+  "overlapping_attempt_pairs": 17,
+  "largest_attempt_overlap_seconds": 0.7007710933685303,
+  "cleanup": "DONE",
+  "submission": "native Mac browser UI",
+  "previews_readable": 72
+}
