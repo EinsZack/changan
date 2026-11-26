@@ -7,7 +7,7 @@ from pathlib import Path
 from threading import RLock
 from uuid import UUID
 
-from ..models.cluster import ClusterRecord, ClusterStatus
+from ..models.cluster import ClusterEvent, ClusterEventCategory, ClusterRecord, ClusterStatus
 from ..models.heartbeat import NodeHeartbeatRecord
 from ..models.node import NodeEvent, NodeRecord, NodeRegistrationRecord
 from ..models.scheduler_execution import (
@@ -15,7 +15,7 @@ from ..models.scheduler_execution import (
     SchedulerExecutionEvent,
     SchedulerExecutionProjection,
 )
-from .base import ClusterConflictError, DeviceFingerprintConflictError
+from .base import ClusterConflictError, DeviceFingerprintConflictError, node_deletion_event
 
 
 class SQLiteNodeStore:
@@ -60,6 +60,16 @@ class SQLiteNodeStore:
                     created_at TEXT NOT NULL,
                     updated_at TEXT NOT NULL
                 );
+
+                CREATE TABLE IF NOT EXISTS cluster_events (
+                    id TEXT PRIMARY KEY,
+                    cluster_id TEXT NOT NULL,
+                    category TEXT NOT NULL,
+                    occurred_at TEXT NOT NULL,
+                    payload TEXT NOT NULL
+                );
+                CREATE INDEX IF NOT EXISTS idx_cluster_events_cluster_time
+                    ON cluster_events(cluster_id, occurred_at DESC, id DESC);
 
                 CREATE TABLE IF NOT EXISTS node_events (
                     id TEXT PRIMARY KEY,
@@ -299,7 +309,7 @@ class SQLiteNodeStore:
             ).fetchone()
         return NodeRecord.model_validate_json(row["payload"]) if row else None
 
-    def save_node(self, node: NodeRecord) -> NodeRecord:
+    def save_node(self, node: NodeRecord, *, cluster_events: tuple[ClusterEvent, ...] = ()) -> NodeRecord:
         payload = node.model_dump_json()
         try:
             with self._lock, self._connection:
@@ -319,6 +329,7 @@ class SQLiteNodeStore:
                         payload,
                     ),
                 )
+                self._insert_cluster_events(cluster_events)
         except sqlite3.IntegrityError as exc:
             if node.device_fingerprint is not None:
                 raise DeviceFingerprintConflictError(
@@ -376,7 +387,7 @@ class SQLiteNodeStore:
         return cluster.model_copy(deep=True)
 
     def create_cluster_with_nodes(
-        self, cluster: ClusterRecord, nodes: list[NodeRecord]
+        self, cluster: ClusterRecord, nodes: list[NodeRecord], *, cluster_events: tuple[ClusterEvent, ...] = ()
     ) -> ClusterRecord:
         """Create a Cluster and bind every member in one SQLite transaction."""
 
@@ -423,6 +434,7 @@ class SQLiteNodeStore:
                             "NODE_ALREADY_ASSIGNED: node "
                             f"{node.node_id} is missing or already belongs to a cluster"
                         )
+                self._insert_cluster_events(cluster_events)
         except sqlite3.IntegrityError as exc:
             raise ClusterConflictError(
                 f"cluster {cluster.cluster_id} already exists"
@@ -443,7 +455,7 @@ class SQLiteNodeStore:
             ).fetchall()
         return [self._cluster_from_row(row) for row in rows]
 
-    def update_cluster(self, cluster: ClusterRecord) -> ClusterRecord:
+    def update_cluster(self, cluster: ClusterRecord, *, cluster_events: tuple[ClusterEvent, ...] = ()) -> ClusterRecord:
         with self._lock, self._connection:
             cursor = self._connection.execute(
                 """
@@ -469,14 +481,45 @@ class SQLiteNodeStore:
             )
             if cursor.rowcount == 0:
                 raise KeyError(cluster.cluster_id)
+            self._insert_cluster_events(cluster_events)
         return cluster.model_copy(deep=True)
 
-    def delete_cluster(self, cluster_id: str) -> bool:
+    def delete_cluster(self, cluster_id: str, *, cluster_events: tuple[ClusterEvent, ...] = ()) -> bool:
         with self._lock, self._connection:
             cursor = self._connection.execute(
                 "DELETE FROM clusters WHERE cluster_id = ?", (cluster_id,)
             )
+            if cursor.rowcount > 0:
+                self._insert_cluster_events(cluster_events)
         return cursor.rowcount > 0
+
+    def _insert_cluster_events(self, events: tuple[ClusterEvent, ...]) -> None:
+        if events:
+            self._connection.executemany(
+                "INSERT INTO cluster_events(id, cluster_id, category, occurred_at, payload) VALUES (?, ?, ?, ?, ?)",
+                [(str(event.id), event.cluster_id, event.category, event.occurred_at.isoformat(),
+                  event.model_dump_json()) for event in events],
+            )
+
+    def add_cluster_event(self, event: ClusterEvent) -> None:
+        with self._lock, self._connection:
+            self._insert_cluster_events((event,))
+
+    def list_cluster_events(
+        self, cluster_id: str, category: ClusterEventCategory | None, limit: int | None
+    ) -> list[ClusterEvent]:
+        sql = "SELECT payload FROM cluster_events WHERE cluster_id = ?"
+        params: list[str | int] = [cluster_id]
+        if category is not None:
+            sql += " AND category = ?"
+            params.append(category)
+        sql += " ORDER BY occurred_at DESC, id DESC"
+        if limit is not None:
+            sql += " LIMIT ?"
+            params.append(limit)
+        with self._lock:
+            rows = self._connection.execute(sql, params).fetchall()
+        return [ClusterEvent.model_validate_json(row["payload"]) for row in rows]
 
     def has_scheduler_event(self, event_id: str) -> bool:
         with self._lock:
@@ -571,12 +614,12 @@ class SQLiteNodeStore:
             for execution in executions:
                 self._upsert_scheduler_execution(execution)
 
-    def delete_node(self, node_id: UUID) -> bool:
+    def delete_node(self, node_id: UUID, *, audit_at: datetime | None = None) -> bool:
         node_key = str(node_id)
         with self._lock, self._connection:
-            cursor = self._connection.execute(
-                "DELETE FROM nodes WHERE node_id = ?", (node_key,)
-            )
+            deleted = self._connection.execute(
+                "DELETE FROM nodes WHERE node_id = ? RETURNING payload", (node_key,)
+            ).fetchone()
             self._connection.execute(
                 "DELETE FROM node_events WHERE node_id = ?", (node_key,)
             )
@@ -586,9 +629,13 @@ class SQLiteNodeStore:
             self._connection.execute(
                 "DELETE FROM node_heartbeats WHERE node_id = ?", (node_key,)
             )
-            return cursor.rowcount > 0
+            if deleted is not None and audit_at is not None:
+                event = node_deletion_event(NodeRecord.model_validate_json(deleted["payload"]), audit_at)
+                if event is not None:
+                    self._insert_cluster_events((event,))
+            return deleted is not None
 
-    def add_event(self, event: NodeEvent) -> NodeEvent:
+    def add_event(self, event: NodeEvent, *, cluster_event: ClusterEvent | None = None) -> NodeEvent:
         payload = event.model_dump_json()
         with self._lock, self._connection:
             self._connection.execute(
@@ -607,6 +654,8 @@ class SQLiteNodeStore:
                     payload,
                 ),
             )
+            if cluster_event:
+                self._insert_cluster_events((cluster_event,))
         return event.model_copy(deep=True)
 
     def list_events(self, node_id: UUID | None = None) -> list[NodeEvent]:

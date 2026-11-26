@@ -26,11 +26,14 @@ async function taskEvents(id){
  const rows=[];let after=0;
  for(;;){const page=await api(`/api/tasks/${id}/events?after=${after}`);rows.push(...page);if(page.length<1000)return rows;after=page.at(-1).id}
 }
-export default function TaskConsole({route, navigatePage, onCounts} = {}){
+export default function TaskConsole({route, navigatePage, clearClusterFilter, onCounts} = {}){
  const[alerts,setAlerts]=useState(null);
  const[localPage,setLocalPage]=useState(()=>{const p=new URLSearchParams(location.search).get('page')||'overview';return PAGE_ALIASES[p]?.[0]||p}),[overview,setOverview]=useState(null),[tasks,setTasks]=useState([]),[localSelected,setSelected]=useState(new URLSearchParams(location.search).get('task')),[detail,setDetail]=useState(null),[events,setEvents]=useState([]),[modal,setModal]=useState(false),[error,setError]=useState(''),[toast,setToast]=useState(''),[strategies,setStrategies]=useState([]),[busy,setBusy]=useState(false),[tick,setTick]=useState(0);
  const page=route ? route.page : localPage;
  const selected=route ? route.task : localSelected;
+ const clusterId=route?.clusterId;
+ const taskListUrl=clusterId ? '/api/tasks?'+new URLSearchParams({cluster_id:clusterId}) : '/api/tasks';
+ const [loadedTaskList,setLoadedTaskList]=useState(null);
  const setPage=next=>navigatePage ? navigatePage(next) : setLocalPage(next);
  const [overviewPage,setOverviewPage]=useState(1);
  const initialQuery=useRef(new URLSearchParams(location.search)).current;
@@ -47,18 +50,18 @@ export default function TaskConsole({route, navigatePage, onCounts} = {}){
      const [o,a,t,s,details]=await Promise.all([
        api(isOverview?`/api/overview/tasks?page=${overviewPage}`:'/api/overview'),
        api('/api/alerts?unread=true&limit=1'),
-       page==='tasks'?api('/api/tasks'):null,
+       page==='tasks'?api(taskListUrl):null,
        page==='policies'?api('/api/strategies'):null,
        page==='detail'&&selected?Promise.all([api('/api/tasks/'+selected),taskEvents(selected)]):null,
      ]);
      if(id!==requestId.current)return;
      setOverview(o);setAlerts(a);setError('');
-     if(t)setTasks(t);
+     if(t){setTasks(t);setLoadedTaskList(taskListUrl)}
      if(s)setStrategies(s);
      if(details){setDetail(details[0]);setEvents(details[1])}
      if(isOverview && o.page!==overviewPage)setOverviewPage(o.page);
    }catch(e){if(id===requestId.current)setError(e.message)}
- },[page,selected,overviewPage]);
+ },[page,selected,overviewPage,taskListUrl]);
  useEffect(()=>{
    let stopped=false,timer;
    async function poll(){await refresh();if(!stopped)timer=setTimeout(poll,2000)}
@@ -96,7 +99,7 @@ export default function TaskConsole({route, navigatePage, onCounts} = {}){
      <section className="panel" aria-busy="true"><PanelTitle title="任务列表"/><p>正在读取任务…</p></section>}
    <CallStatistics stats={stats}/>
  </>}
- {page==='tasks'&&<><Title eyebrow="TASKS" title="任务中心" subtitle="创建视频分析或航拍建图任务，自动或手动选定执行节点；检索历史记录并对比同条件运行。" action={<button className="primary" onClick={()=>{setNewTask(null);setModal(true)}}><Plus size={17}/>新建任务</button>}/><SubTabs initial={legacyTab==='compare'?'compare':'list'} tabs={[['list','任务列表'],['compare','运行对比']]}>{tab=>tab==='compare'?<Compare tasks={tasks} open={open}/>:<TaskCenter tasks={tasks} nodes={nodes} open={open}/>}</SubTabs></>}
+ {page==='tasks'&&<><Title eyebrow="TASKS" title="任务中心" subtitle="创建视频分析或航拍建图任务，自动或手动选定执行节点；检索历史记录并对比同条件运行。" action={<button className="primary" onClick={()=>{setNewTask(null);setModal(true)}}><Plus size={17}/>新建任务</button>}/>{clusterId&&<div className="cluster-task-filter" role="status">集群筛选：{clusterId} <button onClick={clearClusterFilter}>清除筛选</button></div>}<SubTabs initial={legacyTab==='compare'?'compare':'list'} tabs={[['list','任务列表'],['compare','运行对比']]}>{tab=>tab==='compare'?<Compare tasks={loadedTaskList===taskListUrl?tasks:[]} open={open}/>:<TaskCenter tasks={loadedTaskList===taskListUrl?tasks:[]} nodes={nodes} open={open}/>}</SubTabs></>}
  {page==='detail'&&(detail?.id===selected&&detail?.params.workflow_id==='aerial-mapping-odx'?<MappingDetail key={detail.id} task={detail} events={events} action={action} busy={busy} open={open} request={api}/>:detail?.id===selected&&detail?<TaskDetail task={detail} events={events} action={action} busy={busy} open={open}/>:<Empty text="正在读取任务记录…"/>)}
  {page==='policies'&&<><Title eyebrow="POLICIES" title="调度策略" subtitle="策略绑定工作流模板与默认参数，按服务调用或周期触发创建独立运行实例；调度算法以参数包管理并在选点时调用。"/><SubTabs initial={legacyTab==='algorithms'?'algorithms':'strategies'} tabs={[['strategies','触发策略'],['algorithms','调度算法']]}>{tab=>tab==='algorithms'?<ConfigEditor action={action}/>:<Strategies list={strategies} action={action} open={open} busy={busy}/>}</SubTabs></>}
  </div></main>{modal&&<NewTask nodes={nodes} initial={newTask} onClose={()=>{setModal(false);if(newTask){setNewTask(null);setPage('tasks')}}} onCreate={async p=>{const r=await api('/api/tasks',{method:'POST',body:JSON.stringify(p)});setModal(false);open(r.id);refresh()}}/>}{toast&&<div className="toast"><CheckCircle2 size={17}/>{toast}</div>}</div>

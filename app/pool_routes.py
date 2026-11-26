@@ -2,12 +2,17 @@
 from __future__ import annotations
 
 import os
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
+from typing import Literal
 from uuid import UUID
 
 from fastapi import APIRouter, HTTPException, Query, Request
 
 from . import pool_bridge
+from .cluster_operations import TASK_WINDOW_HOURS, cluster_task_statistics
+from .cluster_recovery import cluster_recovery
+from .pool.services.cluster_service import ClusterNotFoundError
+from .pool.services.resource_aggregation import cluster_runtime_load
 from .pool_bridge import admission_mode
 
 router = APIRouter(tags=['resource-pool-platform'])
@@ -22,6 +27,46 @@ def bridge(request: Request) -> pool_bridge.PoolBridge:
 
 def utcnow():
     return datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z')
+
+
+@router.get('/api/v1/clusters/{cluster_id}/operations')
+def cluster_operations(request: Request, cluster_id: str):
+    b = bridge(request)
+    try:
+        members = b.cluster_service.list_nodes(cluster_id)
+    except ClusterNotFoundError as exc:
+        raise HTTPException(404, '集群不存在') from exc
+    now = datetime.now(timezone.utc)
+    tasks = cluster_task_statistics(cluster_id, now)
+    window_start = now - timedelta(hours=TASK_WINDOW_HOURS)
+    active = tasks.pop('active_shards_by_node')
+    recovery = cluster_recovery(b, cluster_id, now, window_start, members=members, active=active)
+    if tasks['coverage'] == 'unavailable':
+        for member in recovery['members'].values():
+            member['current_shards'] = None
+    tasks['executing_members'] = sum(str(node.node_id) in active for node in members) if tasks['executing_nodes'] is not None else None
+    tasks['total_members'] = len(members)
+    return {
+        'cluster_id': cluster_id,
+        'tasks': tasks,
+        'recovery': recovery,
+        'load': cluster_runtime_load(members, b.settings.resource_stale_after_seconds, now),
+        'updated_at': now,
+    }
+
+
+@router.get('/api/v1/clusters/{cluster_id}/recovery-events')
+def cluster_recovery_events(
+    request: Request, cluster_id: str,
+    category: Literal['lifecycle', 'node_recovery', 'task_recovery', 'sync'] | None = None,
+    limit: int = Query(50, ge=1, le=200),
+):
+    now = datetime.now(timezone.utc)
+    try:
+        rows = cluster_recovery(bridge(request), cluster_id, now, now - timedelta(hours=TASK_WINDOW_HOURS))
+    except ClusterNotFoundError as exc:
+        raise HTTPException(404, '集群不存在') from exc
+    return [row for row in rows if category is None or row['category'] == category][:limit]
 
 
 @router.get('/api/v1/scheduler/executions')

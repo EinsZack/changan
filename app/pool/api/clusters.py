@@ -3,10 +3,12 @@ from __future__ import annotations
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response, status
 
 from ..models.cluster import (
     ClusterCreateRequest,
+    ClusterEvent,
+    ClusterEventCategory,
     ClusterListResponse,
     ClusterNodeListResponse,
     ClusterUpdateRequest,
@@ -77,6 +79,19 @@ def list_cluster_nodes(
     except ClusterNotFoundError as exc:
         raise _translate_error(exc) from exc
     return ClusterNodeListResponse(items=items, total=len(items), updated_at=utc_now())
+
+
+@router.get("/{cluster_id}/events", response_model=list[ClusterEvent])
+def list_cluster_events(
+    cluster_id: str,
+    service: ClusterServiceDependency,
+    category: ClusterEventCategory | None = None,
+    limit: int = Query(50, ge=1, le=100),
+) -> list[ClusterEvent]:
+    try:
+        return service.list_events(cluster_id, category, limit)
+    except ClusterNotFoundError as exc:
+        raise _translate_error(exc) from exc
 
 
 @router.post(

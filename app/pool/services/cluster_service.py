@@ -6,6 +6,8 @@ from uuid import UUID
 
 from ..models.cluster import (
     ClusterCreateRequest,
+    ClusterEvent,
+    ClusterEventCategory,
     ClusterRecord,
     ClusterStatus,
     ClusterUpdateRequest,
@@ -40,6 +42,20 @@ class ClusterNotEmptyError(ValueError):
 
 def utc_now() -> datetime:
     return datetime.now(timezone.utc)
+
+
+def membership_event(
+    cluster_id: str,
+    node: NodeRecord,
+    event_type: str,
+    previous: str | None,
+    current: str | None,
+) -> ClusterEvent:
+    return ClusterEvent(
+        cluster_id=cluster_id, category="lifecycle", event_type=event_type,
+        target_id=str(node.node_id), target_name=node.node_name, result="success",
+        occurred_at=utc_now(), before={"cluster_id": previous}, after={"cluster_id": current},
+    )
 
 
 class ClusterService:
@@ -79,7 +95,16 @@ class ClusterService:
                     id=cluster.cluster_id, name=cluster.cluster_name
                 )
             try:
-                saved = self._store.create_cluster_with_nodes(cluster, members)
+                events = (
+                    ClusterEvent(
+                        cluster_id=cluster_id, category="lifecycle", event_type="REGISTRY_CREATED",
+                        target_id=cluster_id, target_name=cluster.cluster_name, result="success",
+                        occurred_at=now, after={"name": cluster.cluster_name, "version": cluster.version},
+                    ),
+                    *(membership_event(cluster_id, node, "MEMBER_JOINED", None, cluster_id)
+                      for node in members),
+                )
+                saved = self._store.create_cluster_with_nodes(cluster, members, cluster_events=events)
             except ClusterConflictError as exc:
                 if self._store.get_cluster(cluster_id) is not None:
                     raise ClusterAlreadyExistsError(str(exc)) from exc
@@ -111,11 +136,30 @@ class ClusterService:
             cluster = self._require_cluster(cluster_id)
             changes = request.model_dump(exclude_unset=True)
             old_name = cluster.cluster_name
+            modified = {
+                field: (getattr(cluster, field), value)
+                for field, value in changes.items()
+                if getattr(cluster, field) != value
+            }
             for field, value in changes.items():
                 setattr(cluster, field, value)
             cluster.updated_at = utc_now()
+            # A recorded version change can be administrative. Endpoints may include credentials.
+            def display_value(field, value):
+                if field == "management_endpoint":
+                    return "已配置" if value else None
+                return str(value) if value is not None else None
+
+            events = () if not modified else (ClusterEvent(
+                cluster_id=cluster_id, category="lifecycle",
+                event_type="REGISTRY_VERSION_CHANGED" if "version" in modified else "REGISTRY_UPDATED",
+                target_id=cluster_id, target_name=cluster.cluster_name, result="success",
+                occurred_at=cluster.updated_at,
+                before={field: display_value(field, pair[0]) for field, pair in modified.items()},
+                after={field: display_value(field, pair[1]) for field, pair in modified.items()},
+            ),)
             try:
-                saved = self._store.update_cluster(cluster)
+                saved = self._store.update_cluster(cluster, cluster_events=events)
             except KeyError as exc:
                 raise ClusterNotFoundError(
                     f"cluster {cluster_id} was not found"
@@ -133,13 +177,31 @@ class ClusterService:
 
     def delete_cluster(self, cluster_id: str) -> None:
         with self._operation_lock:
-            self._require_cluster(cluster_id)
+            cluster = self._require_cluster(cluster_id)
+            event = ClusterEvent(
+                cluster_id=cluster_id, category="lifecycle", event_type="REGISTRY_DELETED",
+                target_id=cluster_id, target_name=cluster.cluster_name, result="success",
+                occurred_at=utc_now(), before={"version": cluster.version},
+            )
             if self._store.list_nodes_by_cluster_id(cluster_id):
+                self._store.add_cluster_event(event.model_copy(update={
+                    "result": "rejected", "reason": "集群仍有成员，登记删除被拒绝",
+                }))
                 raise ClusterNotEmptyError(
                     f"CLUSTER_NOT_EMPTY: cluster {cluster_id} still has members"
                 )
-            if not self._store.delete_cluster(cluster_id):
+            if not self._store.delete_cluster(cluster_id, cluster_events=(event,)):
                 raise ClusterNotFoundError(f"cluster {cluster_id} was not found")
+
+    def list_events(
+        self, cluster_id: str, category: ClusterEventCategory | None, limit: int | None
+    ) -> list[ClusterEvent]:
+        events = self._store.list_cluster_events(cluster_id, category, limit)
+        if not events and self._store.get_cluster(cluster_id) is None:
+            # Keep history queryable after deleting the administrative record.
+            if not self._store.list_cluster_events(cluster_id, None, 1):
+                raise ClusterNotFoundError(f"cluster {cluster_id} was not found")
+        return events
 
     def list_nodes(self, cluster_id: str) -> list[NodeRecord]:
         self._require_cluster(cluster_id)
@@ -165,7 +227,9 @@ class ClusterService:
             node.cluster = ClusterRef(
                 id=cluster.cluster_id, name=cluster.cluster_name
             )
-            saved = self._store.save_node(node)
+            saved = self._store.save_node(node, cluster_events=(
+                membership_event(cluster_id, node, "MEMBER_JOINED", None, cluster_id),
+            ))
 
             self._event(
                 saved,
@@ -186,10 +250,13 @@ class ClusterService:
             if node.cluster_id is None:
                 return node
 
-            previous_name = node.cluster.name if node.cluster else node.cluster_id
+            previous_id = node.cluster_id
+            previous_name = node.cluster.name if node.cluster else previous_id
             node.cluster_id = None
             node.cluster = None
-            saved = self._store.save_node(node)
+            saved = self._store.save_node(node, cluster_events=(
+                membership_event(previous_id, node, "MEMBER_REMOVED", previous_id, None),
+            ))
             self._event(
                 saved,
                 "NODE_UNASSIGNED_CLUSTER",
@@ -210,7 +277,10 @@ class ClusterService:
             previous_cluster_name = node.cluster.name if node.cluster else None
             node.cluster_id = target.cluster_id
             node.cluster = ClusterRef(id=target.cluster_id, name=target.cluster_name)
-            saved = self._store.save_node(node)
+            saved = self._store.save_node(node, cluster_events=(
+                membership_event(previous_cluster_id, node, "MEMBER_MOVED_OUT", previous_cluster_id, target_cluster_id),
+                membership_event(target_cluster_id, node, "MEMBER_MOVED_IN", previous_cluster_id, target_cluster_id),
+            ))
             self._event(
                 saved,
                 "NODE_MOVED_CLUSTER",

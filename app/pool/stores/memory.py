@@ -1,10 +1,11 @@
 from __future__ import annotations
 
+from datetime import datetime
 from threading import RLock
 from typing import TypeVar
 from uuid import UUID
 
-from ..models.cluster import ClusterRecord
+from ..models.cluster import ClusterEvent, ClusterEventCategory, ClusterRecord
 from ..models.heartbeat import NodeHeartbeatRecord
 from ..models.node import NodeEvent, NodeRecord, NodeRegistrationRecord
 from ..models.scheduler_execution import (
@@ -12,7 +13,7 @@ from ..models.scheduler_execution import (
     SchedulerExecutionEvent,
     SchedulerExecutionProjection,
 )
-from .base import ClusterConflictError, DeviceFingerprintConflictError
+from .base import ClusterConflictError, DeviceFingerprintConflictError, node_deletion_event
 
 T = TypeVar("T")
 
@@ -26,6 +27,7 @@ class InMemoryNodeStore:
         self._registrations: dict[UUID, NodeRegistrationRecord] = {}
         self._heartbeats: dict[UUID, NodeHeartbeatRecord] = {}
         self._clusters: dict[str, ClusterRecord] = {}
+        self._cluster_events: list[ClusterEvent] = []
         self._scheduler_event_ids: set[str] = set()
         self._scheduler_executions: dict[str, SchedulerExecutionProjection] = {}
         self._lock = RLock()
@@ -54,7 +56,7 @@ class InMemoryNodeStore:
             )
             return self._copy(node) if node else None
 
-    def save_node(self, node: NodeRecord) -> NodeRecord:
+    def save_node(self, node: NodeRecord, *, cluster_events: tuple[ClusterEvent, ...] = ()) -> NodeRecord:
         with self._lock:
             if node.device_fingerprint is not None and any(
                 candidate.node_id != node.node_id
@@ -65,6 +67,7 @@ class InMemoryNodeStore:
                     "device_fingerprint is already bound to another node"
                 )
             self._nodes[node.node_id] = self._copy(node)
+            self._cluster_events.extend(self._copy(event) for event in cluster_events)
             return self._copy(node)
 
     def list_nodes(self) -> list[NodeRecord]:
@@ -79,9 +82,11 @@ class InMemoryNodeStore:
                 if node.cluster_id == cluster_id
             ]
 
-    def delete_node(self, node_id: UUID) -> bool:
+    def delete_node(self, node_id: UUID, *, audit_at: datetime | None = None) -> bool:
         with self._lock:
-            existed = self._nodes.pop(node_id, None) is not None
+            node = self._nodes.get(node_id)
+            event = node_deletion_event(node, audit_at) if node and audit_at is not None else None
+            self._nodes.pop(node_id, None)
             self._events = {
                 key: value
                 for key, value in self._events.items()
@@ -97,11 +102,15 @@ class InMemoryNodeStore:
                 for key, value in self._heartbeats.items()
                 if value.node_id != node_id
             }
-            return existed
+            if event is not None:
+                self._cluster_events.append(event)
+            return node is not None
 
-    def add_event(self, event: NodeEvent) -> NodeEvent:
+    def add_event(self, event: NodeEvent, *, cluster_event: ClusterEvent | None = None) -> NodeEvent:
         with self._lock:
             self._events[event.id] = self._copy(event)
+            if cluster_event:
+                self._cluster_events.append(self._copy(cluster_event))
             return self._copy(event)
 
     def list_events(self, node_id: UUID | None = None) -> list[NodeEvent]:
@@ -162,7 +171,7 @@ class InMemoryNodeStore:
             return self._copy(cluster)
 
     def create_cluster_with_nodes(
-        self, cluster: ClusterRecord, nodes: list[NodeRecord]
+        self, cluster: ClusterRecord, nodes: list[NodeRecord], *, cluster_events: tuple[ClusterEvent, ...] = ()
     ) -> ClusterRecord:
         with self._lock:
             if cluster.cluster_id in self._clusters:
@@ -182,6 +191,7 @@ class InMemoryNodeStore:
             self._clusters[cluster.cluster_id] = self._copy(cluster)
             for node in nodes:
                 self._nodes[node.node_id] = self._copy(node)
+            self._cluster_events.extend(self._copy(event) for event in cluster_events)
             return self._copy(cluster)
 
     def get_cluster(self, cluster_id: str) -> ClusterRecord | None:
@@ -193,16 +203,36 @@ class InMemoryNodeStore:
         with self._lock:
             return [self._copy(cluster) for cluster in self._clusters.values()]
 
-    def update_cluster(self, cluster: ClusterRecord) -> ClusterRecord:
+    def update_cluster(self, cluster: ClusterRecord, *, cluster_events: tuple[ClusterEvent, ...] = ()) -> ClusterRecord:
         with self._lock:
             if cluster.cluster_id not in self._clusters:
                 raise KeyError(cluster.cluster_id)
             self._clusters[cluster.cluster_id] = self._copy(cluster)
+            self._cluster_events.extend(self._copy(event) for event in cluster_events)
             return self._copy(cluster)
 
-    def delete_cluster(self, cluster_id: str) -> bool:
+    def delete_cluster(self, cluster_id: str, *, cluster_events: tuple[ClusterEvent, ...] = ()) -> bool:
         with self._lock:
-            return self._clusters.pop(cluster_id, None) is not None
+            if self._clusters.pop(cluster_id, None) is None:
+                return False
+            self._cluster_events.extend(self._copy(event) for event in cluster_events)
+            return True
+
+    def add_cluster_event(self, event: ClusterEvent) -> None:
+        with self._lock:
+            self._cluster_events.append(self._copy(event))
+
+    def list_cluster_events(
+        self, cluster_id: str, category: ClusterEventCategory | None, limit: int | None
+    ) -> list[ClusterEvent]:
+        with self._lock:
+            selected = (
+                event for event in self._cluster_events
+                if event.cluster_id == cluster_id and (category is None or event.category == category)
+            )
+            return [self._copy(event) for event in sorted(
+                selected, key=lambda event: (event.occurred_at, event.id), reverse=True
+            )[:limit]]
 
     def has_scheduler_event(self, event_id: str) -> bool:
         with self._lock:

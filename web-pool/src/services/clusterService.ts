@@ -1,3 +1,4 @@
+import { isAxiosError } from 'axios';
 import type {
   ClusterInput,
   ClusterListResponse,
@@ -124,13 +125,13 @@ export async function getClusters(): Promise<ClusterListResponse> {
   };
 }
 
-export async function getCluster(clusterId: string): Promise<ClusterRecord> {
+export async function getCluster(clusterId: string, signal?: AbortSignal): Promise<ClusterRecord> {
   if (getNodeDataMode() === 'mock') {
     const cluster = (await getClusters()).items.find((item) => item.id === clusterId);
     if (!cluster) throw new Error(`cluster ${clusterId} was not found`);
     return cluster;
   }
-  const response = await apiClient.get<ApiClusterRecord>(API_ENDPOINTS.clusterDetail(clusterId));
+  const response = await apiClient.get<ApiClusterRecord>(API_ENDPOINTS.clusterDetail(clusterId), { signal });
   return mapCluster(response.data);
 }
 
@@ -184,13 +185,13 @@ export async function deleteCluster(clusterId: string): Promise<void> {
   await apiClient.delete(API_ENDPOINTS.clusterDetail(clusterId));
 }
 
-export async function getClusterNodes(clusterId: string): Promise<NodeDetail[]> {
+export async function getClusterNodes(clusterId: string, signal?: AbortSignal): Promise<NodeDetail[]> {
   if (getNodeDataMode() === 'mock') {
     const inventory = await getNodeInventoryDetails();
     return inventory.items.filter((node) => node.cluster?.id === clusterId);
   }
   const response = await apiClient.get<ApiClusterNodeListResponse>(
-    API_ENDPOINTS.clusterNodes(clusterId),
+    API_ENDPOINTS.clusterNodes(clusterId), { signal },
   );
   return response.data.items.map(mapApiNodeDetail);
 }
@@ -220,4 +221,134 @@ export async function moveNodeToCluster(clusterId: string, nodeId: string): Prom
     API_ENDPOINTS.clusterNodeMove(clusterId, nodeId),
   );
   return mapApiNodeDetail(response.data);
+}
+
+export interface ClusterOperations {
+  cluster_id: string;
+  updated_at: string;
+  tasks: {
+    coverage: 'available' | 'partial' | 'unavailable';
+    window_hours: number;
+    window_start: string;
+    running_tasks: number | null;
+    waiting_tasks: number | null;
+    succeeded_tasks: number | null;
+    failed_tasks: number | null;
+    executing_nodes: number | null;
+    executing_members?: number | null;
+    total_members?: number;
+    waiting_shards: number | null;
+  };
+  load: {
+    status: 'live' | 'stale' | 'unavailable';
+    sampled_at: string | null;
+    reporting_nodes: number;
+    stale_nodes: number;
+    unified_memory_gpu_nodes: number;
+    telemetry?: Partial<Record<'cpu' | 'gpu' | 'memory' | 'video_memory' | 'npu' | 'dla',
+      'unified' | 'unsupported' | 'unreported' | 'unavailable'>>;
+    values: Record<'cpu' | 'gpu' | 'memory' | 'video_memory' | 'npu' | 'dla', number | null>;
+  };
+  recovery?: {
+    nodes: {
+      online_members: number;
+      total_members: number;
+      losses: number;
+      reconnections: number;
+      retained_memberships: number;
+      scheduling_restored: number | null;
+      mean_recovery_seconds: number | null;
+      last_loss_at: string | null;
+      last_recovered_at: string | null;
+    };
+    tasks: {
+      affected_tasks: number;
+      affected_shards: number;
+      waiting_shards: number;
+      redispatched_shards: number;
+      pending_reconciliation_shards: number;
+      confirmed_results: number;
+      last_reconciled_at: string | null;
+      last_redispatch: { at: string; attempt_id: string; status: string; task_id: string; segment_id: string } | null;
+    };
+    members: Record<string, {
+      scheduling_status: 'eligible' | 'paused' | 'ineligible' | 'recovering' | 'unknown';
+      current_shards: number | null;
+      last_recovered_at: string | null;
+    }>;
+  };
+}
+
+export type ClusterEventCategory = 'lifecycle' | 'sync' | 'recovery';
+
+export interface ClusterEvent {
+  id: string;
+  cluster_id: string;
+  category: ClusterEventCategory;
+  event_type: string;
+  target_id: string;
+  target_name: string;
+  occurred_at: string;
+  result: 'success' | 'rejected' | 'observed';
+  before: Record<string, string | null>;
+  after: Record<string, string | null>;
+  duration_seconds: number | null;
+  reason: string | null;
+}
+
+export async function getClusterOperations(clusterId: string, signal: AbortSignal) {
+  if (getNodeDataMode() === 'mock') return null;
+  const { data } = await apiClient.get<ClusterOperations>(
+    API_ENDPOINTS.clusterDetail(clusterId) + '/operations', { signal },
+  );
+  return data;
+}
+
+export async function getClusterEvents(
+  clusterId: string, category: ClusterEventCategory | undefined, signal: AbortSignal,
+) {
+  if (getNodeDataMode() === 'mock') return null;
+  const { data } = await apiClient.get<ClusterEvent[]>(
+    API_ENDPOINTS.clusterDetail(clusterId) + '/events', { params: { category, limit: 50 }, signal },
+  );
+  return data;
+}
+
+export type ClusterRecoveryEventCategory = 'lifecycle' | 'node_recovery' | 'task_recovery' | 'sync';
+
+export interface ClusterRecoveryEvent extends Omit<ClusterEvent, 'category' | 'result' | 'before' | 'after'> {
+  category: ClusterRecoveryEventCategory;
+  status: string;
+  before?: ClusterEvent['before'];
+  after?: ClusterEvent['after'];
+  node_id?: string;
+  task_id?: string;
+  segment_id?: string;
+  attempt_id?: string;
+}
+
+export async function getClusterRecoveryEvents(
+  clusterId: string, category: ClusterRecoveryEventCategory | undefined, signal: AbortSignal,
+) {
+  if (getNodeDataMode() === 'mock') return null;
+  try {
+    const { data } = await apiClient.get<ClusterRecoveryEvent[]>(
+      API_ENDPOINTS.clusterDetail(clusterId) + '/recovery-events', { params: { category, limit: 50 }, signal },
+    );
+    return data;
+  } catch (error) {
+    if (!isAxiosError(error) || error.response?.status !== 404) throw error;
+    if (category === 'task_recovery') return [];
+    const events = await getClusterEvents(clusterId, category === 'node_recovery' ? 'recovery' : category, signal);
+    const observed: Record<string, string> = {
+      NODE_OFFLINE: '已离线', RECONNECT_STARTED: '恢复中', NODE_RECOVERED: '已恢复',
+    };
+    return events?.map<ClusterRecoveryEvent>((event) => ({
+      ...event,
+      category: event.category === 'recovery' ? 'node_recovery' : event.category,
+      status: event.result === 'success' ? '操作成功' : event.result === 'rejected' ? '操作失败'
+        : observed[event.event_type] ?? '已记录',
+      ...(event.category === 'recovery' ? { node_id: event.target_id } : {}),
+    })) ?? null;
+  }
 }

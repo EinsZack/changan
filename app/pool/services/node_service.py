@@ -15,6 +15,7 @@ import httpx
 from pydantic import ValidationError
 
 from ..config import Settings
+from ..models.cluster import ClusterEvent
 from ..models.heartbeat import NodeHeartbeatRecord
 from ..models.node import (
     AuthorizationStatus,
@@ -48,6 +49,17 @@ def _sample_age_seconds(collected_at: datetime, evaluated_at: datetime) -> float
     if collected_at.tzinfo is None:
         collected_at = collected_at.replace(tzinfo=timezone.utc)
     return (evaluated_at - collected_at).total_seconds()
+
+
+def resource_sample_is_stale(node: NodeRecord, now: datetime, max_age: float) -> bool:
+    return (
+        node.registration_status == RegistrationStatus.REGISTERED
+        and node.last_resource_at is not None
+        and _sample_age_seconds(node.last_resource_at, now) >= max_age
+    ) or (
+        node.resources is not None
+        and _sample_age_seconds(node.resources.collected_at, now) >= max_age + CLOCK_SKEW_TOLERANCE_SECONDS
+    )
 
 class NodeNotFoundError(LookupError):
     pass
@@ -481,7 +493,7 @@ class NodeService:
         """Permanently remove one node and all node-owned history."""
 
         self._require_node(node_id)
-        if not self._store.delete_node(node_id):
+        if not self._store.delete_node(node_id, audit_at=utc_now()):
             raise NodeNotFoundError(f"node {node_id} was not found")
 
     @atomic_operation
@@ -708,18 +720,7 @@ class NodeService:
         report = node.resources
         if node.registration_status == RegistrationStatus.REGISTERED and report is None:
             return NodeOperationalStatus.ABNORMAL
-        if (
-            node.registration_status == RegistrationStatus.REGISTERED
-            and node.last_resource_at is not None
-            and (
-                evaluated_at - node.last_resource_at
-            ).total_seconds()
-            >= self._settings.resource_stale_after_seconds
-        ):
-            return NodeOperationalStatus.ABNORMAL
-        if report is not None and _sample_age_seconds(report.collected_at, evaluated_at) >= (
-            self._settings.resource_stale_after_seconds + CLOCK_SKEW_TOLERANCE_SECONDS
-        ):
+        if resource_sample_is_stale(node, evaluated_at, self._settings.resource_stale_after_seconds):
             # last_resource_at is the receive time; an old sample delivered late is still stale.
             return NodeOperationalStatus.ABNORMAL
         if report is not None and (
@@ -756,16 +757,22 @@ class NodeService:
         message: str,
         occurred_at: datetime,
     ) -> None:
-        self._store.add_event(
-            NodeEvent(
+        event = NodeEvent(
                 node_id=node.node_id,
                 node_name=node.node_name,
                 event_type=event_type,
                 level=level,
                 message=message,
                 occurred_at=occurred_at,
-            )
         )
+        cluster_event = None
+        if node.cluster_id and event_type in {"NODE_OFFLINE", "RECONNECT_STARTED", "NODE_RECOVERED"}:
+            cluster_event = ClusterEvent(
+                id=event.id, cluster_id=node.cluster_id, category="recovery",
+                event_type=event_type, result="observed", target_id=str(node.node_id),
+                target_name=node.node_name, occurred_at=occurred_at, reason=message,
+            )
+        self._store.add_event(event, cluster_event=cluster_event)
 
     def _finish_latest_registration(
         self,

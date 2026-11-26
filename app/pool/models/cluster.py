@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime
 from enum import StrEnum
-from typing import Self
+from typing import Literal, Self
 from uuid import UUID, uuid4
 
 from pydantic import Field, field_validator, model_validator
@@ -147,3 +147,21 @@ class ClusterNodeListResponse(ApiModel):
     items: list[NodeRecord]
     total: int = Field(ge=0)
     updated_at: datetime
+
+
+ClusterEventCategory = Literal["lifecycle", "sync", "recovery"]
+
+
+class ClusterEvent(ApiModel):
+    id: UUID = Field(default_factory=uuid4)
+    cluster_id: str
+    category: ClusterEventCategory
+    event_type: str
+    target_id: str
+    target_name: str
+    result: Literal["success", "rejected", "observed"]
+    occurred_at: datetime
+    before: dict[str, str | None] = Field(default_factory=dict)
+    after: dict[str, str | None] = Field(default_factory=dict)
+    reason: str | None = None
+    duration_seconds: float | None = Field(default=None, ge=0)

@@ -71,11 +71,13 @@ export function NodeResourcePopover({
   const memoryTotal = snapshot.memoryTotalGb ?? detail?.memory.total;
   const memoryUsed = resource?.memory.used ?? detail?.memory.used;
   const memoryPercent = snapshot.memoryUtilization ?? detail?.memory.utilization;
-  const reportedAt =
-    detail?.lastResourceAt ?? detail?.agentMetrics?.collectedAt ?? snapshot.lastReportedAt;
+  const historical = node.operationalStatus !== 'online';
+  const resourceLabel = historical ? '最后一次上报' : '实时资源';
+  const reportedAt = detail?.lastResourceAt ?? detail?.agentMetrics?.collectedAt ??
+    node.lastResourceAt ?? (historical ? undefined : snapshot.lastReportedAt);
 
   return (
-    <div className="node-resource-popover" aria-label={`${displayName} 数字档案与实时资源`}>
+    <div className="node-resource-popover" aria-label={`${displayName} 数字档案与${resourceLabel}`}>
       <header className="node-resource-popover__header">
         <div>
           <strong>{displayName}</strong>
@@ -86,6 +88,12 @@ export function NodeResourcePopover({
           {STATUS_TEXT[node.operationalStatus]}
         </span>
       </header>
+
+      {historical && (
+        <p className="node-resource-popover__history">
+          {reportedAt ? <>最后一次上报 · {dayjs(reportedAt).format('YYYY-MM-DD HH:mm:ss')}（历史）</> : '暂无历史资源上报'}
+        </p>
+      )}
 
       <section className="node-resource-popover__identity" aria-label="节点身份">
         <img src={vehicleImage} alt="" draggable={false} />
@@ -107,7 +115,7 @@ export function NodeResourcePopover({
         </dl>
       </section>
 
-      <section className="node-resource-popover__resources" aria-label="实时资源">
+      {(!historical || reportedAt) && <section className="node-resource-popover__resources" aria-label={resourceLabel}>
         <ResourceRow
           label="CPU"
           value={`${formatNumber(snapshot.cpuCores)} Core`}
@@ -151,17 +159,17 @@ export function NodeResourcePopover({
           percent={snapshot.dlaUtilization ?? detail?.resources.dla?.runtimeUtilization}
           unsupported={!snapshot.dlaSupported}
         />
-      </section>
+      </section>}
 
       <footer className="node-resource-popover__access">
         <div>
           <span>IP</span>
           <strong>{node.ipAddress || detail?.network?.ipv4Address || '--'}</strong>
         </div>
-        <div>
+        {!historical && <div>
           <span>最近上报</span>
-          <strong>{reportedAt ? dayjs(reportedAt).format('MM-DD HH:mm:ss') : '--'}</strong>
-        </div>
+          <strong>{reportedAt ? dayjs(reportedAt).format('MM-DD HH:mm:ss') : '暂无资源上报'}</strong>
+        </div>}
       </footer>
     </div>
   );

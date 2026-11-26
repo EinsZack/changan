@@ -6,6 +6,7 @@ from fastapi.responses import FileResponse, RedirectResponse, JSONResponse, Stre
 from fastapi.staticfiles import StaticFiles
 from .config import DATA, ROOT, TOKEN, API_KEY, TERMINAL
 from . import db
+from .cluster_operations import TASK_CLUSTER_FILTER
 from .engine import Engine
 from .alerts import router as alerts_router
 from .mapping import MappingInput, router as mapping_router
@@ -201,12 +202,13 @@ def create_task(body:MappingInput|TaskInput,idempotency_key:str|None=Header(defa
     except ValueError as e: raise HTTPException(422,str(e))
     return {'id':id,'task':db.task_detail(id)}
 @app.get('/api/tasks')
-def list_tasks(status:str|None=None,q:str='',workflow_id:str|None=None,node_id:str|None=None,after:float|None=None,before:float|None=None,limit:int=100):
+def list_tasks(status:str|None=None,q:str='',workflow_id:str|None=None,node_id:str|None=None,after:float|None=None,before:float|None=None,limit:int=100,cluster_id:str|None=Query(None,min_length=1,max_length=100)):
     sql='SELECT * FROM tasks WHERE 1=1';args=[]
     if status: sql+=' AND status=?';args.append(status)
     if q: sql+=' AND (name LIKE ? OR id LIKE ?)';args.extend(['%'+q+'%']*2)
     if workflow_id:sql+=" AND json_extract(params,'$.workflow_id')=?";args.append(workflow_id)
     if node_id:sql+=' AND id IN (SELECT task_id FROM attempts WHERE node_id=?)';args.append(node_id)
+    if cluster_id:sql+=' AND '+TASK_CLUSTER_FILTER;args.append(cluster_id)
     if after is not None:sql+=' AND created>=?';args.append(after)
     if before is not None:sql+=' AND created<=?';args.append(before)
     rows=db.query(sql+' ORDER BY created DESC LIMIT ?',args+[min(max(limit,1),500)])

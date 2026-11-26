@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "test:dashboard": "node --experimental-strip-types --test tests/dashboardModel.test.mjs tests/resourceAggregation.test.mjs",
+    "test:dashboard": "node --experimental-strip-types --test tests/dashboardModel.test.mjs tests/resourceAggregation.test.mjs tests/clusterRecovery.test.mjs",
     "typecheck": "tsc -b --pretty",
     "lint": "eslint .",
     "format": "prettier --write .",

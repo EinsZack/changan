@@ -25,6 +25,7 @@ from ..models.scheduler_execution import (
     SchedulerExecutionProjection,
 )
 from ..stores.base import NodeStore
+from .node_service import resource_sample_is_stale
 
 ResourceUnit = Literal["Core", "GPU", "TOPS", "Device", "GB"]
 
@@ -380,3 +381,66 @@ class ResourceAggregationService:
             contributors, self._store.list_scheduler_executions()
         )
         return aggregate_cluster_resources(nodes, allocations=allocations)
+
+
+def cluster_runtime_load(nodes: list[NodeRecord], max_age: float, now: datetime) -> dict:
+    """Use the pool's contribution and weighting rules, with missing telemetry excluded."""
+    stale_ids = {
+        node.node_id for node in nodes
+        if _is_pool_member(node) and node.runtime_status == RuntimeStatus.ONLINE
+        and node.resources is not None and resource_sample_is_stale(node, now, max_age)
+    }
+    fresh = [
+        node for node in _current_resource_contributors(nodes)
+        if node.resources is not None and node.node_id not in stale_ids
+    ]
+    reports = [(node, node.resources) for node in fresh if node.resources is not None]
+
+    def utilization(contributions: list[_Contribution], unit: ResourceUnit) -> float | None:
+        metric = _metric(contributions, unit)
+        return metric.runtime_utilization_percent if metric.total > 0 else None
+
+    def accelerator_state(kind: str) -> str:
+        if not reports:
+            return "unavailable"
+        supports = [getattr(report, kind) for _, report in reports]
+        if all(item is not None and not item.supported and not item.error for item in supports):
+            return "unsupported"
+        return "unreported"
+
+    shared = sum(report.gpu.supported and report.gpu.memory_architecture == "unified"
+                 for _, report in reports)
+    dedicated = any(report.gpu.supported and report.gpu.memory_architecture != "unified"
+                    for _, report in reports)
+    return {
+        "telemetry": {
+            "gpu": accelerator_state("gpu"),
+            "npu": accelerator_state("npu"),
+            "dla": accelerator_state("dla"),
+            "video_memory": "unified" if shared and not dedicated else accelerator_state("gpu"),
+        },
+        "status": "live" if reports else "stale" if stale_ids else "unavailable",
+        "sampled_at": max((report.collected_at for _, report in reports), default=None),
+        "reporting_nodes": len(reports),
+        "stale_nodes": len(stale_ids),
+        "unified_memory_gpu_nodes": sum(
+            report.gpu.supported and report.gpu.memory_architecture == "unified"
+            for _, report in reports
+        ),
+        "values": {
+            "cpu": utilization([_cpu(node) for node, _ in reports], "Core"),
+            "gpu": utilization([
+                _gpu(node) for node, report in reports if report.gpu.utilization_percent is not None
+            ], "GPU"),
+            "memory": utilization([_byte_capacity(node, "memory") for node, _ in reports], "GB"),
+            "video_memory": utilization([_video_memory(node) for node, _ in reports], "GB"),
+            "npu": utilization([
+                _accelerator(node, report.npu, lambda support: support.tops)
+                for node, report in reports if report.npu.utilization_percent is not None
+            ], "TOPS"),
+            "dla": utilization([
+                _accelerator(node, report.dla, lambda support: support.device_count)
+                for node, report in reports if report.dla.utilization_percent is not None
+            ], "Device"),
+        },
+    }

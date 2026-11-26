@@ -49,6 +49,8 @@ import type { NodeDetail } from '../../types/node';
 import { ClusterFormModal } from './components/ClusterFormModal';
 import { ClusterMemberScene } from './components/ClusterMemberScene';
 import { ClusterNodeOption } from './components/ClusterNodeOption';
+import { ClusterEventPanel, ClusterRuntimePanels, formatTime, useClusterOperations } from './components/ClusterOperationsPanels';
+import { sortClusterMembers } from './components/clusterMemberLayout';
 import './ClusterPage.css';
 
 const formatNumber = (value: number) =>
@@ -71,6 +73,12 @@ export function ClusterDetailPage() {
   const [assignOpen, setAssignOpen] = useState(false);
   const [selectedNodeId, setSelectedNodeId] = useState<string>();
   const [deleting, setDeleting] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
+  const operations = useClusterOperations(cluster?.id === clusterId ? clusterId : '', refreshKey);
+  const memberRuntime = operations.data?.recovery?.members;
+  const numberedMembers = new Map(sortClusterMembers(members).map((node, index) => [
+    node.id, '节点' + String(index + 1).padStart(2, '0'),
+  ]));
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -87,6 +95,7 @@ export function ClusterDetailPage() {
       setClusters(clusterList.items);
       setCandidateNodes(candidates);
       setHeaderUpdatedAt(record.resourceSummary.updatedAt);
+      setRefreshKey((key) => key + 1);
     } catch {
       setError('无法加载集群详情，集群可能不存在或 Backend 暂时不可用。');
     } finally {
@@ -98,6 +107,34 @@ export function ClusterDetailPage() {
     const timer = globalThis.setTimeout(() => void load(), 0);
     return () => globalThis.clearTimeout(timer);
   }, [load]);
+
+  useEffect(() => {
+    if (loading || cluster?.id !== clusterId) return;
+    const controller = new AbortController();
+    let timer: number;
+    async function refreshMembers() {
+      try {
+        const [record, items] = await Promise.all([
+          getCluster(clusterId, controller.signal),
+          getClusterNodes(clusterId, controller.signal),
+        ]);
+        if (controller.signal.aborted) return;
+        setCluster(record);
+        setMembers(items);
+        setHeaderUpdatedAt(record.resourceSummary.updatedAt);
+        setError(null);
+      } catch {
+        if (!controller.signal.aborted) setError('成员和容量暂未更新，当前显示最后一次读取的结果。');
+      } finally {
+        if (!controller.signal.aborted) timer = globalThis.setTimeout(() => void refreshMembers(), 15_000);
+      }
+    }
+    timer = globalThis.setTimeout(() => void refreshMembers(), 15_000);
+    return () => {
+      controller.abort();
+      globalThis.clearTimeout(timer);
+    };
+  }, [cluster?.id, clusterId, loading, setHeaderUpdatedAt]);
 
   const saveCluster = async (values: ClusterInput) => {
     setSaving(true);
@@ -209,9 +246,12 @@ export function ClusterDetailPage() {
       title: '节点名称',
       dataIndex: 'name',
       render: (name, node) => (
-        <Link className="cluster-detail__node-link" to={buildNodeDetailPath(node.id)}>
-          {name}
-        </Link>
+        <div className="cluster-operations__reference">
+          <Link className="cluster-detail__node-link" to={buildNodeDetailPath(node.id)}>
+            {numberedMembers.get(node.id) ?? name}
+          </Link>
+          <small>{name}</small>
+        </div>
       ),
     },
     {
@@ -234,10 +274,23 @@ export function ClusterDetailPage() {
       dataIndex: 'operationalStatus',
       render: (status) => <StatusBadge status={status} />,
     },
+    {
+      title: '调度状态',
+      render: (_, node) => {
+        const value = memberRuntime?.[node.id]?.scheduling_status ?? 'unknown';
+        const labels = { eligible: '可调度', paused: '暂停调度', ineligible: '不可调度', recovering: '恢复中', unknown: '—' };
+        const tones = { eligible: 'success', paused: 'waiting', ineligible: 'observed', recovering: 'waiting', unknown: 'observed' };
+        return <span className="cluster-operations__result" data-result={tones[value]}>{labels[value]}</span>;
+      },
+    },
     { title: 'CPU', render: (_, node) => `${node.resources.cpu.total} Core` },
     { title: 'GPU', render: (_, node) => `${node.resources.gpu?.total ?? 0} Device` },
     { title: '显存', render: (_, node) => `${node.videoMemory?.total ?? 0} GB` },
     { title: 'NPU', render: (_, node) => `${node.resources.npu?.total ?? 0} TOPS` },
+    { title: 'DLA', render: (_, node) => (node.resources.dla?.total ?? 0) + ' Device' },
+    { title: '内存', render: (_, node) => formatNumber(node.memory.total) + ' GB' },
+    { title: '当前执行分片', render: (_, node) => memberRuntime?.[node.id]?.current_shards ?? '—' },
+    { title: '最近恢复时间', render: (_, node) => formatTime(memberRuntime?.[node.id]?.last_recovered_at) },
     {
       title: '最后上报时间',
       dataIndex: 'lastResourceAt',
@@ -274,7 +327,7 @@ export function ClusterDetailPage() {
     },
   ];
 
-  if (!cluster && loading) {
+  if (cluster?.id !== clusterId && loading) {
     return (
       <main className="cluster-page">
         <Card loading />
@@ -282,7 +335,7 @@ export function ClusterDetailPage() {
     );
   }
 
-  if (!cluster) {
+  if (cluster?.id !== clusterId) {
     return (
       <main className="cluster-page">
         <Result
@@ -341,7 +394,7 @@ export function ClusterDetailPage() {
           </header>
           <dl className="cluster-basic-grid">
             <div><dt>集群名称</dt><dd>{cluster.name}</dd></div>
-            <div><dt>状态</dt><dd><StatusBadge status={cluster.status} /></dd></div>
+            <div><dt>成员运行状态</dt><dd><StatusBadge status={cluster.status} /></dd></div>
             <div><dt>Cluster ID</dt><dd><code title={cluster.id}>{cluster.id}</code></dd></div>
             <div><dt>节点数量</dt><dd>{cluster.nodeCount} 个</dd></div>
             <div><dt>版本</dt><dd>{cluster.version}</dd></div>
@@ -369,6 +422,7 @@ export function ClusterDetailPage() {
       </section>
 
       <ClusterMemberScene clusterId={cluster.id} members={members} loading={loading} />
+      <ClusterRuntimePanels clusterId={cluster.id} nodeCount={cluster.nodeCount} operations={operations} />
 
       <section className="cluster-detail-panel cluster-member-table-panel">
         <header className="cluster-detail-panel__heading">
@@ -383,12 +437,14 @@ export function ClusterDetailPage() {
             columns={columns}
             dataSource={members}
             loading={loading}
-            scroll={{ x: 1600 }}
+            scroll={{ x: 1900 }}
             pagination={false}
             locale={{ emptyText: '该集群尚未分配节点' }}
           />
         </div>
       </section>
+
+      <ClusterEventPanel key={'events-' + cluster.id} clusterId={cluster.id} refreshKey={refreshKey} />
 
       <Modal
         rootClassName="cluster-detail-modal"
