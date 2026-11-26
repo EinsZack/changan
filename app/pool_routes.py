@@ -11,6 +11,7 @@ from fastapi import APIRouter, HTTPException, Query, Request
 from . import pool_bridge
 from .cluster_operations import TASK_WINDOW_HOURS, cluster_task_statistics
 from .cluster_recovery import cluster_recovery
+from .node_task_summary import node_task_summary
 from .pool.services.cluster_service import ClusterNotFoundError
 from .pool.services.resource_aggregation import cluster_runtime_load
 from .pool_bridge import admission_mode
@@ -117,6 +118,19 @@ def recent_events(request: Request, limit: int = Query(8, ge=1, le=100)):
     bridge(request)
     items = pool_bridge.recent_task_events(limit)
     return {'items': items, 'total': len(items), 'updated_at': utcnow(), 'source': 'task_database'}
+
+
+@router.get('/api/v1/platform/nodes/{pool_node_id}/task-summary')
+def node_tasks(request: Request, pool_node_id: UUID):
+    b = bridge(request)
+    if b.store.get_node(pool_node_id) is None:
+        raise HTTPException(404, '节点不存在')
+    node_id = str(pool_node_id)
+    executor_ids = [
+        executor_id for executor_id, binding in b.execution_binding_map().items()
+        if binding.get('pool_node_id') == node_id
+    ]
+    return node_task_summary(node_id, executor_ids)
 
 
 @router.get('/api/v1/platform/nodes/{pool_node_id}/reliability')

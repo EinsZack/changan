@@ -132,6 +132,7 @@ export function VehicleNode({
       placement="top"
       trigger={['hover', 'focus']}
       mouseEnterDelay={0.12}
+      destroyOnHidden
       content={
         popoverContent ?? (
           <NodeResourcePopover node={node} displayName={displayName} resource={resource} />

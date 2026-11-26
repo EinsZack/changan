@@ -151,6 +151,38 @@ export async function getExecutionBindings(): Promise<{ mode: string; items: Exe
   };
 }
 
+interface NodeShardCounts {
+  waiting_shards: number;
+  running_shards: number;
+  unverified_shards: number;
+}
+
+interface NodeTaskReference {
+  task_id: string;
+  name: string;
+}
+
+export interface NodeTaskSummary extends NodeShardCounts {
+  node_id: string;
+  execution_bound: boolean;
+  assigned_task_count: number;
+  completed_task_count: number;
+  active_task_count: number;
+  tasks: (NodeTaskReference & NodeShardCounts)[];
+  recent_result: (NodeTaskReference & {
+    status: 'SUCCEEDED' | 'FAILED' | 'TIMED_OUT' | 'CANCELED';
+    finished_at: string;
+  }) | null;
+}
+
+export async function getNodeTaskSummary(nodeId: string, signal: AbortSignal): Promise<NodeTaskSummary> {
+  const { data } = await apiClient.get<NodeTaskSummary>(
+    '/api/v1/platform/nodes/' + encodeURIComponent(nodeId) + '/task-summary',
+    { signal },
+  );
+  return data;
+}
+
 export async function getNodeReliability(poolNodeId: string): Promise<NodeReliability> {
   const { data } = await apiClient.get<any>(
     `/api/v1/platform/nodes/${encodeURIComponent(poolNodeId)}/reliability`,

@@ -3,6 +3,7 @@ import vehicleImage from '../../../assets/fleet-node-suv-v2.png';
 import type { NodeResourceContribution, ResourceMetric } from '../../../types/computePool';
 import type { NodeDetail, NodeOperationalStatus, NodeSummary } from '../../../types/node';
 import { getNodeResourceSnapshot } from '../dashboardModel';
+import { NodeTaskPopover } from './NodeTaskPopover';
 
 interface NodeResourcePopoverProps {
   node: NodeSummary;
@@ -89,12 +90,6 @@ export function NodeResourcePopover({
         </span>
       </header>
 
-      {historical && (
-        <p className="node-resource-popover__history">
-          {reportedAt ? <>最后一次上报 · {dayjs(reportedAt).format('YYYY-MM-DD HH:mm:ss')}（历史）</> : '暂无历史资源上报'}
-        </p>
-      )}
-
       <section className="node-resource-popover__identity" aria-label="节点身份">
         <img src={vehicleImage} alt="" draggable={false} />
         <dl>
@@ -114,6 +109,14 @@ export function NodeResourcePopover({
           </div>
         </dl>
       </section>
+
+      <NodeTaskPopover key={node.id} nodeId={node.id} enabled={node.nodeSource === 'agent'} />
+
+      {historical && (
+        <p className="node-resource-popover__history">
+          {reportedAt ? <>最后一次上报 · {dayjs(reportedAt).format('YYYY-MM-DD HH:mm:ss')}（历史）</> : '暂无历史资源上报'}
+        </p>
+      )}
 
       {(!historical || reportedAt) && <section className="node-resource-popover__resources" aria-label={resourceLabel}>
         <ResourceRow
