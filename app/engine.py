@@ -310,6 +310,9 @@ class Engine:
             phases['refresh']=round((time.monotonic()-t)*1000,1); t=time.monotonic()
             await self.reconcile(); phases['reconcile']=round((time.monotonic()-t)*1000,1)
             await self.schedules(); self.last_refresh=time.monotonic()
+        elif self.containers and hasattr(self.containers,'reconcile_hot'):
+            t=time.monotonic(); n=await self.containers.reconcile_hot()
+            if n:phases['hot_reconcile']=round((time.monotonic()-t)*1000,1)
         total=(time.monotonic()-began)*1000
         if total>1500:log.warning('Slow coordinator maintenance %.0f ms: %s',total,phases)
     async def dispatch_pass(self):

@@ -33,24 +33,51 @@ def add(c, task_id, ordinal, path, phase, dependencies=(), submodel=None, source
 def ref(unit_id, name):
     return {"unit_id": unit_id, "name": name}
 
+def version(meta):
+    return int(meta.get("application",{}).get("pipeline_version",1))
+
+def unit_count(groups, pipeline_version):
+    return 2*groups+(2 if pipeline_version>=2 else 3)
+
 def expand(c, a, result):
-    """Called in prepare-completion transaction; duplicate callbacks cannot expand twice."""
+    """Called in prepare-completion transaction; duplicate callbacks cannot expand twice.
+    v1: prepare -> N reconstruct -> align -> N toolchain -> merge (2N+3 Jobs, 5 barriers).
+    v2: prepare -> N reconstruct -> N toolchain(each re-runs the deterministic global
+        alignment from the same immutable inputs) -> merge (2N+2 Jobs, 4 barriers).
+    """
     plan = result["plan"]
     ids = [g["id"] for g in plan["submodels"]]
     tid, prep = a["task_id"], a["segment_id"]
     path = c.execute("SELECT path FROM segments WHERE id=?", (prep,)).fetchone()[0]
+    meta = db.loads(c.execute("SELECT metadata FROM tasks WHERE id=?", (tid,)).fetchone()[0])
+    v = version(meta)
     sparse = []
     for g in ids:
         sparse.append(add(c,tid,1+len(sparse),path,"reconstruct",[prep],g,[ref(prep,"seed-"+g+".tar.gz")]))
-    align = add(c,tid,len(ids)+1,path,"align",sparse, sources=[ref(prep,"parent.tar.gz")]+[ref(s,"state.tar.gz") for s in sparse])
     dense = []
-    for g in ids:
-        dense.append(add(c,tid,len(ids)+2+len(dense),path,"toolchain",[align],g,[ref(prep,"seed-"+g+".tar.gz"),ref(align,"aligned-"+g+".tar.gz")]))
-    add(c,tid,2*len(ids)+2,path,"merge",dense,sources=[ref(prep,"parent.tar.gz")]+[ref(s,"state.tar.gz") for s in dense])
-    meta = db.loads(c.execute("SELECT metadata FROM tasks WHERE id=?", (tid,)).fetchone()[0])
+    if v >= 2:
+        states = [ref(s,"state.tar.gz") for s in sparse]
+        for g in ids:
+            dense.append(add(c,tid,len(ids)+1+len(dense),path,"toolchain",sparse,g,[ref(prep,"parent.tar.gz"),ref(prep,"seed-"+g+".tar.gz")]+states))
+    else:
+        align = add(c,tid,len(ids)+1,path,"align",sparse, sources=[ref(prep,"parent.tar.gz")]+[ref(s,"state.tar.gz") for s in sparse])
+        for g in ids:
+            dense.append(add(c,tid,len(ids)+2+len(dense),path,"toolchain",[align],g,[ref(prep,"seed-"+g+".tar.gz"),ref(align,"aligned-"+g+".tar.gz")]))
+    total = unit_count(len(ids), v)
+    add(c,tid,total-1,path,"merge",dense,sources=[ref(prep,"parent.tar.gz")]+[ref(s,"state.tar.gz") for s in dense])
     meta["mapping_plan"] = plan
-    c.execute("UPDATE tasks SET total=?,metadata=? WHERE id=?", (2*len(ids)+3,db.dumps(meta),tid))
-    db.event(tid,"mapping_plan",{"stage":"prepare","state":"SUCCEEDED","submodels":plan["submodels"],"overlap_edges":plan["overlap_edges"],"work_units":2*len(ids)+3},a["id"],c)
+    c.execute("UPDATE tasks SET total=?,metadata=? WHERE id=?", (total,db.dumps(meta),tid))
+    db.event(tid,"mapping_plan",{"stage":"prepare","state":"SUCCEEDED","submodels":plan["submodels"],"overlap_edges":plan["overlap_edges"],"work_units":total,"pipeline_version":v},a["id"],c)
+
+HEX64 = re.compile(r"[0-9a-f]{64}")
+
+def alignment_consensus(task_id):
+    """v2: every toolchain recomputed the global alignment; all must be bit-identical."""
+    rows = db.query("SELECT result FROM segments WHERE task_id=? AND kind='mapping_toolchain'",(task_id,))
+    digests = {db.loads(r["result"],{}).get("alignment_sha256") for r in rows}
+    if len(digests)!=1 or not all(isinstance(d,str) and HEX64.fullmatch(d) for d in digests):
+        raise ValueError("各子模型独立计算的统一对齐结果不一致，拒绝融合")
+    return digests.pop()
 
 def ready(unit):
     spec = get(unit["id"])
@@ -76,6 +103,25 @@ def inputs(unit):
 def input_hash(entries):
     return hashlib.sha256(json.dumps(entries,sort_keys=True,separators=(",",":")).encode()).hexdigest()
 
+LOCALITY_MIN_BYTES = 32*1024**2
+
+def cached_input_bytes(task, unit):
+    """Bytes of this unit's declared inputs that a node-local cache probably holds, per node.
+    Hint only: the worker re-verifies SHA256 and falls back to downloading."""
+    if not db.loads(task["metadata"]).get("application",{}).get("artifact_cache"):return {}
+    try:entries=inputs(unit)
+    except ValueError:return {}
+    rows=db.query("SELECT node_id,status,result,workload FROM attempts WHERE task_id=? AND status='SUCCEEDED'",(task["id"],))
+    holders={}
+    for r in rows:
+        held={x["sha256"] for x in db.loads(r["result"],{}).get("artifacts",[]) if isinstance(x,dict)}
+        held|={x["sha256"] for x in db.loads(r["workload"],{}).get("inputs",[])}
+        for sha in held:holders.setdefault(sha,set()).add(r["node_id"])
+    out={}
+    for e in entries:
+        for node in holders.get(e["sha256"],()):out[node]=out.get(node,0)+e["bytes"]
+    return out
+
 def scheduling_nodes(nodes, task, unit=None):
     p=db.loads(task["params"])
     active=db.query("SELECT DISTINCT node_id FROM attempts WHERE task_id=? AND cleanup_state!='DONE'",(task["id"],))
@@ -88,7 +134,9 @@ def scheduling_nodes(nodes, task, unit=None):
         peers=db.query("SELECT s.status,a.node_id FROM segments s LEFT JOIN attempts a ON a.id=s.active_attempt WHERE s.task_id=? AND s.kind='mapping_reconstruct' AND s.id!=?",(task['id'],unit['id']))
         used={r['node_id'] for r in peers if r['node_id'] and r['status'] not in ('PENDING','FAILED','CANCELED','TIMED_OUT')}
         if len(used)==1 and len(peers)>0 and all(r['node_id'] and r['status']!='PENDING' for r in peers):excluded=used
+    cached=cached_input_bytes(task,unit) if unit else {}
     for n in nodes:
+        n['cached_input_bytes']=cached.get(n['id'],0)
         if n['id'] in excluded:n['session_blocked']='同图协同至少两个不同节点参与稀疏重建，等待另一合格节点'
         elif n["id"] in busy:n["session_blocked"]="同一建图任务每节点只运行一个阶段单元"
         elif len(busy)>=p["max_nodes"]:n["session_blocked"]="已达到本任务协同节点上限"
@@ -133,6 +181,10 @@ def validate_result(a,w,r,verify_content=False):
     expected={"application_id":ID,"engine_version":"3.8.6","attempt_id":a["id"],"task_id":a["task_id"],"work_unit_id":a["segment_id"],"actual_node":a["node_id"],"pod_uid":w["pod_uid"],"input_sha256":w["input_sha256"],"device":"cpu","phase":spec["phase"],"submodel":spec["submodel"]}
     if any(r.get(k)!=v for k,v in expected.items()) or r.get("inputs")!=w.get("inputs",[]):raise ValueError("阶段结果来源/依赖版本不一致")
     task=db.query("SELECT params,metadata FROM tasks WHERE id=?",(a["task_id"],),one=True);params=db.loads(task["params"]);meta=db.loads(task["metadata"])
+    if version(meta)>=2:
+        # An image whose worker predates v2 would run toolchain on unaligned sparse models.
+        if r.get("pipeline_version")!=2:raise ValueError("协同镜像未声明v2阶段协议，拒绝采用")
+        if spec["phase"]=="toolchain" and not (isinstance(r.get("alignment_sha256"),str) and HEX64.fullmatch(r["alignment_sha256"])):raise ValueError("地理成果单元缺少统一对齐摘要")
     # Re-evaluate lineage: a changed/failed upstream cannot publish stale descendants.
     if inputs(dict(id=a["segment_id"],task_id=a["task_id"]))!=w.get("inputs",[]):raise ValueError("前置产物版本已失效")
     phase=spec["phase"]
@@ -147,6 +199,7 @@ def validate_result(a,w,r,verify_content=False):
         if set(q.get("submodels",[]))!={g["id"] for g in meta["mapping_plan"]["submodels"]}:raise ValueError("融合子模型不完整")
         if any(type(q.get(k)) is not int or q[k]<=0 for k in ("width","height")) or not q.get("crs"):raise ValueError("无效空间成果")
         if params["preset"]=="standard" and (type(q.get("points")) is not int or q["points"]<=0):raise ValueError("无有效融合点云")
+        if version(meta)>=2:alignment_consensus(a["task_id"])
     else:names={"state.tar.gz"}
     artifacts=r.get("artifacts",[])
     if not isinstance(artifacts,list) or any(not isinstance(m,dict) for m in artifacts) or len(artifacts)!=len(names) or {m.get("name") for m in artifacts}!=names:raise ValueError("阶段产物不完整")

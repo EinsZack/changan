@@ -45,10 +45,18 @@ def choose(nodes, params, duration, input_bytes, algorithm, cursor=0):
         score=compute*weights.get('compute',1)+transfer*weights.get('transfer',1)+queue*weights.get('queue',1)
         if mapping:
             compute=None;score=(1-s.get('available_memory_mb',0)/max(1,s.get('memory_budget_mb',1)))+float(s.get('active',0))+(transfer/60 if bandwidth else 0)
-        rows.append({'node_id':n['id'],'eligible':not why,'reasons':why,'score':round(score,4),'compute_seconds':round(compute,4) if compute is not None else None,'transfer_seconds':round(transfer,4) if bandwidth else None,'estimate_source':'建图：内存/占用及传输评分；计算耗时尚未校准' if mapping else '实测推理吞吐' if s.get('measured_fps') else '启动估计，尚未校准','network_source':s.get('network_source','未提供，传输成本暂不参与'),'snapshot':s,'snapshot_at':n.get('observed'),'pool':pool})
+        rows.append({'node_id':n['id'],'cached_input_bytes':n.get('cached_input_bytes',0),'eligible':not why,'reasons':why,'score':round(score,4),'compute_seconds':round(compute,4) if compute is not None else None,'transfer_seconds':round(transfer,4) if bandwidth else None,'estimate_source':'建图：内存/占用及传输评分；计算耗时尚未校准' if mapping else '实测推理吞吐' if s.get('measured_fps') else '启动估计，尚未校准','network_source':s.get('network_source','未提供，传输成本暂不参与'),'snapshot':s,'snapshot_at':n.get('observed'),'pool':pool})
     eligible=[r for r in rows if r['eligible']]
+    locality=None
+    if eligible and params.get('application_id')=='aerial-mapping-odx':
+        # Data locality for the mapping DAG: an eligible node already holding this unit's
+        # stage archives skips a multi-hundred-MB transfer through the management plane.
+        best=max(r['cached_input_bytes'] for r in eligible)
+        if best>=32*1024**2:
+            eligible=[r for r in eligible if r['cached_input_bytes']==best]
+            locality={'cached_input_bytes':best,'nodes':[r['node_id'] for r in eligible],'rule':'优先已缓存本单元输入归档的合格节点；缓存仅为提示，执行端仍校验SHA256'}
     chosen=None
     if eligible:
         if algorithm.get('method')=='round_robin': chosen=sorted(eligible,key=lambda r:r['node_id'])[cursor%len(eligible)]
         else: chosen=min(eligible,key=lambda r:(r['score'],r['node_id']))
-    return {'algorithm':algorithm,'candidates':rows,'target_node':chosen['node_id'] if chosen else None,'duration_ms':(time.monotonic()-began)*1000,'at':now,'estimate_only':True}
+    return {'algorithm':algorithm,'candidates':rows,'locality':locality,'target_node':chosen['node_id'] if chosen else None,'duration_ms':(time.monotonic()-began)*1000,'at':now,'estimate_only':True}

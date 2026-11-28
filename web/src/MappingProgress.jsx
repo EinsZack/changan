@@ -1,7 +1,7 @@
 import React,{useEffect,useState} from 'react';
 import './mappingProgress.css';
 import {computeWindows} from './mappingIntervals';
-const labels={prepare:'空间分组',reconstruct:'稀疏重建',align:'统一对齐',toolchain:'地理成果',merge:'融合发布',photo_reconstruction:'整体重建',download:'下载与校验',upload:'上传成果',dataset:'照片准备',opensfm:'相机配准',openmvs:'稠密重建',odm_filterpoints:'点云滤波',odm_meshing:'网格生成',mvs_texturing:'纹理处理',odm_georeferencing:'地理参考',odm_dem:'高程处理',odm_orthophoto:'正射影像',odm_report:'质量报告',odm_postprocess:'成果整理',complete:'结果核验'};
+const labels={prepare:'空间分组',reconstruct:'稀疏重建',align:'统一对齐',toolchain:'地理成果',toolchain_v2:'对齐与地理成果',merge:'融合发布',photo_reconstruction:'整体重建',download:'下载与校验',upload:'上传成果',dataset:'照片准备',opensfm:'相机配准',openmvs:'稠密重建',odm_filterpoints:'点云滤波',odm_meshing:'网格生成',mvs_texturing:'纹理处理',odm_georeferencing:'地理参考',odm_dem:'高程处理',odm_orthophoto:'正射影像',odm_report:'质量报告',odm_postprocess:'成果整理',complete:'结果核验'};
 const statuses={PENDING:'等待调度',BLOCKED:'等待前置成果',DISPATCHING:'正在调度',SUBMITTED:'已提交',POD_PENDING:'容器准备',IMAGE_PULLING:'拉取镜像',STARTING:'正在启动',RUNNING:'运行中',UPLOADING:'上传成果',FINALIZING:'核验结果',PULLING:'拉取镜像',CONTAINER_STARTING:'容器启动',SUCCEEDED:'成功',FAILED:'失败',CANCELED:'已取消',TIMED_OUT:'超时',UNKNOWN:'等待核对',CLEANING:'清理中'};
 const terminal=s=>['SUCCEEDED','FAILED','CANCELED','TIMED_OUT'].includes(s);
 const secs=n=>Number.isFinite(n)?`${n.toFixed(1)}s`:'—';
@@ -21,7 +21,10 @@ export default function MappingProgress({task:t,events,onOpenAttempt}){
  const successful=units.filter(u=>u.status==='SUCCEEDED').length,running=units.filter(u=>u.a&&!terminal(u.a.status)).length;
  const actualNodes=[...new Set(attempts.filter(a=>a.actual_node).map(a=>a.actual_node))];
  const plan=t.metadata?.mapping_plan,groups=plan?.submodels||[];
- const phases=coop?['prepare','reconstruct','align','toolchain','merge']:['photo_reconstruction'];
+ // Pipeline v2 runs the deterministic global alignment inside every toolchain unit (no align Job).
+ const fused=(t.metadata?.application?.pipeline_version||1)>=2;
+ const phases=coop?(fused?['prepare','reconstruct','toolchain','merge']:['prepare','reconstruct','align','toolchain','merge']):['photo_reconstruction'];
+ const phaseLabel=p=>fused&&p==='toolchain'?labels.toolchain_v2:labels[p];
  const chosen=units.find(u=>u.id===selected);
  const nodeNames=[...new Set(attempts.map(a=>a.actual_node||a.node_id).filter(Boolean))];
  const duration=Math.max(1,end-start);
@@ -36,7 +39,7 @@ export default function MappingProgress({task:t,events,onOpenAttempt}){
   <div className="mp-dag" aria-label="建图阶段依赖图">
    {phases.map((phase,i)=>{const children=units.filter(u=>(u.phase||u.kind)===phase);return <React.Fragment key={phase}>
     {i>0&&<div className="mp-arrow" aria-label="等待前置完成">→</div>}
-    <div className="mp-column"><h3><b>{i+1}</b>{labels[phase]}</h3>{children.length?children.map(u=><button key={u.id} className={`mp-unit ${u.state} ${selected===u.id?'chosen':''}`} onClick={()=>setSelected(selected===u.id?null:u.id)} aria-pressed={selected===u.id}>
+    <div className="mp-column"><h3><b>{i+1}</b>{phaseLabel(phase)}</h3>{children.length?children.map(u=><button key={u.id} className={`mp-unit ${u.state} ${selected===u.id?'chosen':''}`} onClick={()=>setSelected(selected===u.id?null:u.id)} aria-pressed={selected===u.id}>
      <strong>{short(u.submodel)||labels[phase]}</strong><span className="mp-unit-state">{statuses[u.state]||u.state}</span><small>{u.a?.actual_node?`● ${u.a.actual_node}`:u.a?.node_id?`目标 ${u.a.node_id}`:'尚未分配节点'}</small>
      {u.last&&<small>{labels[u.last.payload.stage]||u.last.payload.stage} · {statuses[u.last.payload.state]||u.last.payload.state}</small>}
     </button>):<div className="mp-placeholder">等待生成工作单元</div>}</div>

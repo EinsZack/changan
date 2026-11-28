@@ -34,6 +34,7 @@ class MappingInput(BaseModel):
     deadline_seconds: int=Field(default=14400,ge=300,le=86400)
     attempt_timeout: int=Field(default=10800,ge=300,le=86400)
     max_retries: int=Field(default=0,ge=0,le=2)
+    pipeline_version: int|None=Field(default=None,ge=1,le=2,description='协同DAG版本；缺省取CHANGAN_MAPPING_PIPELINE_VERSION')
     priority: int=Field(default=0,ge=0,le=10)
     node_ids: list[str]=Field(default_factory=list,max_length=64)
     architecture: Literal['arm64']='arm64'
@@ -97,9 +98,11 @@ def create(engine,body,key=None,trigger='service',strategy=None):
     if engine.backend!='k3s':raise ValueError('建图模板仅支持K3s容器执行')
     d=dataset(body.source);params=body.model_dump();app=application();now=time.time();tid=db.uid('task')
     if body.execution_mode=='collaborative':
-        image=os.getenv('CHANGAN_MAPPING_COLLAB_IMAGE','')
-        if not re.fullmatch(r'[^@\s]+@sha256:[0-9a-f]{64}',image):raise ValueError('协同建图镜像尚未配置为固定摘要')
-        app=dict(app,image=image,version='2',pipeline_version=1)
+        version=body.pipeline_version or pipeline_version()
+        # v1 and v2 stay separately pinned so both generations can be compared in one deployment.
+        image=os.getenv('CHANGAN_MAPPING_COLLAB_V2_IMAGE' if version>=2 else 'CHANGAN_MAPPING_COLLAB_IMAGE','')
+        if not re.fullmatch(r'[^@\s]+@sha256:[0-9a-f]{64}',image):raise ValueError('协同建图镜像尚未配置为固定摘要'+('（v2需CHANGAN_MAPPING_COLLAB_V2_IMAGE）' if version>=2 else ''))
+        app=dict(app,image=image,version='2',pipeline_version=version,artifact_cache=artifact_cache() if version>=2 else None)
         if math.ceil(d['image_count']/body.submodel_size)>8:raise ValueError('本版最多8个子模型，请增加每组目标照片数')
         if body.submodel_size>=d['image_count']:raise ValueError('每个子模型的目标照片数必须小于输入照片数')
         if body.node_ids and len(set(body.node_ids))<2:raise ValueError('协同模式至少需要两个候选节点')
@@ -125,6 +128,25 @@ def create(engine,body,key=None,trigger='service',strategy=None):
     return tid
 
 
+def pipeline_version():
+    """Collaborative DAG generation. v2 needs a collaborative image whose worker fuses
+    alignment into toolchain units; enable only after publishing that image digest."""
+    raw=os.getenv('CHANGAN_MAPPING_PIPELINE_VERSION','1').strip()
+    if raw not in ('1','2'):raise ValueError('CHANGAN_MAPPING_PIPELINE_VERSION 仅支持1或2')
+    return int(raw)
+
+CACHE_MOUNT='/cache/mapping'
+
+def artifact_cache():
+    """Optional node-local stage-archive cache, frozen into the task snapshot.
+    The directory must already exist on every Thor (UID/GID 10001, 0700), like the CUDA cache."""
+    path=os.getenv('CHANGAN_MAPPING_CACHE_HOSTPATH','').strip()
+    if not path:return None
+    if not path.startswith('/') or '..' in Path(path).parts:raise ValueError('CHANGAN_MAPPING_CACHE_HOSTPATH 必须为节点上的绝对路径')
+    size=int(os.getenv('CHANGAN_MAPPING_CACHE_MAX_GB','20'))
+    if not 1<=size<=200:raise ValueError('CHANGAN_MAPPING_CACHE_MAX_GB 须在1～200之间')
+    return {'host_path':path,'max_bytes':size*1024**3}
+
 def candidate_params(params):
     return dict(params,application_id=ID,min_cpu_cores=params['concurrency'],min_gpu_count=0)
 
@@ -137,6 +159,11 @@ def manifest(a,w,params):
     container['resources']={'requests':{'cpu':str(params['concurrency']),'memory':str(params['min_memory_mb'])+'Mi','ephemeral-storage':str(params['workspace_gb'])+'Gi'},'limits':{'cpu':str(params['concurrency']),'memory':str(params['min_memory_mb'])+'Mi','ephemeral-storage':str(params['workspace_gb'])+'Gi'}}
     spec['volumes'][1]['emptyDir']['sizeLimit']=str(params['workspace_gb']-2)+'Gi';spec['volumes'][2]['emptyDir']['sizeLimit']='2Gi'
     container['env'] += [{'name':'HOME','value':'/work'},{'name':'TMPDIR','value':'/tmp'},{'name':'PYTHONDONTWRITEBYTECODE','value':'1'}]
+    cache=w.get('artifact_cache')
+    if cache and w.get('phase'):
+        spec['volumes'].append({'name':'mapping-cache','hostPath':{'path':cache['host_path'],'type':'Directory'}})
+        container['volumeMounts'].append({'name':'mapping-cache','mountPath':CACHE_MOUNT})
+        container['env']+=[{'name':'CHANGAN_MAPPING_CACHE','value':CACHE_MOUNT},{'name':'CHANGAN_MAPPING_CACHE_MAX_BYTES','value':str(int(cache['max_bytes']))}]
     return m
 
 async def submit(controller,task,unit,aid,payload):
@@ -148,7 +175,7 @@ async def submit(controller,task,unit,aid,payload):
         spec=get(unit['id']);entries=inputs(unit)
         if entries:payload['input_sha256']=input_hash(entries)
         w.update(phase=spec['phase'],submodel=spec['submodel'],inputs=entries,input_sha256=payload['input_sha256'])
-        payload.update(phase=spec['phase'],submodel=spec['submodel'],inputs=entries)
+        payload.update(phase=spec['phase'],submodel=spec['submodel'],inputs=entries,pipeline_version=app.get('pipeline_version',1))
     db.execute("UPDATE attempts SET workload=?,cleanup_state='PENDING',backend='k3s' WHERE id=?",(db.dumps(w),aid));payload.update(base_url=base,input_url=base+'/input',callback_url=base+'/events',params=params)
     job=await controller.client().submit(manifest(a,w,params),payload);save(a,{'job_uid':job.metadata.uid});stage(a,'SUBMITTED','建图Job已提交，等待目标Thor执行')
     db.event(a['task_id'],'job_submitted',{'stage':'execute','state':'SUBMITTED','job_name':w['job_name'],'job_uid':job.metadata.uid,'image':w['image'],'application_id':ID},aid)

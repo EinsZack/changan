@@ -38,10 +38,79 @@ def extract(archive,root,limit):
                 with t.extractfile(m) as src,dest.open('wb') as out:shutil.copyfileobj(src,out)
     return total
 
-def pack(destination,paths):
-    """Materialize ODX internal symlinks; never send links to the control plane."""
+# Pipeline v2 (2026-11-28): align is fused into every toolchain unit, so one K3s Job
+# barrier disappears. Default ODX mesh budget is per *mesh*, not per area; v2 gives
+# each submodel a share proportional to its photos so face density matches a single run.
+DEFAULT_MESH_SIZE=200000
+MIN_MESH_SIZE=20000
+
+def mesh_budget(group_images,total_images,default=DEFAULT_MESH_SIZE):
+    if total_images<=0 or group_images<=0:raise ValueError('无效的子模型照片数')
+    return max(MIN_MESH_SIZE,min(default,-(-default*group_images//total_images)))
+
+def alignment_digest(root,plan):
+    """Stable digest of the global alignment every toolchain unit computed independently."""
+    h=hashlib.sha256()
+    for g in sorted(x['id'] for x in plan['submodels']):
+        h.update(g.encode()+b'\0');h.update((root/'submodels'/g/'opensfm/reconstruction.json').read_bytes());h.update(b'\0')
+    return h.hexdigest()
+
+class ArtifactCache:
+    """Node-local, content-addressed cache of stage archives (hostPath, UID 10001).
+
+    Keyed by SHA256 and re-verified on every read, so a stale, truncated or foreign file
+    is never trusted; on any doubt the worker downloads from the control plane as before.
+    Only artifacts that already flow between units of a task are stored; the original
+    photo ZIP is not cached so single-node runs stay a like-for-like baseline.
+    """
+    def __init__(self,root,max_bytes):
+        self.root=Path(root) if root else None;self.max_bytes=max_bytes;self.hits=0;self.hit_bytes=0
+        if self.root:
+            try:
+                for d in ('sha256','tmp'):(self.root/d).mkdir(parents=True,exist_ok=True)
+                probe=self.root/'tmp'/('probe-%s'%os.getpid());probe.write_bytes(b'');probe.unlink()
+            except OSError:self.root=None
+    def path(self,sha):return self.root/'sha256'/sha
+    def get(self,sha,size):
+        if not self.root or not re.fullmatch(r'[0-9a-f]{64}',sha or ''):return None
+        f=self.path(sha)
+        try:
+            if f.stat().st_size!=size or digest(f)!=sha:return None
+            os.utime(f);self.hits+=1;self.hit_bytes+=size;return f
+        except OSError:return None
+    def tmp(self,name):
+        return self.root/'tmp'/('%s-%s-%s'%(os.getpid(),time.monotonic_ns(),name))
+    def put(self,file,sha):
+        """Atomically publish a verified file; returns the cached path (or the original)."""
+        if not self.root:return file
+        dest=self.path(sha)
+        try:
+            os.replace(file,dest);return dest
+        except OSError:return file
+    def prune(self):
+        if not self.root:return
+        now=time.time()
+        for f in (self.root/'tmp').iterdir():
+            try:
+                if now-f.stat().st_mtime>6*3600:f.unlink()
+            except OSError:pass
+        files=[]
+        for f in (self.root/'sha256').iterdir():
+            try:st=f.stat();files.append((st.st_mtime,st.st_size,f))
+            except OSError:pass
+        used=sum(x[1] for x in files)
+        for mtime,size,f in sorted(files):
+            # Recently used entries may belong to a unit still extracting them.
+            if used<=self.max_bytes or now-mtime<1800:break
+            try:f.unlink();used-=size
+            except OSError:pass
+
+def pack(destination,paths,compresslevel=1):
+    """Materialize ODX internal symlinks; never send links to the control plane.
+    Seed archives are almost entirely JPEG; level 0 keeps the gzip container but skips
+    deflate work that cannot shrink them (measured: 2.5 s Brighton / 14.7 s Aukerman packing)."""
     seen=set()
-    with tarfile.open(destination,'w:gz',compresslevel=1,dereference=True) as t:
+    with tarfile.open(destination,'w:gz',compresslevel=compresslevel,dereference=True) as t:
         for path in paths:
             members=[path] if path.is_file() else [Path(d)/n for d,_,names in os.walk(path,followlinks=True) for n in sorted(names)]
             for f in members:
@@ -95,7 +164,8 @@ def final_products(root,plan,preset):
 def main(p):
     base=p['base_url'];http=requests.Session();http.trust_env=False
     http.headers.update({'X-Attempt-Token':p['token'],'X-Pod-UID':os.environ['POD_UID']})
-    seq=0;started=time.monotonic();params=p['params'];phase=p['phase'];group=p['submodel']
+    seq=0;started=time.monotonic();params=p['params'];phase=p['phase'];group=p['submodel'];version=int(p.get('pipeline_version',1))
+    fused=phase=='toolchain' and version>=2;alignment=None
     metrics={'download_bytes':0,'download_seconds':0,'compute_seconds':0,'pack_seconds':0,'upload_bytes':0,'upload_seconds':0}
     def post(endpoint,body):
         for retry in range(4):
@@ -107,6 +177,14 @@ def main(p):
     def event(status,**kwargs):
         nonlocal seq
         seq+=1;post('/events',dict(status=status,seq=seq,**kwargs))
+    cache=ArtifactCache(os.environ.get('CHANGAN_MAPPING_CACHE'),int(os.environ.get('CHANGAN_MAPPING_CACHE_MAX_BYTES',str(20*1024**3))))
+    def fetch(url,expected,size,fallback):
+        """Return a verified local archive for a declared dependency, preferring the node cache."""
+        hit=cache.get(expected,size)
+        if hit:return hit,False
+        if cache.root:
+            dest=cache.tmp('dep.tar.gz');download(url,dest,expected,size);return cache.put(dest,expected),False
+        download(url,fallback,expected,size);return fallback,True
     def download(url,dest,expected,expected_size=None):
         t=time.monotonic();size=0;h=hashlib.sha256()
         with http.get(url,stream=True,timeout=(8,180)) as r,dest.open('wb') as f:
@@ -132,10 +210,10 @@ def main(p):
         else:
             total=0
             for index,entry in enumerate(p['inputs']):
-                dest=ROOT.parent/('input-%s.tar.gz'%index)
-                download(base+'/dependency/'+str(index),dest,entry['sha256'],entry['bytes'])
+                dest,temporary=fetch(base+'/dependency/'+str(index),entry['sha256'],entry['bytes'],ROOT.parent/('input-%s.tar.gz'%index))
                 total+=extract(dest,ROOT.parent,params['workspace_gb']*1024**3-total)
-                dest.unlink()
+                if temporary:dest.unlink()
+            metrics['cache_hits']=cache.hits;metrics['cache_hit_bytes']=cache.hit_bytes
         if phase=='merge':
             merge_plan=json.loads((ROOT/'plan.json').read_text())
             if {d.name for d in (ROOT/'submodels').iterdir() if d.is_dir()}!={g['id'] for g in merge_plan['submodels']}:raise ValueError('融合输入子模型集合不一致')
@@ -144,6 +222,19 @@ def main(p):
             for g in merge_plan['submodels']:
                 if any(not (ROOT/'submodels'/g['id']/n).is_file() for n in required):raise ValueError('缺失子模型成果，拒绝部分融合')
         project=ROOT/'submodels'/group if group else ROOT
+        if fused:
+            # Same inputs as the former align unit (parent + every sparse state), plus this
+            # submodel's seed. Every toolchain recomputes the identical global alignment; the
+            # platform refuses to merge unless all digests agree.
+            plan=json.loads((ROOT/'plan.json').read_text())
+            if group not in {g['id'] for g in plan['submodels']}:raise ValueError('子模型不在协同计划中')
+            event('RUNNING',phase='align',transition='Running');t=time.monotonic()
+            env=dict(os.environ,CHANGAN_MAPPING_PHASE='align')
+            done=subprocess.run(['python3','-u','/opt/changan/mapping_odx_stage.py'],env=env,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True,errors='replace')
+            (ROOT/'align-worker.log').write_text(done.stdout)
+            if done.returncode:raise RuntimeError('统一对齐失败: '+done.stdout[-1200:])
+            alignment=alignment_digest(ROOT,plan);metrics['align_seconds']=time.monotonic()-t
+            event('RUNNING',phase='align',transition='Finished')
         if phase=='reconstruct':(project/'opensfm/split_merge_stop_at_reconstruction.txt').touch()
         if phase=='toolchain':
             (project/'opensfm/split_merge_stop_at_reconstruction.txt').unlink(missing_ok=True)
@@ -157,6 +248,9 @@ def main(p):
         else:argv+=['--fast-orthophoto']
         if phase=='prepare':argv+=['--split',str(params['submodel_size']),'--split-overlap',str(params['split_overlap_m'])]
         if phase in ('reconstruct','toolchain'):argv+=['--orthophoto-cutline','--dem-euclidean-map','--skip-report','--crop','0.015625']
+        if fused:
+            images=next(g['images'] for g in plan['submodels'] if g['id']==group)
+            mesh=mesh_budget(len(images),len(plan['images']));argv+=['--mesh-size',str(mesh)];metrics['mesh_size']=mesh
         os.environ['CHANGAN_MAPPING_PHASE']=phase
         event('RUNNING',phase=phase,transition='Running');compute=time.monotonic();log=ROOT/'stage-worker.log'
         with log.open('w') as out,subprocess.Popen(argv,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True,errors='replace') as proc:
@@ -168,12 +262,12 @@ def main(p):
         metrics['compute_seconds']=time.monotonic()-compute
         if code:raise RuntimeError('ODX阶段退出码%s: %s'%(code,log.read_bytes()[-1200:].decode(errors='replace')))
         event('RUNNING',phase=phase,transition='Finished')
-        packing=time.monotonic();out=ROOT.parent/'out';out.mkdir();files={};quality=None;plan=None
+        packing=time.monotonic();out=cache.tmp('out') if cache.root else ROOT.parent/'out';out.mkdir();files={};quality=None;plan=None
         if phase=='prepare':
             plan=json.loads((ROOT/'plan.json').read_text())
             parent=out/'parent.tar.gz';pack(parent,[x for x in ROOT.iterdir() if x.name not in ('images','submodels','stage-worker.log')]);files[parent.name]=parent
             for g in plan['submodels']:
-                file=out/('seed-'+g['id']+'.tar.gz');pack(file,[ROOT/'submodels'/g['id']]);files[file.name]=file
+                file=out/('seed-'+g['id']+'.tar.gz');pack(file,[ROOT/'submodels'/g['id']],0 if version>=2 else 1);files[file.name]=file
         elif phase=='reconstruct':
             recon=json.loads((project/'opensfm/reconstruction.json').read_text())
             if not recon or not any(r.get('shots') for r in recon):raise ValueError('子模型没有有效稀疏重建')
@@ -198,6 +292,9 @@ def main(p):
         event('UPLOADING',phase='upload');manifest=[]
         for name,file in files.items():
             sha=digest(file);t=time.monotonic()
+            # Stage archives were packed inside the cache volume: publishing is a rename,
+            # so downstream units placed on this node need not download them again.
+            if cache.root and phase!='merge':file=cache.put(file,sha)
             for retry in range(3):
                 try:
                     with file.open('rb') as stream:r=http.put(base+'/artifacts/'+name,data=stream,headers={'X-Content-SHA256':sha},timeout=(8,240));r.raise_for_status()
@@ -209,7 +306,10 @@ def main(p):
             manifest.append({'name':name,'sha256':sha,'bytes':file.stat().st_size})
         result={'application_id':'aerial-mapping-odx','engine_version':'3.8.6','input_sha256':p['input_sha256'],'attempt_id':p['attempt_id'],'task_id':p['task_id'],'work_unit_id':p['segment_id'],'pod_uid':os.environ['POD_UID'],'actual_node':p['target_node'],'phase':phase,'submodel':group,'inputs':p['inputs'],'device':'cpu','artifacts':manifest,'metrics':metrics,'elapsed_seconds':time.monotonic()-started}
         if phase=='prepare':result['plan']=plan
+        if version>=2:result['pipeline_version']=2
+        if alignment:result['alignment_sha256']=alignment
         if quality:result['quality']=quality
+        if cache.root:shutil.rmtree(out,ignore_errors=True);cache.prune()
         event('FINALIZING',phase=phase,result=result)
     except Exception as e:
         event('FAILED',phase=phase,error=str(e)[-1600:]);raise

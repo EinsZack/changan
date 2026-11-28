@@ -19,7 +19,7 @@ def verify(base,tid):
         if len(page)<1000:break
     assert task['id']==tid and task['status']=='SUCCEEDED' and task['params']['execution_mode']=='collaborative','需要已完成的真实协同任务'
     units={u['id']:u for u in task['work_units']};attempts={a['id']:a for a in task['attempts']};producer={uid:attempts[u['active_attempt']] for uid,u in units.items()}
-    plan=task['metadata']['mapping_plan'];groups={g['id'] for g in plan['submodels']};assert task['completed']==task['total']==2*len(groups)+3==len(units)
+    plan=task['metadata']['mapping_plan'];groups={g['id'] for g in plan['submodels']};version=int(task['metadata']['application'].get('pipeline_version',1));assert task['completed']==task['total']==2*len(groups)+(2 if version>=2 else 3)==len(units)
     rows=[];windows=[]
     for u in task['work_units']:
         a=producer[u['id']];w=a['workload'];phase=u['phase']
